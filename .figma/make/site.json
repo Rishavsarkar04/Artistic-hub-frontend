@@ -1,0 +1,10 @@
+{
+  "description": "Create a stunning, responsive candle e-commerce platform that enhances customer shopping experiences with elegant design and seamless account management.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
