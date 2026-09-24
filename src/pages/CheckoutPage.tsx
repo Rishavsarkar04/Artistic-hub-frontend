@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fullName } from '@/lib/utils';
 import { Check, ChevronRight, Lock, CreditCard, MapPin, Truck, Eye } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { deliveryMethods } from '../data/products';
@@ -197,7 +198,7 @@ export function CheckoutPage() {
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-sm font-medium">{addr.fullName}</span>
+                          <span className="text-sm font-medium">{fullName(addr)}</span>
                           <span className="text-xs text-muted-foreground px-1.5 py-0.5 bg-muted rounded">{addr.label}</span>
                           {addr.isDefault && <span className="text-xs text-primary font-medium">Default</span>}
                         </div>
@@ -224,17 +225,24 @@ export function CheckoutPage() {
                 <div className="space-y-4 p-5 border border-border rounded-xl">
                   <div className="grid grid-cols-2 gap-4">
                     <TextField
-                      label="Full Name"
-                      value={newAddress.fullName ?? ''}
-                      onChange={(e) => setNewAddress((a) => ({ ...a, fullName: e.target.value }))}
+                      label="First Name"
+                      autoComplete="given-name"
+                      value={newAddress.firstName ?? ''}
+                      onChange={(e) => setNewAddress((a) => ({ ...a, firstName: e.target.value }))}
                     />
                     <TextField
-                      label="Phone"
-                      type="tel"
-                      value={newAddress.phone ?? ''}
-                      onChange={(e) => setNewAddress((a) => ({ ...a, phone: e.target.value }))}
+                      label="Last Name"
+                      autoComplete="family-name"
+                      value={newAddress.lastName ?? ''}
+                      onChange={(e) => setNewAddress((a) => ({ ...a, lastName: e.target.value }))}
                     />
                   </div>
+                  <TextField
+                    label="Phone"
+                    type="tel"
+                    value={newAddress.phone ?? ''}
+                    onChange={(e) => setNewAddress((a) => ({ ...a, phone: e.target.value }))}
+                  />
                   <TextField
                     label="Address Line 1"
                     value={newAddress.line1 ?? ''}
@@ -407,7 +415,7 @@ export function CheckoutPage() {
                     <h3 className="text-sm font-medium">Shipping to</h3>
                     <button onClick={() => setStep('shipping')} className="text-xs text-primary hover:underline">Edit</button>
                   </div>
-                  <p className="text-sm text-muted-foreground">{shippingAddress.fullName}</p>
+                  <p className="text-sm text-muted-foreground">{fullName(shippingAddress)}</p>
                   <p className="text-sm text-muted-foreground">
                     {shippingAddress.line1}{shippingAddress.line2 ? `, ${shippingAddress.line2}` : ''}
                   </p>

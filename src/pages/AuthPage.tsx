@@ -30,7 +30,8 @@ export function AuthPage() {
   const { state, dispatch, navigate, loginDemo } = useApp();
   const mode = state.authMode;
 
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,7 +47,8 @@ export function AuthPage() {
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (mode === 'register' && !fullName.trim()) errs.fullName = 'Full name is required';
+    if (mode === 'register' && !firstName.trim()) errs.firstName = 'First name is required';
+    if (mode === 'register' && !lastName.trim()) errs.lastName = 'Last name is required';
     if (!email.trim()) errs.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Enter a valid email';
     if (mode !== 'forgot') {
@@ -75,7 +77,13 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary/30 flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-secondary/30 flex items-center justify-center p-4 pt-20 sm:pt-4">
+      <button
+        onClick={() => navigate(state.previousPage === 'auth' ? 'home' : state.previousPage)}
+        className="group absolute top-4 left-4 sm:top-6 sm:left-6 h-10 pl-3 pr-4 rounded-full border border-border bg-card text-sm flex items-center gap-2 hover:border-foreground/40 transition-colors"
+      >
+        <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />Back
+      </button>
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="text-center mb-8">
@@ -117,14 +125,26 @@ export function AuthPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {mode === 'register' && (
-                <TextField
-                  label="Full Name"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  error={errors.fullName}
-                  placeholder="Eleanor Voss"
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <TextField
+                    label="First Name"
+                    type="text"
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    error={errors.firstName}
+                    placeholder="Eleanor"
+                  />
+                  <TextField
+                    label="Last Name"
+                    type="text"
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    error={errors.lastName}
+                    placeholder="Voss"
+                  />
+                </div>
               )}
 
               <TextField

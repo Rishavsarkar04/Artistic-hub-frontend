@@ -1,25 +1,16 @@
 import { photo } from '@/data/images';
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { TextField, SelectField } from '@/components/shared/FormField';
 
+const HEADER_IMG = photo('photo-1613068431228-8cb6a1e92573', 1600, 800);
 const TOPICS = ['An order I placed', 'Returns or a damaged candle', 'Wholesale and stockists', 'Corporate and wedding gifts', 'Something else'];
 
-const FAQS = [
-  { q: 'How long does shipping take?', a: 'Standard shipping takes 5 to 7 business days and is free over $75. Expedited (2 to 3 days) and overnight options are shown at checkout.' },
-  { q: 'My candle arrived damaged. What do I do?', a: 'Send us a photo within 7 days of delivery using the form on this page and choose "Returns or a damaged candle". We will ship a replacement at no cost.' },
-  { q: 'Can I return a candle?', a: 'Unused candles in their original packaging can be returned within 30 days. Gift-wrapped and personalised orders are final sale.' },
-  { q: 'How does the refill programme work?', a: 'Rinse out five empty Ember & Bloom jars and send them back with the prepaid label from your account. We will send you a free 8 oz candle.' },
-  { q: 'Do you offer wholesale?', a: 'Yes, for independent shops and hotels. Choose "Wholesale and stockists" in the form and tell us a little about your space.' },
-];
-
-const HOURS = [['Monday to Friday', '10 am to 6 pm'], ['Saturday', '11 am to 5 pm'], ['Sunday', 'Closed']];
 
 interface Form { name: string; email: string; order: string; topic: string; message: string }
 const EMPTY: Form = { name: '', email: '', order: '', topic: '', message: '' };
@@ -48,25 +39,27 @@ export function ContactPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground flex gap-2">
-        <button onClick={() => navigate('home')} className="hover:text-foreground">Home</button><span>/</span><span className="text-foreground" aria-current="page">Contact</span>
-      </nav>
-      <div className="grid lg:grid-cols-12 gap-8 mt-6">
-        <div className="lg:col-span-7">
-          <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">We'd <em>love</em> to hear from you.</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <section className="relative rounded-[28px] overflow-hidden bg-secondary">
+        <img src={HEADER_IMG} alt="" className="absolute inset-0 h-full w-full object-cover scale-105 blur-[3px] opacity-75" />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/75 to-secondary/10" />
+        <div className="relative px-5 sm:px-8 lg:px-10 py-12 sm:py-16">
+          <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground flex gap-2">
+            <button onClick={() => navigate('home')} className="hover:text-foreground">Home</button><span>/</span><span className="text-foreground" aria-current="page">Contact</span>
+          </nav>
+          <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl mt-6 max-w-3xl">We'd <em>love</em> to hear from you.</h1>
           <p className="text-muted-foreground mt-5 max-w-lg text-[15px]">Questions about an order, a scent, or a gift for a hundred guests. A real person in the studio replies within one business day.</p>
         </div>
-      </div>
+      </section>
 
       {/* Ways to reach us */}
       <div className="grid sm:grid-cols-3 gap-4 mt-12">
         {[
           { icon: Mail, title: 'Email', line: 'hello@emberandbloom.co', note: 'Replies within one business day', href: 'mailto:hello@emberandbloom.co' },
           { icon: Phone, title: 'Phone and text', line: '(503) 555-0142', note: 'Weekdays, 10 am to 6 pm PT', href: 'tel:+15035550142' },
-          { icon: MapPin, title: 'Studio and shop', line: '1824 SE Division St', note: 'Portland, OR 97202', href: '#visit' },
+          { icon: MapPin, title: 'Studio and shop', line: '1824 SE Division St', note: 'Portland, OR 97202', href: 'https://maps.google.com/?q=1824+SE+Division+St+Portland+OR' },
         ].map(({ icon: Icon, title, line, note, href }) => (
-          <a key={title} href={href} className="group rounded-3xl bg-card p-7 flex flex-col gap-6 hover:shadow-[0_20px_40px_-24px_rgba(22,19,15,.35)]">
+          <a key={title} href={href} {...(href.startsWith('http') && { target: '_blank', rel: 'noreferrer' })} className="group rounded-3xl bg-card p-7 flex flex-col gap-6 hover:shadow-[0_20px_40px_-24px_rgba(22,19,15,.35)]">
             <span className="flex size-11 items-center justify-center rounded-full bg-secondary"><Icon size={18} /></span>
             <div>
               <p className="text-sm text-muted-foreground">{title}</p>
@@ -117,42 +110,12 @@ export function ContactPage() {
           </CardContent>
         </Card>
 
-        <div id="visit" className="lg:col-span-5 flex flex-col gap-4 scroll-mt-28">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl">
+        <div className="lg:col-span-5">
+          <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full overflow-hidden rounded-3xl">
             <img src={photo('photo-1612198526331-66fcc90d67da', 1000, 750)} alt="A styled shelf in the studio shop with an amber candle" className="absolute inset-0 h-full w-full object-cover" />
-          </div>
-          <div className="rounded-3xl bg-card p-7">
-            <h2 className="font-serif text-3xl">Visit the studio</h2>
-            <p className="text-sm text-muted-foreground mt-2">Smell every scent, refill your jars, and watch a pour on Saturday mornings.</p>
-            <dl className="mt-6 space-y-3 text-sm">
-              {HOURS.map(([d, h]) => (
-                <div key={d} className="flex justify-between gap-4 border-b border-border pb-3 last:border-0 last:pb-0">
-                  <dt className="flex items-center gap-2 text-muted-foreground"><Clock size={14} />{d}</dt><dd>{h}</dd>
-                </div>
-              ))}
-            </dl>
-            <Button variant="outline" className="w-full mt-6" asChild>
-              <a href="https://maps.google.com/?q=1824+SE+Division+St+Portland+OR" target="_blank" rel="noreferrer">Get directions</a>
-            </Button>
           </div>
         </div>
       </div>
-
-      {/* FAQ */}
-      <section id="faq" className="grid lg:grid-cols-12 gap-8 mt-24 lg:mt-32 scroll-mt-28">
-        <div className="lg:col-span-4">
-          <h2 className="display-lg text-4xl sm:text-5xl">Before you write</h2>
-          <p className="text-muted-foreground mt-3">The questions we answer most often.</p>
-        </div>
-        <Accordion type="single" collapsible defaultValue="faq-0" className="lg:col-span-8 border-t border-border">
-          {FAQS.map((x, i) => (
-            <AccordionItem key={x.q} value={`faq-${i}`}>
-              <AccordionTrigger className="text-lg font-serif font-normal">{x.q}</AccordionTrigger>
-              <AccordionContent className="text-[15px] max-w-2xl">{x.a}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { fullName } from '@/lib/utils';
 import { Check, Package, MapPin, CreditCard, ExternalLink, Clock } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
@@ -102,7 +103,7 @@ export function OrderConfirmationPage() {
             <MapPin size={16} className="text-muted-foreground" />
             Shipping Address
           </h2>
-          <p className="text-sm text-muted-foreground">{order.shippingAddress.fullName}</p>
+          <p className="text-sm text-muted-foreground">{fullName(order.shippingAddress)}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ''}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.country}</p>

@@ -17,7 +17,6 @@ export type AccountSection = 'profile' | 'addresses' | 'orders' | 'order-detail'
 export interface Tag {
   id: string;
   name: string;
-  parentId: string | null;
 }
 
 export interface Product {
@@ -36,7 +35,7 @@ export interface Product {
   dimensions: string;
   description: string;
   sizes: ProductSize[];
-  /** Ids from `src/data/tags.ts`; ancestors are implied. */
+  /** Ids from `tags` in `src/data/tags.ts`. */
   tags: string[];
   /** Id from `colors` in `src/data/tags.ts`. */
   color: string;
@@ -62,7 +61,8 @@ export interface CartItem {
 export interface Address {
   id: string;
   label: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   line1: string;
   line2: string;
@@ -75,7 +75,8 @@ export interface Address {
 
 export interface User {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   addresses: Address[];
@@ -110,6 +111,8 @@ export interface DeliveryMethod {
 
 export interface AppState {
   currentPage: Page;
+  /** Where the last navigation came from, for back buttons. */
+  previousPage: Page;
   currentProductId: string | null;
   currentOrderId: string | null;
   accountSection: AccountSection;

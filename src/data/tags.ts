@@ -1,66 +1,25 @@
 import type { Product, Tag } from '../types';
 
-/**
- * Tags form a tree via `parentId`. Products are tagged with any node (usually the
- * most specific note); a product matches a tag if it carries that tag or any tag
- * beneath it.
- */
+/** Product tags offered as a filter; products reference these by id. */
 export const tags: Tag[] = [
-  { id: 'woody', name: 'Woody', parentId: null },
-  { id: 'cedar', name: 'Cedar', parentId: 'woody' },
-  { id: 'sandalwood', name: 'Sandalwood', parentId: 'woody' },
-  { id: 'oud', name: 'Oud', parentId: 'woody' },
-  { id: 'smoky', name: 'Smoky', parentId: 'woody' },
-  { id: 'smoke', name: 'Smoke', parentId: 'smoky' },
-  { id: 'leather', name: 'Leather', parentId: 'smoky' },
-
-  { id: 'floral', name: 'Floral', parentId: null },
-  { id: 'rose', name: 'Rose', parentId: 'floral' },
-  { id: 'lavender', name: 'Lavender', parentId: 'floral' },
-  { id: 'jasmine', name: 'Jasmine', parentId: 'floral' },
-
-  { id: 'fresh', name: 'Fresh', parentId: null },
-  { id: 'coastal', name: 'Coastal', parentId: 'fresh' },
-  { id: 'sea-salt', name: 'Sea salt', parentId: 'coastal' },
-  { id: 'driftwood', name: 'Driftwood', parentId: 'coastal' },
-  { id: 'green', name: 'Green', parentId: 'fresh' },
-  { id: 'fern', name: 'Fern', parentId: 'green' },
-  { id: 'moss', name: 'Moss', parentId: 'green' },
-  { id: 'petrichor', name: 'Petrichor', parentId: 'green' },
-  { id: 'linen', name: 'Clean linen', parentId: 'fresh' },
-
-  { id: 'sweet', name: 'Sweet', parentId: null },
-  { id: 'amber', name: 'Amber', parentId: 'sweet' },
-  { id: 'vanilla', name: 'Vanilla', parentId: 'sweet' },
-  { id: 'honey', name: 'Honey', parentId: 'sweet' },
-  { id: 'saffron', name: 'Saffron', parentId: 'sweet' },
+  { id: 'woody', name: 'Woody' },
+  { id: 'floral', name: 'Floral' },
+  { id: 'fresh', name: 'Fresh' },
+  { id: 'sweet', name: 'Sweet' },
+  { id: 'smoky', name: 'Smoky' },
+  { id: 'coastal', name: 'Coastal' },
+  { id: 'earthy', name: 'Earthy' },
+  { id: 'warm', name: 'Warm' },
+  { id: 'calming', name: 'Calming' },
 ];
 
 const byId = new Map(tags.map((t) => [t.id, t]));
 
 export const getTag = (id: string) => byId.get(id);
-export const topLevelTags = tags.filter((t) => t.parentId === null);
-export const childrenOf = (id: string) => tags.filter((t) => t.parentId === id);
+export const productHasTag = (p: Product, id: string) => p.tags.includes(id);
 
-/** The tag and everything beneath it. */
-export function descendantIds(id: string): string[] {
-  return [id, ...childrenOf(id).flatMap((c) => descendantIds(c.id))];
-}
-
-/** Root-first chain from the top-level tag down to this one. */
-export function tagPath(id: string): Tag[] {
-  const path: Tag[] = [];
-  for (let t = byId.get(id); t; t = t.parentId ? byId.get(t.parentId) : undefined) path.unshift(t);
-  return path;
-}
-
-export const productHasTag = (p: Product, id: string) => {
-  const ids = descendantIds(id);
-  return p.tags.some((t) => ids.includes(t));
-};
-
-/** Names of a product's tags plus their ancestors, for text search. */
-export const tagSearchText = (p: Product) => [...new Set(p.tags.flatMap((id) => tagPath(id).map((t) => t.name)))].join(' ');
+/** Tag names for text search. */
+export const tagSearchText = (p: Product) => p.tags.map((id) => byId.get(id)?.name ?? id).join(' ');
 
 /** Candle colours offered as a filter; products reference these by id. */
 export const colors = [

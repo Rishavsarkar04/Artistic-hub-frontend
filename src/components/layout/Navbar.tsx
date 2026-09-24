@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, User, Search, Menu, X, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
-import { products } from '../../data/products';
-import { tagSearchText } from '../../data/tags';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+import { cn, fullName } from '@/lib/utils';
 
-const popular = ['Sandalwood', 'Lavender', 'Rose', 'Sea salt'];
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -24,8 +21,6 @@ export function Logo({ light = false }: { light?: boolean }) {
 export function Navbar() {
   const { state, navigate, cartCount, dispatch } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -35,17 +30,8 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!searchOpen) return;
-    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') closeSearch(); };
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [searchOpen]);
 
-  const q = searchQuery.trim().toLowerCase();
-  const searchResults = q.length > 1 ? products.filter((p) => [p.name, p.scent, tagSearchText(p)].join(' ').toLowerCase().includes(q)) : [];
-  const closeSearch = () => { setSearchOpen(false); setSearchQuery(''); };
-  const go = (fn: () => void) => { fn(); setMobileOpen(false); closeSearch(); };
+  const go = (fn: () => void) => { fn(); setMobileOpen(false); };
 
   const onShop = state.currentPage === 'listing' || state.currentPage === 'detail';
   const primaryLinks: { label: string; page: 'home' | 'story' | 'contact' | 'listing'; active: boolean; opts?: { collection: string } }[] = [
@@ -66,7 +52,7 @@ export function Navbar() {
       </div>
 
       <header
-        className={cn('sticky top-0 z-40 transition-all duration-300', scrolled || searchOpen ? 'glass-light border-b border-border/70' : 'bg-background border-b border-transparent')}
+        className={cn('sticky top-0 z-40 transition-all duration-300', scrolled ? 'glass-light border-b border-border/70' : 'bg-background border-b border-transparent')}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-[72px]">
@@ -89,22 +75,19 @@ export function Navbar() {
             </button>
 
             <div className="flex items-center justify-end gap-1 -mr-2">
-              <button onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))} className="size-10 flex items-center justify-center rounded-full hover:bg-foreground/5" aria-label="Search" aria-expanded={searchOpen}>
-                {searchOpen ? <X size={19} /> : <Search size={19} />}
-              </button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label={state.user ? 'Account menu' : 'Account'}>
                     {state.user
-                      ? <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{state.user.fullName.split(' ').map((w) => w[0]).slice(0, 2).join('')}</span>
+                      ? <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(state.user.firstName[0] ?? '') + (state.user.lastName[0] ?? '')}</span>
                       : <User size={19} />}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {state.user ? (
                     <>
-                      <DropdownMenuLabel><p className="text-sm font-medium">{state.user.fullName}</p><p className="text-xs text-muted-foreground font-normal">{state.user.email}</p></DropdownMenuLabel>
+                      <DropdownMenuLabel><p className="text-sm font-medium">{fullName(state.user)}</p><p className="text-xs text-muted-foreground font-normal">{state.user.email}</p></DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'profile' })}><User />Profile</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'orders' })}><Package />Orders</DropdownMenuItem>
@@ -131,40 +114,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Search */}
-        {searchOpen && (
-          <div className="border-t border-border/70 fade-in">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
-              <div className="relative">
-                <Search size={20} className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input autoFocus type="search" placeholder="Search scents, notes or candles" aria-label="Search products" value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && searchResults[0]) go(() => navigate('detail', { productId: searchResults[0].id })); }}
-                  className="w-full h-14 pl-9 pr-2 bg-transparent font-serif text-2xl placeholder:text-muted-foreground/60 border-b border-foreground/20 focus:border-foreground focus:outline-none" />
-              </div>
-              {q.length < 2 && (
-                <div className="flex flex-wrap items-center gap-2 mt-5 text-sm">
-                  <span className="text-muted-foreground mr-1">Popular</span>
-                  {popular.map((p) => <button key={p} onClick={() => setSearchQuery(p)} className="px-3 h-8 rounded-full border border-border hover:border-foreground/40">{p}</button>)}
-                </div>
-              )}
-              {searchResults.length > 0 && (
-                <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                  {searchResults.slice(0, 4).map((p) => (
-                    <li key={p.id}>
-                      <button onClick={() => go(() => navigate('detail', { productId: p.id }))} className="group text-left w-full">
-                        <img src={p.image} alt="" className="w-full aspect-[4/5] object-cover rounded-xl bg-muted" />
-                        <p className="font-serif text-lg mt-2 leading-tight group-hover:underline underline-offset-4">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">From ${Math.min(...p.sizes.map((s) => s.price))}</p>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {q.length > 1 && searchResults.length === 0 && <p className="mt-6 text-sm text-muted-foreground">No candles match “{searchQuery}”. Try a note like amber, rose or cedar.</p>}
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Mobile navigation */}
@@ -172,14 +121,14 @@ export function Navbar() {
         <SheetContent side="left">
           <SheetHeader><SheetTitle><Logo /></SheetTitle><SheetDescription className="sr-only">Site navigation</SheetDescription></SheetHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
-            {[['Home', () => navigate('home')], ['Shop', () => navigate('listing', { collection: 'All' })], ['Our story', () => navigate('story')], ['Contact', () => navigate('contact')], ['Help and FAQ', () => navigate('contact')]].map(([l, fn]) => (
+            {[['Home', () => navigate('home')], ['Shop', () => navigate('listing', { collection: 'All' })], ['Our story', () => navigate('story')], ['Contact', () => navigate('contact')]].map(([l, fn]) => (
               <button key={l as string} onClick={() => go(fn as () => void)} className="w-full flex items-center justify-between py-4 border-b border-border text-left">
                 <span className="font-serif text-3xl">{l as string}</span><ArrowRight size={18} className="text-muted-foreground" />
               </button>
             ))}
             <div className="grid grid-cols-2 gap-3 mt-8 pb-6">
               <button onClick={() => go(() => (state.user ? navigate('account') : navigate('auth')))} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
-                <User size={16} />{state.user ? state.user.fullName.split(' ')[0] : 'Sign in'}
+                <User size={16} />{state.user ? state.user.firstName : 'Sign in'}
               </button>
               <button onClick={() => go(() => navigate('cart'))} className="h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
                 <ShoppingBag size={16} />Cart ({cartCount})

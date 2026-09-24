@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fullName } from '@/lib/utils';
 import {
   User, MapPin, Package, ChevronRight, Plus, Trash2, Edit3,
   Check, Eye, EyeOff, LogOut, Star, Truck, CheckCircle2, Clock,
@@ -17,7 +18,8 @@ function ProfileSection() {
   const { state, dispatch } = useApp();
   const user = state.user!;
 
-  const [fullName, setFullName] = useState(user.fullName);
+  const [firstName, setFirstName] = useState(user.firstName);
+  const [lastName, setLastName] = useState(user.lastName);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone);
   const [saving, setSaving] = useState(false);
@@ -34,7 +36,7 @@ function ProfileSection() {
     e.preventDefault();
     setSaving(true);
     await new Promise((r) => setTimeout(r, 800));
-    dispatch({ type: 'UPDATE_USER', user: { ...user, fullName, email, phone } });
+    dispatch({ type: 'UPDATE_USER', user: { ...user, firstName, lastName, email, phone } });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -60,9 +62,10 @@ function ProfileSection() {
 
       <form onSubmit={handleSave} className="bg-card border border-border rounded-xl p-6 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <TextField label="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <TextField label="First Name" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <TextField label="Last Name" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <TextField label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="sm:col-span-2" />
+          <TextField label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <div className="flex items-center gap-3 pt-2">
           <Button type="submit" loading={saving}>
@@ -133,7 +136,8 @@ function AddressForm({
     onSave({
       id: form.id ?? `a-${Date.now()}`,
       label: form.label ?? 'Home',
-      fullName: form.fullName ?? '',
+      firstName: form.firstName ?? '',
+      lastName: form.lastName ?? '',
       phone: form.phone ?? '',
       line1: form.line1 ?? '',
       line2: form.line2 ?? '',
@@ -153,9 +157,10 @@ function AddressForm({
         <option>Other</option>
       </SelectField>
       <div className="grid grid-cols-2 gap-4">
-        <TextField label="Full Name" value={form.fullName ?? ''} onChange={(e) => update('fullName', e.target.value)} />
-        <TextField label="Phone" type="tel" value={form.phone ?? ''} onChange={(e) => update('phone', e.target.value)} />
+        <TextField label="First Name" autoComplete="given-name" value={form.firstName ?? ''} onChange={(e) => update('firstName', e.target.value)} />
+        <TextField label="Last Name" autoComplete="family-name" value={form.lastName ?? ''} onChange={(e) => update('lastName', e.target.value)} />
       </div>
+      <TextField label="Phone" type="tel" value={form.phone ?? ''} onChange={(e) => update('phone', e.target.value)} />
       <TextField label="Address Line 1" value={form.line1 ?? ''} onChange={(e) => update('line1', e.target.value)} />
       <TextField label="Address Line 2 (optional)" value={form.line2 ?? ''} onChange={(e) => update('line2', e.target.value)} />
       <div className="grid grid-cols-3 gap-4">
@@ -226,7 +231,7 @@ function AddressesSection() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium">{addr.fullName}</span>
+                    <span className="text-sm font-medium">{fullName(addr)}</span>
                     <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">{addr.label}</span>
                     {addr.isDefault && <Badge variant="default">Default</Badge>}
                   </div>
@@ -513,7 +518,7 @@ function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () =
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-xl p-5">
           <h3 className="text-sm font-medium mb-2">Shipped To</h3>
-          <p className="text-sm text-muted-foreground">{order.shippingAddress.fullName}</p>
+          <p className="text-sm text-muted-foreground">{fullName(order.shippingAddress)}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.line1}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
         </div>
@@ -566,7 +571,7 @@ export function AccountPage() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">My Account</p>
-          <h1 className="font-serif text-4xl font-semibold">{state.user.fullName}</h1>
+          <h1 className="font-serif text-4xl font-semibold">{fullName(state.user)}</h1>
           <p className="text-muted-foreground mt-1">{state.user.email}</p>
         </div>
         <Button

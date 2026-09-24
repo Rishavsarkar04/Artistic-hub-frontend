@@ -6,7 +6,6 @@ export function Footer() {
   const { navigate } = useApp();
   const help: [string, () => void][] = [
     ['Contact us', () => navigate('contact')],
-    ['FAQ', () => navigate('contact')],
   ];
   const company: [string, () => void][] = [
     ['Our story', () => navigate('story')],

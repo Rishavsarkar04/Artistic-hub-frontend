@@ -4,6 +4,7 @@ import { mockUser, mockOrders } from '../data/products';
 
 const initialState: AppState = {
   currentPage: 'home',
+  previousPage: 'home',
   currentProductId: null,
   currentOrderId: null,
   accountSection: 'profile',
@@ -22,6 +23,7 @@ function reducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         currentPage: action.page,
+        previousPage: action.page !== state.currentPage ? state.currentPage : state.previousPage,
         currentProductId: action.productId ?? state.currentProductId,
         currentOrderId: action.orderId ?? state.currentOrderId,
         accountSection: action.accountSection ?? state.accountSection,

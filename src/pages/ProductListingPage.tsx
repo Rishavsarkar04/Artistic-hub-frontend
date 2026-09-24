@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { ProductCard, fromPrice, allSoldOut } from '../components/product/ProductCard';
 import { Slider } from '@/components/ui/slider';
+import { photo } from '@/data/images';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
-import { topLevelTags, childrenOf, descendantIds, tagPath, getTag, productHasTag, tagSearchText, colors } from '../data/tags';
+import { tags, getTag, productHasTag, tagSearchText, colors } from '../data/tags';
 
 type SortOption = 'featured' | 'newest' | 'price-asc' | 'price-desc';
 const SORT_OPTIONS: { id: SortOption; label: string }[] = [
@@ -18,6 +19,8 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
 ];
 
 // Slider bounds, rounded out to the nearest $5 around the catalogue's starting prices.
+const HEADER_BACKDROP = photo('photo-1613068431228-8cb6a1e92573', 1600, 700);
+
 const PRICE_MIN = Math.floor(Math.min(...products.map(fromPrice)) / 5) * 5;
 const PRICE_MAX = Math.ceil(Math.max(...products.map(fromPrice)) / 5) * 5;
 
@@ -72,15 +75,8 @@ export function ProductListingPage() {
 
   const toggleColor = (id: string) =>
     setFilters((f) => ({ ...f, colors: f.colors.includes(id) ? f.colors.filter((x) => x !== id) : [...f.colors, id] }));
-  // Picking a tag replaces any selected ancestor or descendant of it, so the filter narrows instead of overlapping.
   const toggleTag = (id: string) =>
-    setFilters((f) => {
-      if (f.tags.includes(id)) return { ...f, tags: f.tags.filter((x) => x !== id) };
-      const related = new Set([...descendantIds(id), ...tagPath(id).map((t) => t.id)]);
-      return { ...f, tags: [...f.tags.filter((x) => !related.has(x)), id] };
-    });
-  // A tag is expanded when it, or something beneath it, is selected.
-  const isOpen = (id: string) => descendantIds(id).some((x) => filters.tags.includes(x));
+    setFilters((f) => ({ ...f, tags: f.tags.includes(id) ? f.tags.filter((x) => x !== id) : [...f.tags, id] }));
   const clearAll = () => { setFilters(EMPTY); setSearch(''); };
 
   const test = (p: (typeof products)[number], skip?: keyof Filters) => {
@@ -102,29 +98,8 @@ export function ProductListingPage() {
     return list;
   }, [filters, search, sort, collection]);
 
-  const chips: [keyof Filters, string, string][] = [
-    ...filters.tags.map((v) => ['tags', v, getTag(v)?.name ?? v] as [keyof Filters, string, string]),
-    ...filters.colors.map((v) => ['colors', v, colors.find((c) => c.id === v)?.name ?? v] as [keyof Filters, string, string]),
-    ...(priceActive(filters) ? [['price', 'range', `$${filters.price[0]} to $${filters.price[1]}`] as [keyof Filters, string, string]] : []),
-  ];
-  const removeChip = (k: keyof Filters, v: string) =>
-    k === 'tags' ? toggleTag(v) : k === 'colors' ? toggleColor(v) : setFilters((f) => ({ ...f, price: EMPTY.price }));
+  const activeCount = filters.tags.length + filters.colors.length + (priceActive(filters) ? 1 : 0);
 
-  const tagChip = (id: string) => (
-    <Chip key={id} on={filters.tags.includes(id)} onClick={() => toggleTag(id)} count={count('tags', (p) => productHasTag(p, id))}>{getTag(id)!.name}</Chip>
-  );
-  // Children of an expanded tag, indented under it; recurses into any expanded child.
-  const subtree = (id: string): React.ReactNode => {
-    const kids = childrenOf(id);
-    if (!kids.length || !isOpen(id)) return null;
-    return (
-      <div key={`sub-${id}`} className="basis-full pl-3 ml-1 border-l border-border flex flex-col gap-2">
-        <p className="text-xs text-muted-foreground">{getTag(id)!.name}</p>
-        <div className="flex flex-wrap gap-2">{kids.map((k) => tagChip(k.id))}</div>
-        {kids.map((k) => subtree(k.id))}
-      </div>
-    );
-  };
   const head = HEADERS[collection] ?? HEADERS.All;
 
   const panel = (
@@ -145,8 +120,9 @@ export function ProductListingPage() {
         ))}
       </Group>
       <Group title="Tags">
-        {topLevelTags.map((t) => tagChip(t.id))}
-        {topLevelTags.map((t) => subtree(t.id))}
+        {tags.map((t) => (
+          <Chip key={t.id} on={filters.tags.includes(t.id)} onClick={() => toggleTag(t.id)} count={count('tags', (p) => productHasTag(p, t.id))}>{t.name}</Chip>
+        ))}
       </Group>
     </div>
   );
@@ -156,7 +132,15 @@ export function ProductListingPage() {
       {/* Header band */}
       <section className="px-3 sm:px-4 pt-3">
         <div className={`relative rounded-[28px] overflow-hidden ${head.img ? 'bg-ink text-[#F7F4EF]' : 'bg-secondary'} `}>
-          {head.img && <><img src={head.img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-r from-ink/85 to-ink/10" /></>}
+          {head.img ? (
+            <><img src={head.img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-r from-ink/85 to-ink/10" /></>
+          ) : (
+            // Backdrop for headers without their own image, washed out on the left behind the text.
+            <>
+              <img src={HEADER_BACKDROP} alt="" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/70 to-transparent" />
+            </>
+          )}
           <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-14 sm:py-20">
             <nav aria-label="Breadcrumb" className={`text-sm mb-6 flex gap-2 ${head.img ? 'text-white/60' : 'text-muted-foreground'}`}>
               <button onClick={() => navigate('home')} className="hover:underline">Home</button><span>/</span>
@@ -180,7 +164,7 @@ export function ProductListingPage() {
                   className="w-full h-10 pl-10 pr-3 rounded-full border border-border bg-card text-sm focus:outline-none focus:border-foreground/50" />
               </div>
               <Button variant="outline" size="sm" className="lg:hidden h-10" onClick={() => setFilterOpen(true)}>
-                <SlidersHorizontal size={15} />Filter{chips.length > 0 && <span className="tabular">({chips.length})</span>}
+                <SlidersHorizontal size={15} />Filter{activeCount > 0 && <span className="tabular">({activeCount})</span>}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -207,23 +191,13 @@ export function ProductListingPage() {
             <div className="sticky top-40">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground" aria-live="polite">{loading ? 'Updating' : `${filtered.length} ${filtered.length === 1 ? 'candle' : 'candles'}`}</p>
-                {chips.length > 0 && <button onClick={clearAll} className="text-sm underline underline-offset-4">Clear all</button>}
+                {activeCount > 0 && <button onClick={clearAll} className="text-sm underline underline-offset-4">Clear all</button>}
               </div>
               {panel}
             </div>
           </aside>
 
           <div className="flex-1 min-w-0">
-            {chips.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                {chips.map(([k, v, l]) => (
-                  <button key={k + v} onClick={() => removeChip(k, v)} className="h-8 pl-3 pr-2 rounded-full bg-secondary text-[13px] flex items-center gap-1 hover:bg-muted" aria-label={`Remove ${l}`}>
-                    {l}<X size={14} />
-                  </button>
-                ))}
-                <button onClick={clearAll} className="text-[13px] underline underline-offset-4 ml-1 lg:hidden">Clear all</button>
-              </div>
-            )}
             {loading ? (
               <div className="grid grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 sm:gap-x-6">
                 {Array.from({ length: 6 }).map((_, i) => (
