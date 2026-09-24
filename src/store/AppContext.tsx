@@ -7,6 +7,7 @@ const initialState: AppState = {
   previousPage: 'home',
   currentProductId: null,
   currentOrderId: null,
+  currentSlug: null,
   accountSection: 'profile',
   authMode: 'login',
   cart: [],
@@ -26,6 +27,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         previousPage: action.page !== state.currentPage ? state.currentPage : state.previousPage,
         currentProductId: action.productId ?? state.currentProductId,
         currentOrderId: action.orderId ?? state.currentOrderId,
+        currentSlug: action.slug ?? state.currentSlug,
         accountSection: action.accountSection ?? state.accountSection,
         listingCollection: action.page === 'listing' ? action.collection ?? 'All' : state.listingCollection,
         listingScent: action.page === 'listing' ? action.scent ?? null : state.listingScent,
@@ -112,7 +114,7 @@ function reducer(state: AppState, action: AppAction): AppState {
 interface AppContextValue {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
-  navigate: (page: AppState['currentPage'], opts?: { productId?: string; orderId?: string; accountSection?: AppState['accountSection']; collection?: string; scent?: string | null }) => void;
+  navigate: (page: AppState['currentPage'], opts?: { productId?: string; orderId?: string; accountSection?: AppState['accountSection']; collection?: string; scent?: string | null; slug?: string }) => void;
   cartCount: number;
   cartTotal: number;
   addToCart: (item: CartItem) => void;
@@ -126,7 +128,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const navigate = (
     page: AppState['currentPage'],
-    opts?: { productId?: string; orderId?: string; accountSection?: AppState['accountSection']; collection?: string; scent?: string | null }
+    opts?: { productId?: string; orderId?: string; accountSection?: AppState['accountSection']; collection?: string; scent?: string | null; slug?: string }
   ) => {
     dispatch({ type: 'NAVIGATE', page, ...opts });
     window.scrollTo({ top: 0, behavior: 'smooth' });

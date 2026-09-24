@@ -195,6 +195,15 @@ export function AuthPage() {
                 {mode === 'reset' && 'Update Password'}
               </Button>
 
+              {mode === 'register' && (
+                <p className="text-xs text-muted-foreground text-center">
+                  By creating an account you agree to our{' '}
+                  <button type="button" onClick={() => navigate('page', { slug: 'terms-of-service' })} className="underline underline-offset-2 hover:text-foreground">Terms of service</button>
+                  {' '}and{' '}
+                  <button type="button" onClick={() => navigate('page', { slug: 'privacy-policy' })} className="underline underline-offset-2 hover:text-foreground">Privacy policy</button>.
+                </p>
+              )}
+
               {mode === 'login' && (
                 <Button
                   type="button"

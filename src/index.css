@@ -91,6 +91,28 @@ h1, h2, h3, h4, h5, h6 {
 h1 em, h2 em, .display-xl em, .display-lg em, .font-serif em { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; padding-right: 0.04em; }
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* Rich text from the CMS editor (legal pages etc.) */
+.rich-text { font-size: 16px; line-height: 1.75; color: color-mix(in srgb, var(--foreground) 85%, transparent); }
+.rich-text > :first-child { margin-top: 0; }
+.rich-text h2 { font-family: var(--font-display); font-size: 1.75rem; line-height: 1.2; color: var(--foreground); margin: 2.5rem 0 0.75rem; }
+.rich-text h3 { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.3; color: var(--foreground); margin: 2rem 0 0.5rem; }
+.rich-text h4 { font-weight: 600; color: var(--foreground); margin: 1.5rem 0 0.5rem; }
+.rich-text p { margin: 0 0 1rem; }
+.rich-text ul, .rich-text ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+.rich-text ul { list-style: disc; }
+.rich-text ol { list-style: decimal; }
+.rich-text li { margin: 0.35rem 0; padding-left: 0.25rem; }
+.rich-text li::marker { color: var(--muted-foreground); }
+.rich-text a { color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.rich-text a:hover { text-decoration-thickness: 2px; }
+.rich-text strong, .rich-text b { font-weight: 600; color: var(--foreground); }
+.rich-text blockquote { margin: 1.5rem 0; padding-left: 1rem; border-left: 2px solid var(--border); font-style: italic; }
+.rich-text hr { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--border); }
+.rich-text img { max-width: 100%; height: auto; border-radius: 1rem; margin: 1.5rem 0; }
+.rich-text table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 15px; display: block; overflow-x: auto; }
+.rich-text th, .rich-text td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+.rich-text th { font-weight: 600; color: var(--foreground); }
+
 @layer base {
 ::selection { background: var(--glow); color: var(--ink); }
 

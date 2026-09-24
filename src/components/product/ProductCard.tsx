@@ -4,7 +4,10 @@ import type { Product } from '../../types';
 import { useApp } from '../../store/AppContext';
 import { Badge } from '@/components/ui/badge';
 
-export const fromPrice = (p: Product) => Math.min(...p.sizes.map((s) => s.price));
+/** The size a product is sold in (no size picker): its first in-stock size, else its first size. */
+export const defaultSize = (p: Product) => p.sizes.find((s) => s.inStock) ?? p.sizes[0];
+/** Effective price shown on cards and the product page, and used for price filters and sorting. */
+export const productPrice = (p: Product) => defaultSize(p).price;
 export const allSoldOut = (p: Product) => !p.inStock || p.sizes.every((s) => !s.inStock);
 
 interface ProductCardProps {
@@ -23,13 +26,15 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
   const soldOut = allSoldOut(product);
   const alt = product.images[1] ?? product.images[0];
   const low = product.sizes.some((s) => !s.inStock) && !soldOut;
+  const price = productPrice(product);
+  const original = defaultSize(product).originalPrice;
 
   return (
     <article className={`group relative ${className}`}>
       <button
         onClick={() => navigate('detail', { productId: product.id })}
         className="block w-full text-left"
-        aria-label={`${product.name}, from $${fromPrice(product)}`}
+        aria-label={`${product.name}, $${price}`}
       >
         <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
           <img
@@ -60,8 +65,9 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
         <div className="pt-4 px-0.5">
           <div className="flex items-baseline justify-between gap-3">
             <h3 className={`font-serif leading-tight ${size === 'lg' ? 'text-2xl' : 'text-xl'}`}>{product.name}</h3>
-            <p className="text-[15px] font-medium tabular shrink-0">
-              {product.sizes.length > 1 ? <span className="text-muted-foreground font-normal text-[13px] mr-1">from</span> : null}${fromPrice(product)}
+            <p className="text-[15px] font-medium tabular shrink-0 flex items-baseline gap-1.5">
+              {original && original > price && <span className="text-[13px] font-normal text-muted-foreground line-through"><span className="sr-only">Original price </span>${original}</span>}
+              <span>{original && original > price && <span className="sr-only">Sale price </span>}${price}</span>
             </p>
           </div>
           <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.scent}</p>

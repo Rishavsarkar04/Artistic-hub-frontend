@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
+import { publishedPages } from '../../data/pages';
 
 export function Footer() {
   const { navigate } = useApp();
@@ -36,7 +37,7 @@ export function Footer() {
         <div className="mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#8F8577] border-t border-white/10 pt-6">
           <p>© 2026 Ember &amp; Bloom</p>
           <div className="flex flex-wrap items-center gap-6">
-            {['Privacy policy', 'Terms of service'].map((l) => <button key={l} className="hover:text-white">{l}</button>)}
+            {publishedPages().map((p) => <button key={p.slug} onClick={() => navigate('page', { slug: p.slug })} className="hover:text-white">{p.title}</button>)}
             <a
               href="https://www.linkedin.com/in/rishav-sarkar-383b27245"
               target="_blank"

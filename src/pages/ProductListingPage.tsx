@@ -4,7 +4,7 @@ import { useApp } from '../store/AppContext';
 import { products, collections as collectionData } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
-import { ProductCard, fromPrice, allSoldOut } from '../components/product/ProductCard';
+import { ProductCard, productPrice, allSoldOut } from '../components/product/ProductCard';
 import { Slider } from '@/components/ui/slider';
 import { photo } from '@/data/images';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
@@ -18,11 +18,11 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
   { id: 'price-desc', label: 'Price: high to low' },
 ];
 
-// Slider bounds, rounded out to the nearest $5 around the catalogue's starting prices.
+// Slider bounds, rounded out to the nearest $5 around the catalogue's prices.
 const HEADER_BACKDROP = photo('photo-1613068431228-8cb6a1e92573', 1600, 700);
 
-const PRICE_MIN = Math.floor(Math.min(...products.map(fromPrice)) / 5) * 5;
-const PRICE_MAX = Math.ceil(Math.max(...products.map(fromPrice)) / 5) * 5;
+const PRICE_MIN = Math.floor(Math.min(...products.map(productPrice)) / 5) * 5;
+const PRICE_MAX = Math.ceil(Math.max(...products.map(productPrice)) / 5) * 5;
 
 interface Filters { tags: string[]; colors: string[]; price: [number, number] }
 const EMPTY: Filters = { tags: [], colors: [], price: [PRICE_MIN, PRICE_MAX] };
@@ -81,7 +81,7 @@ export function ProductListingPage() {
 
   const test = (p: (typeof products)[number], skip?: keyof Filters) => {
     const q = search.trim().toLowerCase();
-    const price = fromPrice(p);
+    const price = productPrice(p);
     return (collection === 'All' || p.collection === collection) &&
       (!q || [p.name, p.scent, tagSearchText(p)].join(' ').toLowerCase().includes(q)) &&
       (skip === 'tags' || !filters.tags.length || filters.tags.some((t) => productHasTag(p, t))) &&
@@ -92,8 +92,8 @@ export function ProductListingPage() {
 
   const filtered = useMemo(() => {
     const list = products.filter((p) => test(p));
-    if (sort === 'price-asc') list.sort((a, b) => fromPrice(a) - fromPrice(b));
-    if (sort === 'price-desc') list.sort((a, b) => fromPrice(b) - fromPrice(a));
+    if (sort === 'price-asc') list.sort((a, b) => productPrice(a) - productPrice(b));
+    if (sort === 'price-desc') list.sort((a, b) => productPrice(b) - productPrice(a));
     if (sort === 'newest') list.sort((a, b) => Number(!!b.isNew) - Number(!!a.isNew));
     return list;
   }, [filters, search, sort, collection]);

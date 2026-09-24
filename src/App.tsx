@@ -13,6 +13,7 @@ import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
 import { AccountPage } from './pages/AccountPage';
 import { StoryPage } from './pages/StoryPage';
 import { ContactPage } from './pages/ContactPage';
+import { ContentPage } from './pages/ContentPage';
 
 function AppRouter() {
   const { state } = useApp();
@@ -34,6 +35,7 @@ function AppRouter() {
         {currentPage === 'account' && <AccountPage />}
         {currentPage === 'story' && <StoryPage />}
         {currentPage === 'contact' && <ContactPage />}
+        {currentPage === 'page' && <ContentPage key={state.currentSlug ?? 'none'} />}
       </main>
       <Footer />
     </div>

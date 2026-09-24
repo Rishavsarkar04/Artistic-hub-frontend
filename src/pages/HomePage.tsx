@@ -65,7 +65,6 @@ export function HomePage() {
               </p>
               <div className="rise rise-4 flex flex-wrap gap-3 mt-9">
                 <Button size="lg" variant="light" onClick={() => navigate('listing', { collection: 'All' })}>Shop candles <ArrowRight size={17} /></Button>
-                <Button size="lg" variant="glass" onClick={() => navigate('listing', { collection: 'Gift Sets' })}>Gift sets</Button>
               </div>
             </div>
           </div>

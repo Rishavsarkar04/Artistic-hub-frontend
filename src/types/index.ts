@@ -8,7 +8,8 @@ export type Page =
   | 'confirmation'
   | 'account'
   | 'story'
-  | 'contact';
+  | 'contact'
+  | 'page';
 
 export type AuthMode = 'login' | 'register' | 'forgot' | 'reset';
 
@@ -35,10 +36,14 @@ export interface Product {
   dimensions: string;
   description: string;
   sizes: ProductSize[];
+  /** One-line description shown under the name on product cards. */
+  shortNote: string;
   /** Ids from `tags` in `src/data/tags.ts`. */
   tags: string[];
   /** Id from `colors` in `src/data/tags.ts`. */
   color: string;
+  /** Ids of products listed under "Variants" on the product page. */
+  variantIds: string[];
   isBestseller?: boolean;
   isNew?: boolean;
   inStock: boolean;
@@ -48,6 +53,8 @@ export interface ProductSize {
   label: string;
   weight: string;
   price: number;
+  /** Price before discount; when higher than `price`, it's shown struck through. */
+  originalPrice?: number;
   inStock: boolean;
 }
 
@@ -109,12 +116,27 @@ export interface DeliveryMethod {
   estimatedDays: string;
 }
 
+/** A row from the CMS `pages` table. */
+export interface CmsPage {
+  id: number;
+  title: string;
+  slug: string;
+  /** Rich-text HTML from the editor. */
+  content: string;
+  status: 'draft' | 'published';
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AppState {
   currentPage: Page;
   /** Where the last navigation came from, for back buttons. */
   previousPage: Page;
   currentProductId: string | null;
   currentOrderId: string | null;
+  /** Slug of the CMS page shown on the 'page' route. */
+  currentSlug: string | null;
   accountSection: AccountSection;
   authMode: AuthMode;
   cart: CartItem[];
@@ -126,7 +148,7 @@ export interface AppState {
 }
 
 export type AppAction =
-  | { type: 'NAVIGATE'; page: Page; productId?: string; orderId?: string; accountSection?: AccountSection; collection?: string; scent?: string | null }
+  | { type: 'NAVIGATE'; page: Page; productId?: string; orderId?: string; accountSection?: AccountSection; collection?: string; scent?: string | null; slug?: string }
   | { type: 'SET_AUTH_MODE'; mode: AuthMode }
   | { type: 'LOGIN'; user: User }
   | { type: 'LOGOUT' }
