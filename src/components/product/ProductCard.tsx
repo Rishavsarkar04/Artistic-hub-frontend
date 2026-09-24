@@ -2,7 +2,8 @@ import React from 'react';
 import { formatPrice } from '@/lib/money';
 import { ArrowUpRight } from 'lucide-react';
 import type { Product } from '../../types';
-import { useApp } from '../../store/AppContext';
+import { Link } from 'react-router';
+import { paths } from '../../routes';
 import { Badge } from '@/components/ui/badge';
 
 /** The size a product is sold in (no size picker): its first in-stock size, else its first size. */
@@ -23,7 +24,6 @@ interface ProductCardProps {
  * status pill, and a "View" chip. Used on home, listing and related products.
  */
 export function ProductCard({ product, size = 'md', className = '' }: ProductCardProps) {
-  const { navigate } = useApp();
   const soldOut = allSoldOut(product);
   const alt = product.images[1] ?? product.images[0];
   const low = product.sizes.some((s) => !s.inStock) && !soldOut;
@@ -32,8 +32,8 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
 
   return (
     <article className={`group relative ${className}`}>
-      <button
-        onClick={() => navigate('detail', { productId: product.id })}
+      <Link
+        to={paths.product(product.id)}
         className="block w-full text-left"
         aria-label={`${product.name}, ${formatPrice(price)}`}
       >
@@ -80,7 +80,7 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
             </span>
           </p>
         </div>
-      </button>
+      </Link>
     </article>
   );
 }

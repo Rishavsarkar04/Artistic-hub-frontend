@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate, type Location } from 'react-router';
+import { paths } from '../routes';
 import { Eye, EyeOff, Flame, ArrowLeft, Check } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import type { AuthMode } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/shared/FormField';
@@ -27,10 +29,14 @@ function PasswordInput({ label, value, onChange, error, placeholder }: {
   );
 }
 
-export function AuthPage() {
-  const { state, dispatch, navigate } = useApp();
+const MODE_PATHS: Partial<Record<AuthMode, string>> = { login: paths.login, register: paths.register, forgot: paths.forgotPassword };
+
+export function AuthPage({ mode }: { mode: AuthMode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Where to go after signing in: the page that sent the visitor here, if any.
+  const from = (location.state as { from?: Location } | null)?.from;
   const login = useAuthStore((s) => s.login);
-  const mode = state.authMode;
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -42,7 +48,9 @@ export function AuthPage() {
   const [success, setSuccess] = useState(false);
 
   const setMode = (m: typeof mode) => {
-    dispatch({ type: 'SET_AUTH_MODE', mode: m });
+    const to = MODE_PATHS[m];
+    // Keep `from` so switching between sign in and sign up still returns the visitor afterwards.
+    if (to) navigate(to, { replace: true, state: location.state });
     setErrors({});
     setSuccess(false);
   };
@@ -75,13 +83,14 @@ export function AuthPage() {
       return;
     }
     login(mockUser); // MOCK: call endpoints.auth.login / register and store the returned user and token
-    navigate('home');
+    navigate(from ? from.pathname + from.search : paths.home, { replace: true });
   };
 
   return (
     <div className="relative min-h-screen bg-secondary/30 flex items-center justify-center p-4 pt-20 sm:pt-4">
       <button
-        onClick={() => navigate(state.previousPage === 'auth' ? 'home' : state.previousPage)}
+        // 'default' means this is the first page of the visit, so there's no history to go back to.
+        onClick={() => (location.key !== 'default' ? navigate(-1) : navigate(paths.home))}
         className="group absolute top-4 left-4 sm:top-6 sm:left-6 h-10 pl-3 pr-4 rounded-full border border-border bg-card text-sm flex items-center gap-2 hover:border-foreground/40 transition-colors"
       >
         <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />Back
@@ -89,7 +98,7 @@ export function AuthPage() {
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="text-center mb-8">
-          <button onClick={() => navigate('home')} className="inline-flex items-center gap-2 mb-6 group">
+          <button onClick={() => navigate(paths.home)} className="inline-flex items-center gap-2 mb-6 group">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
               <Flame size={18} className="text-primary" />
             </div>
@@ -200,9 +209,9 @@ export function AuthPage() {
               {mode === 'register' && (
                 <p className="text-xs text-muted-foreground text-center">
                   By creating an account you agree to our{' '}
-                  <button type="button" onClick={() => navigate('page', { slug: 'terms-of-service' })} className="underline underline-offset-2 hover:text-foreground">Terms of service</button>
+                  <button type="button" onClick={() => navigate(paths.page('terms-of-service'))} className="underline underline-offset-2 hover:text-foreground">Terms of service</button>
                   {' '}and{' '}
-                  <button type="button" onClick={() => navigate('page', { slug: 'privacy-policy' })} className="underline underline-offset-2 hover:text-foreground">Privacy policy</button>.
+                  <button type="button" onClick={() => navigate(paths.page('privacy-policy'))} className="underline underline-offset-2 hover:text-foreground">Privacy policy</button>.
                 </p>
               )}
 

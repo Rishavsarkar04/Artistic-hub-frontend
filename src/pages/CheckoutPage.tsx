@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
@@ -107,7 +109,8 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
 }
 
 export function CheckoutPage() {
-  const { dispatch, navigate } = useApp();
+  const { dispatch } = useApp();
+  const navigate = useNavigate();
   const cart = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clear);
   const cartTotal = useCartTotal();
@@ -171,13 +174,14 @@ export function CheckoutPage() {
 
     dispatch({ type: 'PLACE_ORDER', order });
     clearCart();
-    navigate('confirmation', { orderId: order.id });
+    // Replace so Back from the confirmation doesn't return to a finished checkout.
+    navigate(paths.orderConfirmation(order.id), { replace: true });
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-        <button onClick={() => navigate('cart')} className="hover:text-foreground transition-colors">Cart</button>
+        <button onClick={() => navigate(paths.cart)} className="hover:text-foreground transition-colors">Cart</button>
         <ChevronRight size={14} />
         <span className="text-foreground capitalize">{step}</span>
       </div>

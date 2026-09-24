@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { SlidersHorizontal, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { products, collections as collectionData } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
@@ -61,13 +62,14 @@ function Chip({ on, onClick, children, count, swatch }: { on: boolean; onClick: 
 }
 
 export function ProductListingPage() {
-  const { state, navigate } = useApp();
-  const collection = state.listingCollection || 'All';
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const collection = searchParams.get('collection') ?? 'All';
   const [sort, setSort] = useState<SortOption>('featured');
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(() => {
-    const initial = state.listingScent?.toLowerCase();
+    const initial = searchParams.get('tag')?.toLowerCase();
     return { ...EMPTY, tags: initial && getTag(initial) ? [initial] : [] };
   });
   const [loading, setLoading] = useState(true);
@@ -144,8 +146,8 @@ export function ProductListingPage() {
           )}
           <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-14 sm:py-20">
             <nav aria-label="Breadcrumb" className={`text-sm mb-6 flex gap-2 ${head.img ? 'text-white/60' : 'text-muted-foreground'}`}>
-              <button onClick={() => navigate('home')} className="hover:underline">Home</button><span>/</span>
-              {collection !== 'All' && <><button onClick={() => navigate('listing', { collection: 'All' })} className="hover:underline">Shop</button><span>/</span></>}
+              <button onClick={() => navigate(paths.home)} className="hover:underline">Home</button><span>/</span>
+              {collection !== 'All' && <><button onClick={() => navigate(paths.shop())} className="hover:underline">Shop</button><span>/</span></>}
               <span aria-current="page" className={head.img ? 'text-white' : 'text-foreground'}>{head.title}</span>
             </nav>
             <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">{head.title}</h1>

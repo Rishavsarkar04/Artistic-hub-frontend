@@ -1,7 +1,8 @@
 import { photo } from '@/data/images';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { Mail, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -16,7 +17,7 @@ interface Form { name: string; email: string; order: string; topic: string; mess
 const EMPTY: Form = { name: '', email: '', order: '', topic: '', message: '' };
 
 export function ContactPage() {
-  const { navigate } = useApp();
+  const navigate = useNavigate();
   const [f, setF] = useState<Form>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -45,7 +46,7 @@ export function ContactPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/75 to-secondary/10" />
         <div className="relative px-5 sm:px-8 lg:px-10 py-12 sm:py-16">
           <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground flex gap-2">
-            <button onClick={() => navigate('home')} className="hover:text-foreground">Home</button><span>/</span><span className="text-foreground" aria-current="page">Contact</span>
+            <button onClick={() => navigate(paths.home)} className="hover:text-foreground">Home</button><span>/</span><span className="text-foreground" aria-current="page">Contact</span>
           </nav>
           <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl mt-6 max-w-3xl">We'd <em>love</em> to hear from you.</h1>
           <p className="text-muted-foreground mt-5 max-w-lg text-[15px]">Questions about an order, a scent, or a gift for a hundred guests. A real person in the studio replies within one business day.</p>
@@ -81,7 +82,7 @@ export function ContactPage() {
                 <p className="text-muted-foreground mt-3 max-w-sm">Thanks, {f.name.split(' ')[0]}. We'll reply to {f.email} within one business day.</p>
                 <div className="flex gap-3 mt-8">
                   <Button variant="outline" onClick={() => { setF(EMPTY); setStatus('idle'); }}>Send another</Button>
-                  <Button onClick={() => navigate('listing', { collection: 'All' })}>Back to shopping <ArrowRight /></Button>
+                  <Button onClick={() => navigate(paths.shop())}>Back to shopping <ArrowRight /></Button>
                 </div>
               </div>
             ) : (

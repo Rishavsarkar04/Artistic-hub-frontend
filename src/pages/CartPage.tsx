@@ -1,14 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { deliveryMethods } from '../data/products';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore, useCartTotal } from '../stores/cartStore';
 import { Button } from '@/components/ui/button';
 
 export function CartPage() {
-  const { navigate } = useApp();
+  const navigate = useNavigate();
   const cart = useCartStore((s) => s.items);
   const { remove, setQuantity } = useCartStore.getState();
   const cartTotal = useCartTotal();
@@ -28,7 +29,7 @@ export function CartPage() {
         <p className="text-muted-foreground mb-8">
           You haven't added any candles yet. Browse our collections to find your perfect scent.
         </p>
-        <Button size="lg" onClick={() => navigate('listing')}>
+        <Button size="lg" onClick={() => navigate(paths.shop())}>
           Shop Candles
         </Button>
       </div>
@@ -39,7 +40,7 @@ export function CartPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex items-center gap-3 mb-8">
         <button
-          onClick={() => navigate('listing')}
+          onClick={() => navigate(paths.shop())}
           className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Back"
         >
@@ -63,7 +64,7 @@ export function CartPage() {
 
           {cart.map((item) => (
             <div key={`${item.productId}-${item.size.label}`} className="flex gap-4 p-4 bg-card border border-border rounded-xl">
-              <button onClick={() => navigate('detail', { productId: item.productId })}>
+              <button onClick={() => navigate(paths.product(item.productId))}>
                 <img
                   src={item.product.image}
                   alt={item.product.name}
@@ -74,7 +75,7 @@ export function CartPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <button
-                      onClick={() => navigate('detail', { productId: item.productId })}
+                      onClick={() => navigate(paths.product(item.productId))}
                       className="font-medium hover:text-primary transition-colors text-left"
                     >
                       {item.product.name}
@@ -120,7 +121,7 @@ export function CartPage() {
             </div>
           ))}
 
-          <Button variant="ghost" size="sm" onClick={() => navigate('listing')} className="mt-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate(paths.shop())} className="mt-2">
             <ArrowLeft size={14} /> Continue Shopping
           </Button>
         </div>
@@ -151,7 +152,7 @@ export function CartPage() {
             <Button
               size="lg"
               className="w-full mt-6"
-              onClick={() => user ? navigate('checkout') : navigate('auth')}
+              onClick={() => user ? navigate(paths.checkout) : navigate(paths.login, { state: { from: { pathname: paths.checkout } } })}
             >
               {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
             </Button>

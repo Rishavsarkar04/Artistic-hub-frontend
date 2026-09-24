@@ -1,16 +1,3 @@
-export type Page =
-  | 'home'
-  | 'listing'
-  | 'detail'
-  | 'cart'
-  | 'auth'
-  | 'checkout'
-  | 'confirmation'
-  | 'account'
-  | 'story'
-  | 'contact'
-  | 'page';
-
 export type AuthMode = 'login' | 'register' | 'forgot' | 'reset';
 
 export type AccountSection = 'profile' | 'addresses' | 'orders' | 'order-detail';
@@ -132,22 +119,7 @@ export interface CmsPage {
 }
 
 export interface AppState {
-  currentPage: Page;
-  /** Where the last navigation came from, for back buttons. */
-  previousPage: Page;
-  currentProductId: string | null;
-  currentOrderId: string | null;
-  /** Slug of the CMS page shown on the 'page' route. */
-  currentSlug: string | null;
-  accountSection: AccountSection;
-  authMode: AuthMode;
   orders: Order[];
-  checkoutPendingProduct: { productId: string; size: ProductSize } | null;
-  listingCollection: string;
-  listingScent: string | null;
 }
 
-export type AppAction =
-  | { type: 'NAVIGATE'; page: Page; productId?: string; orderId?: string; accountSection?: AccountSection; collection?: string; scent?: string | null; slug?: string }
-  | { type: 'SET_AUTH_MODE'; mode: AuthMode }
-  | { type: 'PLACE_ORDER'; order: Order };
+export type AppAction = { type: 'PLACE_ORDER'; order: Order };

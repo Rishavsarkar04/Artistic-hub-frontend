@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { ChevronLeft, ChevronRight, Minus, Plus, Check, ArrowRight } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { useCartStore } from '../stores/cartStore';
 import { products } from '../data/products';
 import type { Product, ProductSize } from '../types';
@@ -10,10 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { ProductCard, allSoldOut } from '../components/product/ProductCard';
 import { getTag } from '../data/tags';
 
-export function ProductDetailPage() {
-  const { state, navigate } = useApp();
+export function ProductDetailPage({ product }: { product: Product }) {
+  const navigate = useNavigate();
   const addToCart = useCartStore((s) => s.add);
-  const product = products.find((p) => p.id === state.currentProductId) ?? products[0];
 
   const [selectedImage, setSelectedImage] = useState(0);
   // No size picker: the product is sold in its first available size.
@@ -40,9 +40,9 @@ export function ProductDetailPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 lg:pb-0">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <button onClick={() => navigate('home')} className="hover:text-foreground">Home</button>
+        <button onClick={() => navigate(paths.home)} className="hover:text-foreground">Home</button>
         <span>/</span>
-        <button onClick={() => navigate('listing', { collection: product.collection })} className="hover:text-foreground">{product.collection}</button>
+        <button onClick={() => navigate(paths.shop({ collection: product.collection }))} className="hover:text-foreground">{product.collection}</button>
         <span>/</span>
         <span className="text-foreground" aria-current="page">{product.name}</span>
       </nav>
@@ -119,7 +119,7 @@ export function ProductDetailPage() {
               <button onClick={() => changeQuantity((q) => q + 1)} className="w-12 h-full flex items-center justify-center rounded-r-full hover:bg-foreground/5" aria-label="Increase quantity"><Plus size={15} /></button>
             </div>
             {addedToCart ? (
-              <Button size="lg" variant="outline" onClick={() => navigate('cart')} className="flex-1">
+              <Button size="lg" variant="outline" onClick={() => navigate(paths.cart)} className="flex-1">
                 <Check size={17} /> Added · View cart <ArrowRight size={17} />
               </Button>
             ) : (
@@ -148,7 +148,7 @@ export function ProductDetailPage() {
           <p className="text-xs text-muted-foreground">{selectedSize ? formatPrice(price) : 'Out of stock'}</p>
         </div>
         {addedToCart ? (
-          <Button variant="outline" onClick={() => navigate('cart')}>View cart <ArrowRight size={16} /></Button>
+          <Button variant="outline" onClick={() => navigate(paths.cart)}>View cart <ArrowRight size={16} /></Button>
         ) : (
           <Button onClick={handleAddToCart} disabled={!isAvailable || !selectedSize}>
             {isAvailable && selectedSize ? 'Add to cart' : 'Out of stock'}

@@ -21,8 +21,11 @@ Run the type check and `npm run build` after every change.
 
 ## Architecture
 
-- `src/App.tsx` — page switcher. There is no router: `state.currentPage` picks the page.
-- `src/store/AppContext.tsx` — navigation state (current page, ids, account section) and orders (reducer + context).
+- `src/App.tsx` — providers (`MotionConfig`, `AppProvider`, `RouterProvider`).
+- `src/router.tsx` — React Router (v8, data router): every route, the navbar/footer layout, `RequireAuth` for checkout, order confirmation and account, `ScrollRestoration`, and the 404 fallback.
+- `src/routes.ts` — `paths`, the builder for **every URL** (e.g. `paths.product(id)`, `paths.shop({ collection, tag })`, `paths.account('orders')`).
+- `src/pages/NotFoundPage.tsx` — the 404 page, also used for unknown products.
+- `src/store/AppContext.tsx` — orders only (reducer + context). Orders become API data once the backend is connected.
 - `src/stores/` — Zustand stores, persisted to localStorage: `cartStore.ts` (`useCartStore`, `useCartCount`, `useCartTotal`) and `authStore.ts` (`useAuthStore`: user, token, profile and addresses).
 - `src/api/config.ts` — API base URL, timeout and **every endpoint path**.
 - `src/api/client.ts` — the shared **axios** instance (`http`) and `api.get/post/put/patch/delete`, which resolve to the response body. Interceptors add the Bearer token, turn failures into `ApiError` (status + message), and sign the user out on a 401. Query params go in `{ params }`.
@@ -46,10 +49,13 @@ Run the type check and `npm run build` after every change.
 
 ### Navigation
 
-- Navigate with `navigate(page, opts)` from `useApp()`, never `window.location`.
-- To add a page: add it to the `Page` union in `src/types/index.ts` and render it in `src/App.tsx`.
-- CMS pages (privacy, terms, and similar) are data-driven: `navigate('page', { slug })`, rendered by `ContentPage`. Don't hard-code new content pages.
-- `state.previousPage` backs the back buttons.
+- Routing is React Router (`react-router`). Build every URL with `paths` from `src/routes.ts`. Never write path strings in components or use `window.location`.
+- For plain navigation use `<Link to={paths.x}>`, so links can open in a new tab and search engines can follow them. Use `useNavigate()` only after an action (submit, sign-out, add to cart).
+- Page state that should survive a refresh or a shared link belongs in the URL: path params (`useParams`) or the query string (`useSearchParams`). Examples: product id, account tab, `?collection=` and `?tag=` on /shop.
+- To add a page: add its URL to `paths`, then a route in `src/router.tsx`. Wrap it in `RequireAuth` if it needs a signed-in user. That sends visitors to /login and back afterwards via `location.state.from`.
+- Pages whose local state must reset when the URL changes are keyed in the router (see `ShopRoute`, `ProductRoute`, `ContentRoute`).
+- CMS pages (privacy, terms, and similar) are data-driven at `/pages/:slug`, rendered by `ContentPage`. Don't hard-code new content pages.
+- Back buttons use `navigate(-1)`, falling back to home when `location.key === 'default'` (the first page of the visit).
 
 ### Money
 
@@ -77,10 +83,9 @@ Run the type check and `npm run build` after every change.
 ## State management
 
 - Client state lives in Zustand stores in `src/stores/`, one per concern: the cart in `useCartStore`, the session and user in `useAuthStore`. Select narrowly (`useCartStore((s) => s.items)`), and return stable references from selectors: never `?? []` inline.
-- `AppContext` still holds navigation and orders. Orders become API data once the backend is connected.
 - Don't copy API data into a store. In components, load server data with `useApiQuery` and send changes with `useApiMutation`, both built on `api` + `endpoints`. Use axios only through `src/api/client.ts`, never `fetch` or a new axios instance.
 - Local UI state: `useState` / `useReducer`.
-- Don't add Redux, React Query or a router without discussing it first.
+- Don't add Redux or React Query without discussing it first.
 
 ## TypeScript
 

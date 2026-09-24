@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router';
+import { paths, ACCOUNT_TABS, type AccountTab } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import {
@@ -556,25 +558,19 @@ const navItems: { id: AccountSection; label: string; icon: React.ElementType }[]
 ];
 
 export function AccountPage() {
-  const { state, dispatch, navigate } = useApp();
+  const navigate = useNavigate();
+  const { tab, orderId } = useParams();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const signOut = () => { logout(); navigate('home'); };
-  const section = state.accountSection;
-  const viewingOrderId = state.currentOrderId;
+  const signOut = () => { logout(); navigate(paths.home); };
+  const section: AccountSection = orderId ? 'order-detail' : (tab as AccountSection);
 
-  if (!user) {
-    navigate('auth');
-    return null;
-  }
+  // RequireAuth in the router keeps signed-out visitors away; unknown tabs fall back to Profile.
+  if (!user) return null;
+  if (!orderId && !ACCOUNT_TABS.includes(tab as AccountTab)) return <Navigate to={paths.account()} replace />;
 
-  const setSection = (s: AccountSection) => {
-    dispatch({ type: 'NAVIGATE', page: 'account', accountSection: s });
-  };
-
-  const handleViewOrderDetail = (orderId: string) => {
-    dispatch({ type: 'NAVIGATE', page: 'account', accountSection: 'order-detail', orderId });
-  };
+  const setSection = (s: AccountSection) => navigate(paths.account(s as AccountTab));
+  const handleViewOrderDetail = (id: string) => navigate(paths.accountOrder(id));
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -646,8 +642,8 @@ export function AccountPage() {
           {section === 'profile' && <ProfileSection />}
           {section === 'addresses' && <AddressesSection />}
           {section === 'orders' && <OrdersSection onViewDetail={handleViewOrderDetail} />}
-          {section === 'order-detail' && viewingOrderId && (
-            <OrderDetailSection orderId={viewingOrderId} onBack={() => setSection('orders')} />
+          {section === 'order-detail' && orderId && (
+            <OrderDetailSection orderId={orderId} onBack={() => setSection('orders')} />
           )}
         </div>
       </div>

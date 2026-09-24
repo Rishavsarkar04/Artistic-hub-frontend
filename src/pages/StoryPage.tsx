@@ -1,7 +1,8 @@
 import { photo } from '@/data/images';
 import React from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { ArrowRight, Leaf, Droplets, Recycle, HeartHandshake } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
@@ -29,7 +30,7 @@ const VALUES = [
 ];
 
 export function StoryPage() {
-  const { navigate } = useApp();
+  const navigate = useNavigate();
   return (
     <div>
       {/* Hero */}
@@ -115,8 +116,8 @@ export function StoryPage() {
           <p className="mt-6 text-sm text-muted-foreground">Mara Lindqvist and Theo Okafor, founders</p>
           <Separator className="my-8" />
           <div className="flex flex-wrap gap-3">
-            <Button size="lg" onClick={() => navigate('listing', { collection: 'All' })}>Shop the candles <ArrowRight /></Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('contact')}>Visit the studio</Button>
+            <Button size="lg" onClick={() => navigate(paths.shop())}>Shop the candles <ArrowRight /></Button>
+            <Button size="lg" variant="outline" onClick={() => navigate(paths.contact)}>Visit the studio</Button>
           </div>
         </div>
       </section>

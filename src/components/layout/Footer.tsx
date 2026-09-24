@@ -1,15 +1,15 @@
 import React from 'react';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
-import { useApp } from '../../store/AppContext';
+import { Link } from 'react-router';
+import { paths } from '../../routes';
 import { publishedPages } from '../../data/pages';
 
 export function Footer() {
-  const { navigate } = useApp();
-  const help: [string, () => void][] = [
-    ['Contact us', () => navigate('contact')],
+  const help: [string, string][] = [
+    ['Contact us', paths.contact],
   ];
-  const company: [string, () => void][] = [
-    ['Our story', () => navigate('story')],
+  const company: [string, string][] = [
+    ['Our story', paths.story],
   ];
 
   return (
@@ -18,11 +18,11 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
           <div>
             <h3 className="font-sans text-xs text-[#8F8577] mb-4 tracking-normal">Customer support</h3>
-            <ul className="space-y-3">{help.map(([l, fn]) => <li key={l}><button onClick={fn} className="hover:text-white text-left">{l}</button></li>)}</ul>
+            <ul className="space-y-3">{help.map(([l, to]) => <li key={l}><Link to={to} className="hover:text-white">{l}</Link></li>)}</ul>
           </div>
           <div>
             <h3 className="font-sans text-xs text-[#8F8577] mb-4 tracking-normal">Company</h3>
-            <ul className="space-y-3">{company.map(([l, fn]) => <li key={l}><button onClick={fn} className="hover:text-white text-left">{l}</button></li>)}</ul>
+            <ul className="space-y-3">{company.map(([l, to]) => <li key={l}><Link to={to} className="hover:text-white">{l}</Link></li>)}</ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
             <h3 className="font-sans text-xs text-[#8F8577] mb-4 tracking-normal">Studio</h3>
@@ -37,7 +37,7 @@ export function Footer() {
         <div className="mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#8F8577] border-t border-white/10 pt-6">
           <p>© 2026 Ember &amp; Bloom</p>
           <div className="flex flex-wrap items-center gap-6">
-            {publishedPages().map((p) => <button key={p.slug} onClick={() => navigate('page', { slug: p.slug })} className="hover:text-white">{p.title}</button>)}
+            {publishedPages().map((p) => <Link key={p.slug} to={paths.page(p.slug)} className="hover:text-white">{p.title}</Link>)}
             <a
               href="https://www.linkedin.com/in/rishav-sarkar-383b27245"
               target="_blank"
@@ -51,11 +51,11 @@ export function Footer() {
           </div>
         </div>
 
-        <button onClick={() => navigate('home')} aria-label="Ember & Bloom home" className="block w-full mt-10 -mb-[0.18em] select-none">
+        <Link to={paths.home} aria-label="Ember & Bloom home" className="block w-full mt-10 -mb-[0.18em] select-none">
           <span className="block font-serif font-light text-[#F7F4EF]/[.07] leading-none tracking-[-0.05em] text-center whitespace-nowrap" style={{ fontSize: 'clamp(64px, 15.5vw, 228px)' }}>
             Ember &amp; Bloom
           </span>
-        </button>
+        </Link>
       </div>
     </footer>
   );

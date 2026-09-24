@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, Package, MapPin, ExternalLink, Clock } from 'lucide-react';
@@ -6,14 +8,16 @@ import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
 
 export function OrderConfirmationPage() {
-  const { state, navigate } = useApp();
-  const order = state.orders.find((o) => o.id === state.currentOrderId) ?? state.orders[0];
+  const { state } = useApp();
+  const navigate = useNavigate();
+  const { orderId } = useParams();
+  const order = state.orders.find((o) => o.id === orderId);
 
   if (!order) {
     return (
       <div className="text-center py-24">
         <p className="text-muted-foreground">Order not found.</p>
-        <Button className="mt-4" onClick={() => navigate('home')}>Go Home</Button>
+        <Button className="mt-4" onClick={() => navigate(paths.home)}>Go Home</Button>
       </div>
     );
   }
@@ -104,11 +108,11 @@ export function OrderConfirmationPage() {
           <Button
             variant="outline"
             className="flex-1"
-            onClick={() => navigate('account', { accountSection: 'order-detail', orderId: order.id })}
+            onClick={() => navigate(paths.accountOrder(order.id))}
           >
             <ExternalLink size={14} /> View Order Details
           </Button>
-          <Button className="flex-1" onClick={() => navigate('home')}>
+          <Button className="flex-1" onClick={() => navigate(paths.home)}>
             Continue Shopping
           </Button>
         </div>

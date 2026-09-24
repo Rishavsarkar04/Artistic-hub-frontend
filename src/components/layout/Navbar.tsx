@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
-import { useApp } from '../../store/AppContext';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { paths } from '../../routes';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartCount } from '../../stores/cartStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -21,7 +22,8 @@ export function Logo({ light = false }: { light?: boolean }) {
 }
 
 export function Navbar() {
-  const { state, navigate, dispatch } = useApp();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const cartCount = useCartCount();
@@ -36,14 +38,14 @@ export function Navbar() {
   }, []);
 
 
-  const go = (fn: () => void) => { fn(); setMobileOpen(false); };
+  const closeMenu = () => setMobileOpen(false);
+  const signOut = () => { logout(); navigate(paths.home); };
 
-  const onShop = state.currentPage === 'listing' || state.currentPage === 'detail';
-  const primaryLinks: { label: string; page: 'home' | 'story' | 'contact' | 'listing'; active: boolean; opts?: { collection: string } }[] = [
-    { label: 'Home', page: 'home', active: state.currentPage === 'home' },
-    { label: 'Shop', page: 'listing', opts: { collection: 'All' }, active: onShop },
-    { label: 'Our story', page: 'story', active: state.currentPage === 'story' },
-    { label: 'Contact', page: 'contact', active: state.currentPage === 'contact' },
+  const primaryLinks = [
+    { label: 'Home', to: paths.home, active: pathname === paths.home },
+    { label: 'Shop', to: paths.shop(), active: pathname.startsWith('/shop') || pathname.startsWith('/products') },
+    { label: 'Our story', to: paths.story, active: pathname === paths.story },
+    { label: 'Contact', to: paths.contact, active: pathname === paths.contact },
   ];
 
   return (
@@ -59,17 +61,17 @@ export function Navbar() {
               </button>
               <nav className="hidden lg:flex items-center gap-1 -ml-3" aria-label="Main">
                 {primaryLinks.map((l) => (
-                  <button key={l.label} onClick={() => go(() => navigate(l.page, l.opts))} aria-current={l.active ? 'page' : undefined}
-                    className={cn('px-3 h-9 rounded-full text-sm', l.active ? 'text-foreground bg-foreground/[.06]' : 'text-muted-foreground hover:text-foreground')}>
+                  <Link key={l.label} to={l.to} aria-current={l.active ? 'page' : undefined}
+                    className={cn('px-3 h-9 rounded-full text-sm flex items-center', l.active ? 'text-foreground bg-foreground/[.06]' : 'text-muted-foreground hover:text-foreground')}>
                     {l.label}
-                  </button>
+                  </Link>
                 ))}
               </nav>
             </div>
 
-            <button onClick={() => go(() => navigate('home'))} aria-label="Ember & Bloom home" className="justify-self-center">
+            <Link to={paths.home} aria-label="Ember & Bloom home" className="justify-self-center">
               <Logo />
-            </button>
+            </Link>
 
             <div className="flex items-center justify-end gap-1 -mr-2">
 
@@ -86,27 +88,27 @@ export function Navbar() {
                     <>
                       <DropdownMenuLabel><p className="text-sm font-medium">{fullName(user)}</p><p className="text-xs text-muted-foreground font-normal">{user.email}</p></DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'profile' })}><User />Profile</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'orders' })}><Package />Orders</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'addresses' })}><MapPin />Addresses</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.account('profile'))}><User />Profile</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.account('orders'))}><Package />Orders</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.account('addresses'))}><MapPin />Addresses</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => { logout(); navigate('home'); }}><LogOut />Sign out</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={signOut}><LogOut />Sign out</DropdownMenuItem>
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onSelect={() => { dispatch({ type: 'SET_AUTH_MODE', mode: 'login' }); navigate('auth'); }}><LogIn />Sign in</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => { dispatch({ type: 'SET_AUTH_MODE', mode: 'register' }); navigate('auth'); }}><UserPlus />Create an account</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.login)}><LogIn />Sign in</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.register)}><UserPlus />Create an account</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => navigate('contact')}><Package />Help with an order</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate(paths.contact)}><Package />Help with an order</DropdownMenuItem>
                     </>
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <button onClick={() => go(() => navigate('cart'))} className="ml-1 h-10 pl-3.5 pr-4 rounded-full bg-ink text-[#F7F4EF] text-sm font-medium flex items-center gap-2 hover:bg-ink-soft"
+              <Link to={paths.cart} className="ml-1 h-10 pl-3.5 pr-4 rounded-full bg-ink text-[#F7F4EF] text-sm font-medium flex items-center gap-2 hover:bg-ink-soft"
                 aria-label={`Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}>
                 <ShoppingBag size={16} /><span className="tabular">{cartCount}</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -118,18 +120,18 @@ export function Navbar() {
         <SheetContent side="left">
           <SheetHeader><SheetTitle><Logo /></SheetTitle><SheetDescription className="sr-only">Site navigation</SheetDescription></SheetHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
-            {[['Home', () => navigate('home')], ['Shop', () => navigate('listing', { collection: 'All' })], ['Our story', () => navigate('story')], ['Contact', () => navigate('contact')]].map(([l, fn]) => (
-              <button key={l as string} onClick={() => go(fn as () => void)} className="w-full flex items-center justify-between py-4 border-b border-border text-left">
-                <span className="font-serif text-3xl">{l as string}</span><ArrowRight size={18} className="text-muted-foreground" />
-              </button>
+            {primaryLinks.map((l) => (
+              <Link key={l.label} to={l.to} onClick={closeMenu} aria-current={l.active ? 'page' : undefined} className="w-full flex items-center justify-between py-4 border-b border-border text-left">
+                <span className="font-serif text-3xl">{l.label}</span><ArrowRight size={18} className="text-muted-foreground" />
+              </Link>
             ))}
             <div className="grid grid-cols-2 gap-3 mt-8 pb-6">
-              <button onClick={() => go(() => (user ? navigate('account') : navigate('auth')))} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
+              <Link to={user ? paths.account() : paths.login} onClick={closeMenu} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
                 <User size={16} />{user ? user.firstName : 'Sign in'}
-              </button>
-              <button onClick={() => go(() => navigate('cart'))} className="h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
+              </Link>
+              <Link to={paths.cart} onClick={closeMenu} className="h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
                 <ShoppingBag size={16} />Cart ({cartCount})
-              </button>
+              </Link>
             </div>
           </div>
         </SheetContent>

@@ -1,8 +1,9 @@
 import { photo } from '@/data/images';
 import React from 'react';
+import { useNavigate } from 'react-router';
+import { paths } from '../routes';
 import { motion, type Variants } from 'motion/react';
 import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { products, collections, testimonials } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '../components/product/ProductCard';
@@ -42,7 +43,7 @@ function SectionHead({ title, sub, action }: { title: React.ReactNode; sub?: str
 }
 
 export function HomePage() {
-  const { navigate } = useApp();
+  const navigate = useNavigate();
   const bestsellers = products.filter((p) => p.isBestseller);
   const countFor = (c: string) => products.filter((p) => p.collection === (c === 'gift-sets' ? 'Gift Sets' : c[0].toUpperCase() + c.slice(1))).length;
   const [sig, bot, gift] = collections;
@@ -64,7 +65,7 @@ export function HomePage() {
                 Small-batch candles in coconut-soy and beeswax, with fragrance built slowly and a clean, even burn to the last centimetre.
               </p>
               <div className="rise rise-4 flex flex-wrap gap-3 mt-9">
-                <Button size="lg" variant="light" onClick={() => navigate('listing', { collection: 'All' })}>Shop candles <ArrowRight size={17} /></Button>
+                <Button size="lg" variant="light" onClick={() => navigate(paths.shop())}>Shop candles <ArrowRight size={17} /></Button>
               </div>
             </div>
           </div>
@@ -91,14 +92,14 @@ export function HomePage() {
       {/* ---------------- Collections (bento) ---------------- */}
       <FadeContent className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
         <SectionHead title="Three ways to shop" sub="Our signatures, the botanical range, and boxed sets that are ready to give."
-          action={<Button variant="outline" onClick={() => navigate('listing', { collection: 'All' })}>View all candles <ArrowRight size={15} /></Button>} />
+          action={<Button variant="outline" onClick={() => navigate(paths.shop())}>View all candles <ArrowRight size={15} /></Button>} />
         <div className="grid md:grid-cols-12 md:grid-rows-2 gap-4 md:h-[640px]">
           {[
             { c: sig, key: 'Signature', cls: 'md:col-span-7 md:row-span-2 min-h-[420px]' },
             { c: bot, key: 'Botanical', cls: 'md:col-span-5 min-h-[300px]' },
             { c: gift, key: 'Gift Sets', cls: 'md:col-span-5 min-h-[300px]' },
           ].map(({ c, key, cls }, i) => (
-            <button key={c.id} onClick={() => navigate('listing', { collection: key })} className={`group relative rounded-3xl overflow-hidden bg-muted text-left ${cls}`}>
+            <button key={c.id} onClick={() => navigate(paths.shop({ collection: key }))} className={`group relative rounded-3xl overflow-hidden bg-muted text-left ${cls}`}>
               <img src={c.image} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] ease-out-soft group-hover:scale-[1.05]" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex items-end justify-between gap-4 text-[#F7F4EF]">
@@ -119,7 +120,7 @@ export function HomePage() {
         <SectionHead
           title={<>The ones people <em>reorder</em></>}
           action={
-            <button onClick={() => navigate('listing', { collection: 'All' })} className="group inline-flex items-center gap-2 text-sm font-medium">
+            <button onClick={() => navigate(paths.shop())} className="group inline-flex items-center gap-2 text-sm font-medium">
               See more
               <span className="w-9 h-9 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center transition-transform duration-500 group-hover:rotate-[-45deg]"><ArrowRight size={16} /></span>
             </button>
