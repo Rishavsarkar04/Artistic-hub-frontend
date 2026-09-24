@@ -14,6 +14,12 @@ export type AuthMode = 'login' | 'register' | 'forgot' | 'reset';
 
 export type AccountSection = 'profile' | 'addresses' | 'orders' | 'order-detail';
 
+export interface Tag {
+  id: string;
+  name: string;
+  parentId: string | null;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -30,7 +36,10 @@ export interface Product {
   dimensions: string;
   description: string;
   sizes: ProductSize[];
+  /** Ids from `src/data/tags.ts`; ancestors are implied. */
   tags: string[];
+  /** Id from `colors` in `src/data/tags.ts`. */
+  color: string;
   isBestseller?: boolean;
   isNew?: boolean;
   inStock: boolean;

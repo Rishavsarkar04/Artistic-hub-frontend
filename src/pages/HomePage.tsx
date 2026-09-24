@@ -1,20 +1,16 @@
 import { photo } from '@/data/images';
-import React, { useRef, useState } from 'react';
-import { ArrowRight, ArrowLeft, ArrowUpRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
+import React from 'react';
+import { motion, type Variants } from 'motion/react';
+import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { products, collections, testimonials } from '../data/products';
 import { Button } from '@/components/ui/button';
-import { ProductCard, fromPrice } from '../components/product/ProductCard';
+import { ProductCard } from '../components/product/ProductCard';
+import { BlurText } from '../components/motion/BlurText';
+import { FadeContent } from '../components/motion/FadeContent';
 
 const HERO_IMG = photo('photo-1613068431228-8cb6a1e92573', 2000, 1400);
 const STORY_IMG = photo('photo-1612293905607-b003de9e54fb', 1200, 1400);
-
-const SCENT_FAMILIES = [
-  { name: 'Woody', blurb: 'Cedar, sandalwood, smoke', tint: '#3B2E24', text: '#F3E6D3' },
-  { name: 'Floral', blurb: 'Rose, lavender, jasmine', tint: '#E9D5CF', text: '#3A2320' },
-  { name: 'Fresh', blurb: 'Sea salt, fern, rain', tint: '#D5DDD2', text: '#1F2B22' },
-  { name: 'Sweet', blurb: 'Honey, vanilla, saffron', tint: '#EFD9B4', text: '#3A2A12' },
-];
 
 function Stars({ n }: { n: number }) {
   return (
@@ -24,7 +20,16 @@ function Stars({ n }: { n: number }) {
   );
 }
 
-function SectionHead({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+const gridVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 50, scale: 0.96, filter: 'blur(6px)' },
+  show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 90, damping: 18, mass: 0.9 } },
+};
+
+function SectionHead({ title, sub, action }: { title: React.ReactNode; sub?: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10">
       <div className="max-w-xl">
@@ -38,11 +43,7 @@ function SectionHead({ title, sub, action }: { title: string; sub?: string; acti
 
 export function HomePage() {
   const { navigate } = useApp();
-  const [tab, setTab] = useState<'best' | 'new'>('best');
-  const rail = useRef<HTMLDivElement>(null);
-  const featured = products.find((p) => p.id === 'p1')!;
-  const railItems = tab === 'best' ? products.filter((p) => p.isBestseller) : products.filter((p) => p.isNew || !p.isBestseller);
-  const scroll = (dir: number) => rail.current?.scrollBy({ left: dir * (rail.current.clientWidth * 0.8), behavior: 'smooth' });
+  const bestsellers = products.filter((p) => p.isBestseller);
   const countFor = (c: string) => products.filter((p) => p.collection === (c === 'gift-sets' ? 'Gift Sets' : c[0].toUpperCase() + c.slice(1))).length;
   const [sig, bot, gift] = collections;
 
@@ -58,7 +59,7 @@ export function HomePage() {
           <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 flex flex-col justify-end pb-10 sm:pb-14">
             <div className="max-w-3xl text-[#F7F4EF]">
               <p className="rise rise-1 text-sm text-[#F2C27B] mb-5 flex items-center gap-2"><Flame size={15} />Autumn pour, now shipping</p>
-              <h1 className="rise rise-2 display-xl text-[56px] sm:text-[84px] lg:text-[112px]">Light that lingers.</h1>
+              <BlurText text="Light that lingers." emphasis={['lingers.']} delay={0.15} stagger={0.12} className="display-xl text-[56px] sm:text-[84px] lg:text-[112px]" />
               <p className="rise rise-3 mt-6 text-lg text-[#E9E2D6]/85 max-w-lg leading-relaxed">
                 Small-batch candles in coconut-soy and beeswax, with fragrance built slowly and a clean, even burn to the last centimetre.
               </p>
@@ -67,25 +68,12 @@ export function HomePage() {
                 <Button size="lg" variant="glass" onClick={() => navigate('listing', { collection: 'Gift Sets' })}>Gift sets</Button>
               </div>
             </div>
-
-            <button
-              onClick={() => navigate('detail', { productId: featured.id })}
-              className="rise rise-4 hidden lg:flex absolute right-10 bottom-14 glass rounded-2xl p-3 pr-5 items-center gap-4 text-left text-white hover:bg-white/20 w-[340px]"
-            >
-              <img src={featured.image} alt="" className="w-20 h-24 rounded-xl object-cover" />
-              <div className="flex-1">
-                <p className="text-xs text-white/70">Most loved</p>
-                <p className="font-serif text-xl leading-tight mt-0.5">{featured.name}</p>
-                <p className="text-sm text-white/80 mt-1">From ${fromPrice(featured)}</p>
-              </div>
-              <ArrowUpRight size={20} />
-            </button>
           </div>
         </div>
       </section>
 
       {/* ---------------- Values ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <FadeContent className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ul className="grid grid-cols-2 lg:grid-cols-4 border-b border-border">
           {[
             [Leaf, 'Plant and bee waxes', 'Coconut-soy and beeswax, never paraffin'],
@@ -99,10 +87,10 @@ export function HomePage() {
             </li>
           ))}
         </ul>
-      </section>
+      </FadeContent>
 
       {/* ---------------- Collections (bento) ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
+      <FadeContent className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
         <SectionHead title="Three ways to shop" sub="Our signatures, the botanical range, and boxed sets that are ready to give."
           action={<Button variant="outline" onClick={() => navigate('listing', { collection: 'All' })}>View all candles <ArrowRight size={15} /></Button>} />
         <div className="grid md:grid-cols-12 md:grid-rows-2 gap-4 md:h-[640px]">
@@ -125,71 +113,44 @@ export function HomePage() {
             </button>
           ))}
         </div>
-      </section>
+      </FadeContent>
 
-      {/* ---------------- Product rail ---------------- */}
-      <section className="mt-24 lg:mt-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHead
-            title={tab === 'best' ? 'The ones people reorder' : 'Fresh from the studio'}
-            action={
-              <div className="flex items-center gap-3">
-                <div className="inline-flex p-1 rounded-full bg-secondary" role="tablist" aria-label="Product selection">
-                  {([['best', 'Bestsellers'], ['new', 'New and seasonal']] as const).map(([k, l]) => (
-                    <button key={k} role="tab" aria-selected={tab === k} onClick={() => { setTab(k); rail.current?.scrollTo({ left: 0 }); }}
-                      className={`h-9 px-4 rounded-full text-sm ${tab === k ? 'bg-card shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`}>{l}</button>
-                  ))}
-                </div>
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => scroll(-1)} className="w-11 h-11 rounded-full border border-foreground/15 flex items-center justify-center hover:bg-card" aria-label="Scroll left"><ArrowLeft size={17} /></button>
-                  <button onClick={() => scroll(1)} className="w-11 h-11 rounded-full border border-foreground/15 flex items-center justify-center hover:bg-card" aria-label="Scroll right"><ArrowRight size={17} /></button>
-                </div>
-              </div>
-            }
-          />
-        </div>
-        <div ref={rail} className="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-px-4 sm:scroll-px-6 lg:scroll-px-[max(2rem,calc((100vw-80rem)/2+2rem))] px-4 sm:px-6 lg:px-[max(2rem,calc((100vw-80rem)/2+2rem))]">
-          {railItems.map((p) => (
-            <div key={p.id} className="snap-start shrink-0 w-[78%] sm:w-[44%] lg:w-[calc((80rem-4rem-3.75rem)/4)]">
-              <ProductCard product={p} size="lg" />
-            </div>
-          ))}
-          <button onClick={() => navigate('listing', { collection: 'All' })} className="snap-start shrink-0 w-[60%] sm:w-[30%] lg:w-[260px] aspect-[4/5] rounded-2xl border border-dashed border-foreground/20 flex flex-col items-center justify-center gap-3 hover:bg-card">
-            <span className="w-12 h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center"><ArrowRight size={18} /></span>
-            <span className="font-serif text-xl">See all {products.length}</span>
-          </button>
-        </div>
-      </section>
-
-      {/* ---------------- Scent finder ---------------- */}
+      {/* ---------------- Bestsellers ---------------- */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
-        <SectionHead title="Start with a feeling" sub="Pick a scent family and we'll show you the candles in it." />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {SCENT_FAMILIES.map((s) => {
-            const n = products.filter((p) => matchScent(p.tags, p.scent, s.name)).length;
-            return (
-              <button key={s.name} onClick={() => navigate('listing', { collection: 'All', scent: s.name })}
-                className="group relative rounded-3xl p-6 sm:p-7 aspect-[4/5] sm:aspect-[5/6] flex flex-col justify-between text-left overflow-hidden" style={{ background: s.tint, color: s.text }}>
-                <span className="text-sm opacity-70">{n} candles</span>
-                <div>
-                  <p className="display-lg text-4xl sm:text-5xl">{s.name}</p>
-                  <p className="text-sm mt-2 opacity-75">{s.blurb}</p>
-                </div>
-                <ArrowUpRight size={22} className="absolute top-6 right-6 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
-            );
-          })}
-        </div>
+        <SectionHead
+          title={<>The ones people <em>reorder</em></>}
+          action={
+            <button onClick={() => navigate('listing', { collection: 'All' })} className="group inline-flex items-center gap-2 text-sm font-medium">
+              See more
+              <span className="w-9 h-9 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center transition-transform duration-500 group-hover:rotate-[-45deg]"><ArrowRight size={16} /></span>
+            </button>
+          }
+        />
+        <motion.div
+          variants={gridVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10"
+        >
+          {bestsellers.map((p) => (
+            <motion.div key={p.id} variants={cardVariants}>
+              <motion.div whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 300, damping: 22 }}>
+                <ProductCard product={p} size="lg" />
+              </motion.div>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
       {/* ---------------- Story ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
+      <FadeContent className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[6/7]">
             <img src={STORY_IMG} alt="Lighting an amber-glass candle with a match" className="absolute inset-0 w-full h-full object-cover" />
           </div>
           <div>
-            <h2 className="display-lg text-4xl sm:text-6xl">Made slowly, fifty at a time.</h2>
+            <h2 className="display-lg text-4xl sm:text-6xl">Made <em>slowly,</em> fifty at a time.</h2>
             <div className="mt-8 space-y-5 text-muted-foreground leading-relaxed text-[15px] max-w-lg">
               <p>Ember &amp; Bloom began in 2016 on a kitchen stove in Portland, with a notebook of fragrance experiments and the belief that a candle deserves the care of a good meal.</p>
               <p>We develop every formula in-house, source phthalate-free oils from a single fragrance house, and cure each batch for two weeks so the scent settles before it reaches you.</p>
@@ -201,11 +162,11 @@ export function HomePage() {
             </dl>
           </div>
         </div>
-      </section>
+      </FadeContent>
 
       {/* ---------------- Reviews ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
-        <SectionHead title="In their words" sub="4.9 average from more than 2,300 reviews." />
+      <FadeContent className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
+        <SectionHead title="In their words" sub="Words that stayed after the wax was gone." />
         <div className="grid md:grid-cols-3 gap-4">
           {testimonials.map((t) => {
             const p = products.find((x) => x.name === t.product);
@@ -224,22 +185,7 @@ export function HomePage() {
             );
           })}
         </div>
-      </section>
+      </FadeContent>
     </div>
   );
-}
-
-/** Loose scent-family matching shared with the listing page. */
-export function matchScent(tags: string[], scent: string, family: string) {
-  const hay = (tags.join(' ') + ' ' + scent).toLowerCase();
-  const map: Record<string, string[]> = {
-    Woody: ['woody', 'cedar', 'sandalwood', 'smoky', 'oud'],
-    Floral: ['floral', 'rose', 'lavender', 'jasmine'],
-    Fresh: ['fresh', 'coastal', 'clean', 'green', 'sea'],
-    Sweet: ['sweet', 'honey', 'vanilla', 'golden', 'amber'],
-    Amber: ['amber', 'warm'],
-    Citrus: ['citrus', 'bergamot', 'neroli'],
-    Earthy: ['earthy', 'moss', 'vetiver', 'fern'],
-  };
-  return (map[family] || [family.toLowerCase()]).some((k) => hay.includes(k));
 }

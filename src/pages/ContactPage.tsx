@@ -54,7 +54,7 @@ export function ContactPage() {
       </nav>
       <div className="grid lg:grid-cols-12 gap-8 mt-6">
         <div className="lg:col-span-7">
-          <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">We'd love to hear from you.</h1>
+          <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">We'd <em>love</em> to hear from you.</h1>
           <p className="text-muted-foreground mt-5 max-w-lg text-[15px]">Questions about an order, a scent, or a gift for a hundred guests. A real person in the studio replies within one business day.</p>
         </div>
       </div>

@@ -207,7 +207,7 @@ export function ProductDetailPage() {
 
       <section className="mt-24 lg:mt-32">
         <div className="flex items-end justify-between mb-8">
-          <h2 className="display-lg text-4xl sm:text-5xl">Pairs well with</h2>
+          <h2 className="display-lg text-4xl sm:text-5xl">Pairs <em>well</em> with</h2>
           <Button variant="outline" size="sm" onClick={() => navigate('listing', { collection: 'All' })}>Shop all</Button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">

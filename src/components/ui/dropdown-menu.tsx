@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DropdownMenu = (props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -26,5 +27,18 @@ function DropdownMenuLabel({ className, ...props }: React.ComponentProps<typeof 
 function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
   return <DropdownMenuPrimitive.Separator data-slot="dropdown-menu-separator" className={cn('my-1.5 h-px bg-border', className)} {...props} />;
 }
+const DropdownMenuRadioGroup = (props: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) => <DropdownMenuPrimitive.RadioGroup data-slot="dropdown-menu-radio-group" {...props} />;
+function DropdownMenuRadioItem({ className, children, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) {
+  return (
+    <DropdownMenuPrimitive.RadioItem
+      data-slot="dropdown-menu-radio-item"
+      className={cn('flex cursor-pointer select-none items-center justify-between gap-6 rounded-xl px-3 py-2.5 text-sm text-muted-foreground outline-none transition-colors data-[highlighted]:bg-secondary data-[highlighted]:text-foreground data-[state=checked]:font-medium data-[state=checked]:text-foreground', className)}
+      {...props}
+    >
+      {children}
+      <DropdownMenuPrimitive.ItemIndicator><Check size={16} /></DropdownMenuPrimitive.ItemIndicator>
+    </DropdownMenuPrimitive.RadioItem>
+  );
+}
 
-export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator };
+export { DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator };

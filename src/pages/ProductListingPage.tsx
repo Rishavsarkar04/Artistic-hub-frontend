@@ -1,25 +1,29 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SlidersHorizontal, X, ChevronDown, Search } from 'lucide-react';
+import { SlidersHorizontal, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { products, collections as collectionData } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { ProductCard, fromPrice, allSoldOut } from '../components/product/ProductCard';
-import { matchScent } from './HomePage';
+import { Slider } from '@/components/ui/slider';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
+import { topLevelTags, childrenOf, descendantIds, tagPath, getTag, productHasTag, tagSearchText, colors } from '../data/tags';
 
 type SortOption = 'featured' | 'newest' | 'price-asc' | 'price-desc';
-
-const scents = ['Woody', 'Floral', 'Fresh', 'Sweet', 'Amber', 'Earthy', 'Citrus'];
-const collectionTabs = ['All', 'Signature', 'Botanical', 'Coastal', 'Gift Sets'];
-const sizes = ['Small', 'Medium', 'Large'];
-const prices = [
-  { id: 'u40', label: 'Under $40', test: (v: number) => v < 40 },
-  { id: '40-70', label: '$40 to $70', test: (v: number) => v >= 40 && v <= 70 },
-  { id: 'o70', label: 'Over $70', test: (v: number) => v > 70 },
+const SORT_OPTIONS: { id: SortOption; label: string }[] = [
+  { id: 'featured', label: 'Featured' },
+  { id: 'newest', label: 'Newest' },
+  { id: 'price-asc', label: 'Price: low to high' },
+  { id: 'price-desc', label: 'Price: high to low' },
 ];
 
-interface Filters { scents: string[]; sizes: string[]; prices: string[]; inStockOnly: boolean }
-const EMPTY: Filters = { scents: [], sizes: [], prices: [], inStockOnly: false };
+// Slider bounds, rounded out to the nearest $5 around the catalogue's starting prices.
+const PRICE_MIN = Math.floor(Math.min(...products.map(fromPrice)) / 5) * 5;
+const PRICE_MAX = Math.ceil(Math.max(...products.map(fromPrice)) / 5) * 5;
+
+interface Filters { tags: string[]; colors: string[]; price: [number, number] }
+const EMPTY: Filters = { tags: [], colors: [], price: [PRICE_MIN, PRICE_MAX] };
+const priceActive = (f: Filters) => f.price[0] > PRICE_MIN || f.price[1] < PRICE_MAX;
 
 const HEADERS: Record<string, { title: string; sub: string; img?: string }> = {
   All: { title: 'All candles', sub: 'Every scent we pour, from quiet florals to smoky woods.' },
@@ -42,10 +46,11 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function Chip({ on, onClick, children, count }: { on: boolean; onClick: () => void; children: React.ReactNode; count?: number }) {
+function Chip({ on, onClick, children, count, swatch }: { on: boolean; onClick: () => void; children: React.ReactNode; count?: number; swatch?: string }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on} disabled={count === 0 && !on}
       className={`h-9 px-3.5 rounded-full text-[13px] border flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed ${on ? 'bg-ink text-[#F7F4EF] border-ink' : 'bg-card border-border hover:border-foreground/40'}`}>
+      {swatch && <span className="size-3.5 rounded-full ring-1 ring-inset ring-black/15" style={{ background: swatch }} aria-hidden />}
       {children}{count !== undefined && <span className={`tabular ${on ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>}
     </button>
   );
@@ -57,23 +62,35 @@ export function ProductListingPage() {
   const [sort, setSort] = useState<SortOption>('featured');
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<Filters>({ ...EMPTY, scents: state.listingScent ? [state.listingScent] : [] });
+  const [filters, setFilters] = useState<Filters>(() => {
+    const initial = state.listingScent?.toLowerCase();
+    return { ...EMPTY, tags: initial && getTag(initial) ? [initial] : [] };
+  });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLoading(true); const t = setTimeout(() => setLoading(false), 350); return () => clearTimeout(t); }, [filters, search, sort]);
+  useEffect(() => { setLoading(true); const t = setTimeout(() => setLoading(false), 350); return () => clearTimeout(t); }, [filters.tags, filters.colors, search, sort]); // not price: dragging the slider should update live
 
-  const toggle = (k: 'scents' | 'sizes' | 'prices', v: string) =>
-    setFilters((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
+  const toggleColor = (id: string) =>
+    setFilters((f) => ({ ...f, colors: f.colors.includes(id) ? f.colors.filter((x) => x !== id) : [...f.colors, id] }));
+  // Picking a tag replaces any selected ancestor or descendant of it, so the filter narrows instead of overlapping.
+  const toggleTag = (id: string) =>
+    setFilters((f) => {
+      if (f.tags.includes(id)) return { ...f, tags: f.tags.filter((x) => x !== id) };
+      const related = new Set([...descendantIds(id), ...tagPath(id).map((t) => t.id)]);
+      return { ...f, tags: [...f.tags.filter((x) => !related.has(x)), id] };
+    });
+  // A tag is expanded when it, or something beneath it, is selected.
+  const isOpen = (id: string) => descendantIds(id).some((x) => filters.tags.includes(x));
   const clearAll = () => { setFilters(EMPTY); setSearch(''); };
 
   const test = (p: (typeof products)[number], skip?: keyof Filters) => {
     const q = search.trim().toLowerCase();
+    const price = fromPrice(p);
     return (collection === 'All' || p.collection === collection) &&
-      (!q || [p.name, p.scent, ...p.tags].join(' ').toLowerCase().includes(q)) &&
-      (skip === 'scents' || !filters.scents.length || filters.scents.some((s) => matchScent(p.tags, p.scent, s))) &&
-      (skip === 'sizes' || !filters.sizes.length || p.sizes.some((s) => filters.sizes.includes(s.label))) &&
-      (skip === 'prices' || !filters.prices.length || filters.prices.some((id) => prices.find((x) => x.id === id)!.test(fromPrice(p)))) &&
-      (skip === 'inStockOnly' || !filters.inStockOnly || !allSoldOut(p));
+      (!q || [p.name, p.scent, tagSearchText(p)].join(' ').toLowerCase().includes(q)) &&
+      (skip === 'tags' || !filters.tags.length || filters.tags.some((t) => productHasTag(p, t))) &&
+      (skip === 'colors' || !filters.colors.length || filters.colors.includes(p.color)) &&
+      (skip === 'price' || (price >= filters.price[0] && price <= filters.price[1]));
   };
   const count = (skip: keyof Filters, fn: (p: (typeof products)[number]) => boolean) => products.filter((p) => test(p, skip) && fn(p)).length;
 
@@ -86,35 +103,51 @@ export function ProductListingPage() {
   }, [filters, search, sort, collection]);
 
   const chips: [keyof Filters, string, string][] = [
-    ...filters.scents.map((v) => ['scents', v, v] as [keyof Filters, string, string]),
-    ...filters.sizes.map((v) => ['sizes', v, v] as [keyof Filters, string, string]),
-    ...filters.prices.map((v) => ['prices', v, prices.find((x) => x.id === v)!.label] as [keyof Filters, string, string]),
-    ...(filters.inStockOnly ? [['inStockOnly', 'in', 'In stock'] as [keyof Filters, string, string]] : []),
+    ...filters.tags.map((v) => ['tags', v, getTag(v)?.name ?? v] as [keyof Filters, string, string]),
+    ...filters.colors.map((v) => ['colors', v, colors.find((c) => c.id === v)?.name ?? v] as [keyof Filters, string, string]),
+    ...(priceActive(filters) ? [['price', 'range', `$${filters.price[0]} to $${filters.price[1]}`] as [keyof Filters, string, string]] : []),
   ];
-  const removeChip = (k: keyof Filters, v: string) => (k === 'inStockOnly' ? setFilters((f) => ({ ...f, inStockOnly: false })) : toggle(k as 'scents', v));
+  const removeChip = (k: keyof Filters, v: string) =>
+    k === 'tags' ? toggleTag(v) : k === 'colors' ? toggleColor(v) : setFilters((f) => ({ ...f, price: EMPTY.price }));
+
+  const tagChip = (id: string) => (
+    <Chip key={id} on={filters.tags.includes(id)} onClick={() => toggleTag(id)} count={count('tags', (p) => productHasTag(p, id))}>{getTag(id)!.name}</Chip>
+  );
+  // Children of an expanded tag, indented under it; recurses into any expanded child.
+  const subtree = (id: string): React.ReactNode => {
+    const kids = childrenOf(id);
+    if (!kids.length || !isOpen(id)) return null;
+    return (
+      <div key={`sub-${id}`} className="basis-full pl-3 ml-1 border-l border-border flex flex-col gap-2">
+        <p className="text-xs text-muted-foreground">{getTag(id)!.name}</p>
+        <div className="flex flex-wrap gap-2">{kids.map((k) => tagChip(k.id))}</div>
+        {kids.map((k) => subtree(k.id))}
+      </div>
+    );
+  };
   const head = HEADERS[collection] ?? HEADERS.All;
 
   const panel = (
     <div>
-      <Group title="Scent family">
-        {scents.map((s) => <Chip key={s} on={filters.scents.includes(s)} onClick={() => toggle('scents', s)} count={count('scents', (p) => matchScent(p.tags, p.scent, s))}>{s}</Chip>)}
+      <Group title="Price range">
+        <div className="basis-full">
+          <div className="flex items-center justify-between text-sm tabular mb-3">
+            <span>${filters.price[0]}</span><span className="text-muted-foreground">to</span><span>${filters.price[1]}</span>
+          </div>
+          <Slider min={PRICE_MIN} max={PRICE_MAX} step={1} minStepsBetweenThumbs={1} value={filters.price} thumbLabels={['Minimum price', 'Maximum price']}
+            onValueChange={(v) => setFilters((f) => ({ ...f, price: [v[0], v[1]] }))} />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2 tabular"><span>${PRICE_MIN}</span><span>${PRICE_MAX}</span></div>
+        </div>
       </Group>
-      <Group title="Size">
-        {sizes.map((s) => <Chip key={s} on={filters.sizes.includes(s)} onClick={() => toggle('sizes', s)} count={count('sizes', (p) => p.sizes.some((x) => x.label === s))}>{s}</Chip>)}
+      <Group title="Color">
+        {colors.map((c) => (
+          <Chip key={c.id} swatch={c.hex} on={filters.colors.includes(c.id)} onClick={() => toggleColor(c.id)} count={count('colors', (p) => p.color === c.id)}>{c.name}</Chip>
+        ))}
       </Group>
-      <Group title="Price">
-        {prices.map((b) => <Chip key={b.id} on={filters.prices.includes(b.id)} onClick={() => toggle('prices', b.id)} count={count('prices', (p) => b.test(fromPrice(p)))}>{b.label}</Chip>)}
+      <Group title="Tags">
+        {topLevelTags.map((t) => tagChip(t.id))}
+        {topLevelTags.map((t) => subtree(t.id))}
       </Group>
-      <div className="py-5">
-        <label className="flex items-center justify-between text-sm font-medium cursor-pointer">
-          In stock only
-          <span className="relative">
-            <input type="checkbox" className="peer sr-only" checked={filters.inStockOnly} onChange={(e) => setFilters((f) => ({ ...f, inStockOnly: e.target.checked }))} />
-            <span className="block w-10 h-6 rounded-full bg-border peer-checked:bg-ink transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring" />
-            <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
-          </span>
-        </label>
-      </div>
     </div>
   );
 
@@ -140,32 +173,31 @@ export function ProductListingPage() {
         {/* Collection tabs + toolbar */}
         <div className="sticky top-16 lg:top-[72px] z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 glass-light border-b border-border/70 mt-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 py-3">
-            <div className="no-scrollbar flex gap-1 overflow-x-auto" role="tablist" aria-label="Collections">
-              {collectionTabs.map((c) => (
-                <button key={c} role="tab" aria-selected={collection === c} onClick={() => navigate('listing', { collection: c, scent: filters.scents[0] ?? null })}
-                  className={`h-9 px-4 rounded-full text-sm whitespace-nowrap ${collection === c ? 'bg-ink text-[#F7F4EF]' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}>
-                  {c === 'All' ? 'All' : c}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 lg:ml-auto">
-              <div className="relative flex-1 lg:w-64 lg:flex-none">
+            <div className="flex items-center gap-2 w-full">
+              <div className="relative flex-1 max-w-md mr-auto">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input type="search" placeholder="Search this collection" aria-label="Search products" value={search} onChange={(e) => setSearch(e.target.value)}
+                <input type="search" placeholder="Search candles, notes or scents" aria-label="Search products" value={search} onChange={(e) => setSearch(e.target.value)}
                   className="w-full h-10 pl-10 pr-3 rounded-full border border-border bg-card text-sm focus:outline-none focus:border-foreground/50" />
               </div>
               <Button variant="outline" size="sm" className="lg:hidden h-10" onClick={() => setFilterOpen(true)}>
                 <SlidersHorizontal size={15} />Filter{chips.length > 0 && <span className="tabular">({chips.length})</span>}
               </Button>
-              <div className="relative">
-                <label htmlFor="sort" className="sr-only">Sort by</label>
-                <select id="sort" value={sort} onChange={(e) => setSort(e.target.value as SortOption)}
-                  className="h-10 pl-4 pr-9 rounded-full border border-border bg-card text-sm appearance-none cursor-pointer focus:outline-none focus:border-foreground/50">
-                  <option value="featured">Featured</option><option value="newest">Newest</option>
-                  <option value="price-asc">Price, low to high</option><option value="price-desc">Price, high to low</option>
-                </select>
-                <ChevronDown size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="group h-10 pl-4 pr-3.5 rounded-full border border-border bg-card text-sm flex items-center gap-2 whitespace-nowrap outline-none hover:border-foreground/40 focus-visible:ring-4 focus-visible:ring-ring/25 data-[state=open]:border-foreground/50">
+                    <ArrowUpDown size={15} className="text-muted-foreground" />
+                    <span className="text-muted-foreground hidden sm:inline">Sort:</span>
+                    <span className="font-medium">{SORT_OPTIONS.find((o) => o.id === sort)!.label}</span>
+                    <ChevronDown size={15} className="text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-52">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Sort by</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+                    {SORT_OPTIONS.map((o) => <DropdownMenuRadioItem key={o.id} value={o.id}>{o.label}</DropdownMenuRadioItem>)}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

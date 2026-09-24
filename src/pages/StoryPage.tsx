@@ -39,7 +39,7 @@ export function StoryPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
           <div className="relative max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-10 pb-12 sm:pb-16 text-[#F7F4EF]">
             <p className="rise rise-1 text-sm text-[#F2C27B] mb-4">Our story</p>
-            <h1 className="rise rise-2 display-xl text-6xl sm:text-7xl lg:text-8xl max-w-4xl">A kitchen stove, a notebook, and ten years of slow candles.</h1>
+            <h1 className="rise rise-2 display-xl text-6xl sm:text-7xl lg:text-8xl max-w-4xl">A kitchen stove, a notebook, and ten years of <em>slow candles.</em></h1>
           </div>
         </div>
       </section>
@@ -57,7 +57,7 @@ export function StoryPage() {
 
       {/* Process: a real sequence, so it is numbered */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
-        <h2 className="display-lg text-4xl sm:text-5xl max-w-xl">How a candle gets made</h2>
+        <h2 className="display-lg text-4xl sm:text-5xl max-w-xl">How a candle gets <em>made</em></h2>
         <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
           {PROCESS.map((s, i) => (
             <li key={s.title} className="group">
@@ -76,7 +76,7 @@ export function StoryPage() {
       <section className="mt-24 lg:mt-32 bg-ink text-[#E9E2D6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4">
-            <h2 className="display-lg text-4xl sm:text-5xl text-[#F7F4EF]">Ten years, one studio</h2>
+            <h2 className="display-lg text-4xl sm:text-5xl text-[#F7F4EF]">Ten years, <em>one studio</em></h2>
             <p className="mt-4 text-[#B8AE9F] max-w-sm">We've grown slowly on purpose. Here's what changed, and what didn't.</p>
           </div>
           <ol className="lg:col-span-8 relative border-l border-white/15 ml-2 space-y-12">
@@ -93,7 +93,7 @@ export function StoryPage() {
 
       {/* Values */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
-        <h2 className="display-lg text-4xl sm:text-5xl">What we won't compromise on</h2>
+        <h2 className="display-lg text-4xl sm:text-5xl">What we <em>won't</em> compromise on</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
           {VALUES.map(({ icon: Icon, title, text }) => (
             <div key={title} className="rounded-3xl bg-card p-7">

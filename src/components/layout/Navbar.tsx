@@ -1,22 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ShoppingBag, User, Search, Menu, X, ArrowRight, ArrowUpRight, ChevronDown, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ShoppingBag, User, Search, Menu, X, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
-import { products, collections } from '../../data/products';
+import { products } from '../../data/products';
+import { tagSearchText } from '../../data/tags';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
-const SHOP_COLLECTIONS = [
-  { label: 'All candles', collection: 'All' },
-  { label: 'Signature', collection: 'Signature' },
-  { label: 'Botanical', collection: 'Botanical' },
-  { label: 'Coastal', collection: 'Coastal' },
-  { label: 'Gift sets', collection: 'Gift Sets' },
-];
-const SHOP_SCENTS = ['Woody', 'Floral', 'Fresh', 'Sweet'];
 const popular = ['Sandalwood', 'Lavender', 'Rose', 'Sea salt'];
-const countIn = (c: string) => (c === 'All' ? products.length : products.filter((p) => p.collection === c).length);
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -25,7 +16,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <path d="M12 2.5c-3.2 4.3-5.2 7.6-5.2 10.6a5.2 5.2 0 0 0 10.4 0c0-3-2-6.3-5.2-10.6Z" fill={light ? '#F2C27B' : '#1B1814'} />
         <path d="M12 10.2c-1.3 1.9-2.1 3.3-2.1 4.6a2.1 2.1 0 0 0 4.2 0c0-1.3-.8-2.7-2.1-4.6Z" fill={light ? '#1B1814' : '#F2C27B'} />
       </svg>
-      <span className="font-serif text-[22px] leading-none tracking-[-0.02em]">Ember &amp; Bloom</span>
+      <span className="font-serif text-[22px] leading-none tracking-[-0.02em]">Ember <em>&amp;</em> Bloom</span>
     </span>
   );
 }
@@ -33,12 +24,9 @@ export function Logo({ light = false }: { light?: boolean }) {
 export function Navbar() {
   const { state, navigate, cartCount, dispatch } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
-  const hoverTimer = useRef<number | undefined>(undefined);
-  const openedAt = useRef(0);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -48,29 +36,24 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!searchOpen && !megaOpen) return;
-    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') { setMegaOpen(false); closeSearch(); } };
+    if (!searchOpen) return;
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') closeSearch(); };
     window.addEventListener('keydown', k);
     return () => window.removeEventListener('keydown', k);
-  }, [searchOpen, megaOpen]);
+  }, [searchOpen]);
 
   const q = searchQuery.trim().toLowerCase();
-  const searchResults = q.length > 1 ? products.filter((p) => [p.name, p.scent, ...p.tags].join(' ').toLowerCase().includes(q)) : [];
+  const searchResults = q.length > 1 ? products.filter((p) => [p.name, p.scent, tagSearchText(p)].join(' ').toLowerCase().includes(q)) : [];
   const closeSearch = () => { setSearchOpen(false); setSearchQuery(''); };
-  const go = (fn: () => void) => { fn(); setMegaOpen(false); setMobileOpen(false); closeSearch(); };
-
-  const openMega = () => { window.clearTimeout(hoverTimer.current); setSearchOpen(false); if (!megaOpen) openedAt.current = Date.now(); setMegaOpen(true); };
-  // Hover opens the menu; a click right after hovering keeps it open instead of toggling it shut.
-  const toggleMega = () => (megaOpen && Date.now() - openedAt.current > 400 ? setMegaOpen(false) : openMega());
-  const closeMegaSoon = () => { window.clearTimeout(hoverTimer.current); hoverTimer.current = window.setTimeout(() => setMegaOpen(false), 120); };
+  const go = (fn: () => void) => { fn(); setMobileOpen(false); closeSearch(); };
 
   const onShop = state.currentPage === 'listing' || state.currentPage === 'detail';
-  const primaryLinks: { label: string; page: 'story' | 'contact' | 'listing'; active: boolean; opts?: { collection: string } }[] = [
-    { label: 'Gift sets', page: 'listing', opts: { collection: 'Gift Sets' }, active: state.currentPage === 'listing' && state.listingCollection === 'Gift Sets' },
+  const primaryLinks: { label: string; page: 'home' | 'story' | 'contact' | 'listing'; active: boolean; opts?: { collection: string } }[] = [
+    { label: 'Home', page: 'home', active: state.currentPage === 'home' },
+    { label: 'Shop', page: 'listing', opts: { collection: 'All' }, active: onShop },
     { label: 'Our story', page: 'story', active: state.currentPage === 'story' },
     { label: 'Contact', page: 'contact', active: state.currentPage === 'contact' },
   ];
-  const newest = products.find((p) => p.isNew)!;
 
   return (
     <>
@@ -83,8 +66,7 @@ export function Navbar() {
       </div>
 
       <header
-        className={cn('sticky top-0 z-40 transition-all duration-300', scrolled || searchOpen || megaOpen ? 'glass-light border-b border-border/70' : 'bg-background border-b border-transparent')}
-        onMouseLeave={closeMegaSoon}
+        className={cn('sticky top-0 z-40 transition-all duration-300', scrolled || searchOpen ? 'glass-light border-b border-border/70' : 'bg-background border-b border-transparent')}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-[72px]">
@@ -93,17 +75,8 @@ export function Navbar() {
                 <Menu size={20} />
               </button>
               <nav className="hidden lg:flex items-center gap-1 -ml-3" aria-label="Main">
-                <button
-                  onMouseEnter={openMega}
-                  onClick={toggleMega}
-                  aria-expanded={megaOpen}
-                  aria-controls="shop-menu"
-                  className={cn('px-3 h-9 rounded-full text-sm flex items-center gap-1', megaOpen || onShop ? 'text-foreground bg-foreground/[.06]' : 'text-muted-foreground hover:text-foreground')}
-                >
-                  Shop <ChevronDown size={15} className={cn('transition-transform', megaOpen && 'rotate-180')} />
-                </button>
                 {primaryLinks.map((l) => (
-                  <button key={l.label} onMouseEnter={closeMegaSoon} onClick={() => go(() => navigate(l.page, l.opts))} aria-current={l.active ? 'page' : undefined}
+                  <button key={l.label} onClick={() => go(() => navigate(l.page, l.opts))} aria-current={l.active ? 'page' : undefined}
                     className={cn('px-3 h-9 rounded-full text-sm', l.active ? 'text-foreground bg-foreground/[.06]' : 'text-muted-foreground hover:text-foreground')}>
                     {l.label}
                   </button>
@@ -116,7 +89,7 @@ export function Navbar() {
             </button>
 
             <div className="flex items-center justify-end gap-1 -mr-2">
-              <button onClick={() => (searchOpen ? closeSearch() : (setMegaOpen(false), setSearchOpen(true)))} className="size-10 flex items-center justify-center rounded-full hover:bg-foreground/5" aria-label="Search" aria-expanded={searchOpen}>
+              <button onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))} className="size-10 flex items-center justify-center rounded-full hover:bg-foreground/5" aria-label="Search" aria-expanded={searchOpen}>
                 {searchOpen ? <X size={19} /> : <Search size={19} />}
               </button>
 
@@ -157,49 +130,6 @@ export function Navbar() {
             </div>
           </div>
         </div>
-
-        {/* Shop mega menu */}
-        {megaOpen && (
-          <div id="shop-menu" className="absolute inset-x-0 top-full bg-background border-b border-border/70 shadow-[0_30px_60px_-30px_rgba(22,19,15,.35)] fade-in" onMouseEnter={openMega}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-12 gap-8">
-              <div className="col-span-3">
-                <p className="text-xs text-muted-foreground mb-4">Collections</p>
-                <ul className="space-y-1">
-                  {SHOP_COLLECTIONS.map((c) => (
-                    <li key={c.label}>
-                      <button onClick={() => go(() => navigate('listing', { collection: c.collection }))} className="group w-full flex items-baseline justify-between py-1.5 text-left">
-                        <span className="font-serif text-2xl group-hover:underline underline-offset-4 decoration-1">{c.label}</span>
-                        <span className="text-xs text-muted-foreground tabular">{countIn(c.collection)}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="col-span-3">
-                <p className="text-xs text-muted-foreground mb-4">Shop by scent</p>
-                <ul className="space-y-1">
-                  {SHOP_SCENTS.map((s) => (
-                    <li key={s}><button onClick={() => go(() => navigate('listing', { collection: 'All', scent: s }))} className="py-1.5 text-[15px] hover:underline underline-offset-4">{s}</button></li>
-                  ))}
-                  <li className="pt-3"><button onClick={() => go(() => navigate('contact'))} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">Need help choosing? Ask us <ArrowRight size={14} /></button></li>
-                </ul>
-              </div>
-              {[
-                { title: `New: ${newest.name}`, sub: `From $${Math.min(...newest.sizes.map((s) => s.price))}`, img: newest.image, act: () => navigate('detail', { productId: newest.id }) },
-                { title: 'Gift sets', sub: 'Boxed, wrapped and ready to give', img: collections[2].image, act: () => navigate('listing', { collection: 'Gift Sets' }) },
-              ].map((c) => (
-                <button key={c.title} onClick={() => go(c.act)} className="col-span-3 group relative aspect-[4/3] overflow-hidden rounded-2xl text-left">
-                  <img src={c.img} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/75 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-[#F7F4EF] flex items-end justify-between gap-3">
-                    <div><p className="font-serif text-xl leading-tight">{c.title}</p><p className="text-xs text-white/75 mt-1">{c.sub}</p></div>
-                    <ArrowUpRight size={18} />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Search */}
         {searchOpen && (
@@ -242,26 +172,7 @@ export function Navbar() {
         <SheetContent side="left">
           <SheetHeader><SheetTitle><Logo /></SheetTitle><SheetDescription className="sr-only">Site navigation</SheetDescription></SheetHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
-            <Accordion type="single" collapsible defaultValue="shop">
-              <AccordionItem value="shop">
-                <AccordionTrigger className="font-serif text-3xl font-normal py-4">Shop</AccordionTrigger>
-                <AccordionContent>
-                  <ul className="space-y-1 pl-1">
-                    {SHOP_COLLECTIONS.map((c) => (
-                      <li key={c.label}>
-                        <button onClick={() => go(() => navigate('listing', { collection: c.collection }))} className="w-full flex justify-between py-2 text-[15px] text-foreground">
-                          {c.label}<span className="text-muted-foreground tabular">{countIn(c.collection)}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {SHOP_SCENTS.map((s) => <button key={s} onClick={() => go(() => navigate('listing', { collection: 'All', scent: s }))} className="h-9 px-3.5 rounded-full border border-border text-[13px] text-foreground">{s}</button>)}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {[['Our story', () => navigate('story')], ['Contact', () => navigate('contact')], ['Help and FAQ', () => navigate('contact')]].map(([l, fn]) => (
+            {[['Home', () => navigate('home')], ['Shop', () => navigate('listing', { collection: 'All' })], ['Our story', () => navigate('story')], ['Contact', () => navigate('contact')], ['Help and FAQ', () => navigate('contact')]].map(([l, fn]) => (
               <button key={l as string} onClick={() => go(fn as () => void)} className="w-full flex items-center justify-between py-4 border-b border-border text-left">
                 <span className="font-serif text-3xl">{l as string}</span><ArrowRight size={18} className="text-muted-foreground" />
               </button>

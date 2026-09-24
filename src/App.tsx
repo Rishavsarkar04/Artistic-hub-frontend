@@ -1,4 +1,5 @@
 import React from 'react';
+import { MotionConfig } from 'motion/react';
 import { AppProvider, useApp } from './store/AppContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -41,8 +42,10 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppRouter />
-    </AppProvider>
+    <MotionConfig reducedMotion="user">
+      <AppProvider>
+        <AppRouter />
+      </AppProvider>
+    </MotionConfig>
   );
 }
