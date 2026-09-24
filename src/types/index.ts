@@ -103,6 +103,8 @@ export interface Order {
   billingAddress: Address;
   deliveryMethod: DeliveryMethod;
   trackingNumber?: string;
+  /** Courier's tracking page for this shipment, once it has shipped. */
+  trackingUrl?: string;
   estimatedDelivery: string;
   transactionRef: string;
   paymentMethod: string;

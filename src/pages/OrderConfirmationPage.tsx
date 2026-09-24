@@ -1,9 +1,9 @@
 import React from 'react';
+import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
-import { Check, Package, MapPin, CreditCard, ExternalLink, Clock } from 'lucide-react';
+import { Check, Package, MapPin, ExternalLink, Clock } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 export function OrderConfirmationPage() {
   const { state, navigate } = useApp();
@@ -49,16 +49,6 @@ export function OrderConfirmationPage() {
               <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Order Date</p>
               <p className="font-medium">{new Date(order.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Payment Status</p>
-              <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'pending' ? 'warning' : 'destructive'}>
-                {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Est. Delivery</p>
-              <p className="font-medium">{new Date(order.estimatedDelivery).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
-            </div>
           </div>
         </div>
 
@@ -76,23 +66,23 @@ export function OrderConfirmationPage() {
                   <p className="text-sm font-medium">{item.product.name}</p>
                   <p className="text-xs text-muted-foreground">{item.size.label} · {item.size.weight} · Qty {item.quantity}</p>
                 </div>
-                <p className="text-sm font-semibold">${(item.size.price * item.quantity).toFixed(2)}</p>
+                <p className="text-sm font-semibold">{formatPrice(item.size.price * item.quantity)}</p>
               </div>
             ))}
           </div>
           <div className="border-t border-border mt-4 pt-4 space-y-1.5 text-sm">
             <div className="flex justify-between text-muted-foreground">
-              <span>Subtotal</span><span>${order.subtotal.toFixed(2)}</span>
+              <span>Subtotal</span><span>{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Shipping</span>
-              <span>{order.shipping === 0 ? <span className="text-emerald-600">Free</span> : `$${order.shipping.toFixed(2)}`}</span>
+              <span>{order.shipping === 0 ? <span className="text-emerald-600">Free</span> : formatPrice(order.shipping)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
-              <span>Tax</span><span>${order.tax.toFixed(2)}</span>
+              <span>Tax</span><span>{formatPrice(order.tax)}</span>
             </div>
             <div className="flex justify-between font-semibold text-base pt-1">
-              <span>Total</span><span>${order.total.toFixed(2)}</span>
+              <span>Total</span><span>{formatPrice(order.total)}</span>
             </div>
           </div>
         </div>
@@ -107,16 +97,6 @@ export function OrderConfirmationPage() {
           <p className="text-sm text-muted-foreground">{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ''}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
           <p className="text-sm text-muted-foreground">{order.shippingAddress.country}</p>
-        </div>
-
-        {/* Payment */}
-        <div className="bg-card border border-border rounded-xl p-5">
-          <h2 className="font-medium mb-3 flex items-center gap-2">
-            <CreditCard size={16} className="text-muted-foreground" />
-            Payment
-          </h2>
-          <p className="text-sm text-muted-foreground">{order.paymentMethod}</p>
-          <p className="text-xs text-muted-foreground mt-1">Ref: {order.transactionRef}</p>
         </div>
 
         {/* Actions */}

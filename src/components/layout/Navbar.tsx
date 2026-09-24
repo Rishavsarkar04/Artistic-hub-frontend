@@ -43,14 +43,6 @@ export function Navbar() {
 
   return (
     <>
-      <div className="bg-ink text-[#E9E2D6] text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-center gap-6">
-          <p>Free shipping over $75</p>
-          <span className="hidden sm:block w-1 h-1 rounded-full bg-[#E9E2D6]/40" aria-hidden />
-          <button className="hidden sm:block hover:text-white underline-offset-4 hover:underline" onClick={() => navigate('story')}>Hand-poured in Portland in batches of fifty</button>
-        </div>
-      </div>
-
       <header
         className={cn('sticky top-0 z-40 transition-all duration-300', scrolled ? 'glass-light border-b border-border/70' : 'bg-background border-b border-transparent')}
       >

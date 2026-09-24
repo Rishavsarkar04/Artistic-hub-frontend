@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Minus, Plus, Check } from 'lucide-react';
+import { formatPrice } from '@/lib/money';
+import { ChevronLeft, ChevronRight, Minus, Plus, Check, ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { products } from '../data/products';
 import type { Product, ProductSize } from '../types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Modal } from '@/components/shared/Modal';
 import { ProductCard, allSoldOut } from '../components/product/ProductCard';
 import { getTag } from '../data/tags';
 
@@ -17,8 +17,9 @@ export function ProductDetailPage() {
   // No size picker: the product is sold in its first available size.
   const selectedSize: ProductSize | null = product.sizes.find((s) => s.inStock) ?? null; // same size as defaultSize() when in stock
   const [quantity, setQuantity] = useState(1);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  // After adding, the button becomes "View cart" until the quantity changes.
   const [addedToCart, setAddedToCart] = useState(false);
+  const changeQuantity = (fn: (q: number) => number) => { setQuantity(fn); setAddedToCart(false); };
 
   const price = selectedSize?.price ?? product.price;
   const originalPrice = selectedSize?.originalPrice;
@@ -31,9 +32,7 @@ export function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!selectedSize || !selectedSize.inStock) return;
     addToCart({ productId: product.id, product, size: selectedSize, quantity });
-    setConfirmOpen(true);
     setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 3000);
   };
 
   return (
@@ -95,15 +94,14 @@ export function ProductDetailPage() {
 
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 mt-6">
             <p className="font-serif text-4xl tabular">
-              <span className="sr-only">{discount ? 'Sale price ' : 'Price '}</span>${price}
+              <span className="sr-only">{discount ? 'Sale price ' : 'Price '}</span>{formatPrice(price)}
             </p>
             {discount > 0 && (
               <>
-                <p className="text-lg text-muted-foreground line-through tabular"><span className="sr-only">Original price </span>${originalPrice}</p>
+                <p className="text-lg text-muted-foreground line-through tabular"><span className="sr-only">Original price </span>{formatPrice(originalPrice!)}</p>
                 <p className="self-center h-6 px-2.5 rounded-full bg-[#F2C27B]/35 text-[#6B4410] text-xs font-semibold flex items-center">Save {discount}%</p>
               </>
             )}
-            {selectedSize && <p className="text-sm text-muted-foreground">{selectedSize.weight}</p>}
             <p className={`ml-auto self-center inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-medium ${soldOut ? 'bg-destructive/10 text-destructive' : 'bg-[#3F7A4E]/10 text-[#3F7A4E]'}`}>
               <span className={`size-1.5 rounded-full ${soldOut ? 'bg-destructive' : 'bg-[#3F7A4E]'}`} aria-hidden />
               {soldOut ? 'Out of stock' : 'In stock'}
@@ -114,13 +112,19 @@ export function ProductDetailPage() {
 
           <div className="flex gap-3 mt-6">
             <div className="flex items-center h-13 rounded-full border border-border bg-card" role="group" aria-label="Quantity">
-              <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="w-12 h-full flex items-center justify-center rounded-l-full hover:bg-foreground/5 disabled:opacity-30" disabled={quantity <= 1} aria-label="Decrease quantity"><Minus size={15} /></button>
+              <button onClick={() => changeQuantity((q) => Math.max(1, q - 1))} className="w-12 h-full flex items-center justify-center rounded-l-full hover:bg-foreground/5 disabled:opacity-30" disabled={quantity <= 1} aria-label="Decrease quantity"><Minus size={15} /></button>
               <span className="w-6 text-center text-sm font-medium tabular" aria-live="polite">{quantity}</span>
-              <button onClick={() => setQuantity((q) => q + 1)} className="w-12 h-full flex items-center justify-center rounded-r-full hover:bg-foreground/5" aria-label="Increase quantity"><Plus size={15} /></button>
+              <button onClick={() => changeQuantity((q) => q + 1)} className="w-12 h-full flex items-center justify-center rounded-r-full hover:bg-foreground/5" aria-label="Increase quantity"><Plus size={15} /></button>
             </div>
-            <Button size="lg" onClick={handleAddToCart} disabled={!isAvailable || !selectedSize} className="flex-1">
-              {addedToCart ? <><Check size={17} /> Added</> : !selectedSize || !isAvailable ? 'Out of stock' : <>Add to cart, ${(price * quantity).toFixed(0)}</>}
-            </Button>
+            {addedToCart ? (
+              <Button size="lg" variant="outline" onClick={() => navigate('cart')} className="flex-1">
+                <Check size={17} /> Added · View cart <ArrowRight size={17} />
+              </Button>
+            ) : (
+              <Button size="lg" onClick={handleAddToCart} disabled={!isAvailable || !selectedSize} className="flex-1">
+                {!selectedSize || !isAvailable ? 'Out of stock' : <>Add to cart, {formatPrice(price * quantity)}</>}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -139,27 +143,16 @@ export function ProductDetailPage() {
         <img src={product.image} alt="" className="w-11 h-12 rounded-lg object-cover" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{product.name}</p>
-          <p className="text-xs text-muted-foreground">{selectedSize ? `${selectedSize.weight}, $${price}` : 'Out of stock'}</p>
+          <p className="text-xs text-muted-foreground">{selectedSize ? formatPrice(price) : 'Out of stock'}</p>
         </div>
-        <Button onClick={handleAddToCart} disabled={!isAvailable || !selectedSize}>
-          {isAvailable && selectedSize ? 'Add to cart' : 'Out of stock'}
-        </Button>
+        {addedToCart ? (
+          <Button variant="outline" onClick={() => navigate('cart')}>View cart <ArrowRight size={16} /></Button>
+        ) : (
+          <Button onClick={handleAddToCart} disabled={!isAvailable || !selectedSize}>
+            {isAvailable && selectedSize ? 'Add to cart' : 'Out of stock'}
+          </Button>
+        )}
       </div>
-
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Added to your cart">
-        <div className="flex items-center gap-4">
-          <img src={product.image} alt="" className="w-20 h-24 rounded-2xl object-cover" />
-          <div>
-            <p className="font-serif text-xl leading-tight">{product.name}</p>
-            <p className="text-sm text-muted-foreground mt-1">{selectedSize?.label} ({selectedSize?.weight}), qty {quantity}</p>
-            <p className="text-sm font-medium mt-1 tabular">${(price * quantity).toFixed(2)}</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mt-7">
-          <Button variant="outline" onClick={() => setConfirmOpen(false)}>Keep shopping</Button>
-          <Button onClick={() => { navigate('cart'); setConfirmOpen(false); }}>View cart</Button>
-        </div>
-      </Modal>
     </div>
   );
 }

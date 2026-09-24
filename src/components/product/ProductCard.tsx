@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatPrice } from '@/lib/money';
 import { ArrowUpRight } from 'lucide-react';
 import type { Product } from '../../types';
 import { useApp } from '../../store/AppContext';
@@ -34,7 +35,7 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
       <button
         onClick={() => navigate('detail', { productId: product.id })}
         className="block w-full text-left"
-        aria-label={`${product.name}, $${price}`}
+        aria-label={`${product.name}, ${formatPrice(price)}`}
       >
         <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted">
           <img
@@ -66,8 +67,8 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
           <div className="flex items-baseline justify-between gap-3">
             <h3 className={`font-serif leading-tight ${size === 'lg' ? 'text-2xl' : 'text-xl'}`}>{product.name}</h3>
             <p className="text-[15px] font-medium tabular shrink-0 flex items-baseline gap-1.5">
-              {original && original > price && <span className="text-[13px] font-normal text-muted-foreground line-through"><span className="sr-only">Original price </span>${original}</span>}
-              <span>{original && original > price && <span className="sr-only">Sale price </span>}${price}</span>
+              {original && original > price && <span className="text-[13px] font-normal text-muted-foreground line-through"><span className="sr-only">Original price </span>{formatPrice(original)}</span>}
+              <span>{original && original > price && <span className="sr-only">Sale price </span>}{formatPrice(price)}</span>
             </p>
           </div>
           <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.scent}</p>

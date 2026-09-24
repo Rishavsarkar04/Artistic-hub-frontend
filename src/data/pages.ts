@@ -35,7 +35,7 @@ export const cmsPages: CmsPage[] = [
     content: `
 <p>By using this website or placing an order, you agree to the following terms.</p>
 <h2>Orders</h2>
-<p>All prices are in US dollars. We may cancel an order if an item is out of stock, and you will receive a full refund.</p>
+<p>All prices are in Indian rupees (₹) and include applicable taxes shown at checkout. We may cancel an order if an item is out of stock, and you will receive a full refund.</p>
 <h2>Returns</h2>
 <p>Unused candles can be returned within 30 days of delivery.</p>
 <h2>Contact us</h2>

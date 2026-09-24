@@ -1,61 +1,62 @@
 import React, { useState } from 'react';
+import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
-import { Check, ChevronRight, Lock, CreditCard, MapPin, Truck, Eye } from 'lucide-react';
+import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { deliveryMethods } from '../data/products';
 import type { Address, Order, DeliveryMethod } from '../types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';
 
-type Step = 'shipping' | 'delivery' | 'payment' | 'review';
+type Step = 'shipping' | 'review';
 
 const steps: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'shipping', label: 'Shipping', icon: MapPin },
-  { id: 'delivery', label: 'Delivery', icon: Truck },
-  { id: 'payment', label: 'Payment', icon: CreditCard },
-  { id: 'review', label: 'Review', icon: Eye },
+  { id: 'review', label: 'Review & pay', icon: Eye },
 ];
 
-function StepIndicator({ current }: { current: Step }) {
+/** Two-part progress bar; finished steps stay clickable to go back. */
+function StepIndicator({ current, onSelect }: { current: Step; onSelect: (s: Step) => void }) {
   const currentIdx = steps.findIndex((s) => s.id === current);
   return (
-    <div className="flex items-center gap-0 mb-10">
+    <ol className="grid grid-cols-2 gap-3 mb-10" aria-label="Checkout progress">
       {steps.map((step, i) => {
         const done = i < currentIdx;
         const active = i === currentIdx;
         const Icon = step.icon;
         return (
-          <React.Fragment key={step.id}>
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
-                  done
-                    ? 'bg-primary border-primary text-primary-foreground'
-                    : active
-                      ? 'border-primary text-primary bg-primary/5'
-                      : 'border-border text-muted-foreground'
-                }`}
-              >
-                {done ? <Check size={16} /> : <Icon size={15} />}
-              </div>
-              <span className={`text-xs font-medium ${active ? 'text-primary' : done ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {step.label}
+          <li key={step.id}>
+            <button
+              type="button"
+              onClick={() => done && onSelect(step.id)}
+              disabled={!done}
+              aria-current={active ? 'step' : undefined}
+              className="group w-full text-left disabled:cursor-default"
+            >
+              <span className="block h-1.5 rounded-full bg-border overflow-hidden">
+                <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${done || active ? 'w-full' : 'w-0'}`} />
               </span>
-            </div>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-1 mb-5 ${i < currentIdx ? 'bg-primary' : 'bg-border'}`} />
-            )}
-          </React.Fragment>
+              <span className="mt-3 flex items-center gap-2.5">
+                <span className={`size-8 shrink-0 rounded-full flex items-center justify-center transition-colors ${done ? 'bg-primary text-primary-foreground' : active ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'}`}>
+                  {done ? <Check size={15} /> : <Icon size={15} />}
+                </span>
+                <span className="leading-tight">
+                  <span className="block text-xs text-muted-foreground">Step {i + 1} of {steps.length}</span>
+                  <span className={`block text-sm font-medium ${active || done ? 'text-foreground' : 'text-muted-foreground'} ${done ? 'group-hover:underline underline-offset-4' : ''}`}>{step.label}</span>
+                </span>
+              </span>
+            </button>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }
 
 function OrderSummary({ compact = false }: { compact?: boolean }) {
   const { state, cartTotal } = useApp();
-  const shipping = cartTotal >= 75 ? 0 : 6.95;
-  const tax = cartTotal * 0.0875;
+  const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : deliveryMethods[0].price;
+  const tax = calcTax(cartTotal);
   const total = cartTotal + shipping + tax;
 
   return (
@@ -75,7 +76,7 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
                 <p className="text-sm font-medium truncate">{item.product.name}</p>
                 <p className="text-xs text-muted-foreground">{item.size.label} · {item.size.weight}</p>
               </div>
-              <p className="text-sm font-medium">${(item.size.price * item.quantity).toFixed(2)}</p>
+              <p className="text-sm font-medium">{formatPrice(item.size.price * item.quantity)}</p>
             </div>
           ))}
         </div>
@@ -83,19 +84,19 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
       <div className="space-y-2 text-sm border-t border-border pt-4">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>${cartTotal.toFixed(2)}</span>
+          <span>{formatPrice(cartTotal)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Shipping</span>
-          <span>{shipping === 0 ? <span className="text-emerald-600 font-medium">Free</span> : `$${shipping.toFixed(2)}`}</span>
+          <span>{shipping === 0 ? <span className="text-emerald-600 font-medium">Free</span> : formatPrice(shipping)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Tax</span>
-          <span>${tax.toFixed(2)}</span>
+          <span>{formatPrice(tax)}</span>
         </div>
         <div className="border-t border-border pt-2 flex justify-between font-semibold text-base">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{formatPrice(total)}</span>
         </div>
       </div>
     </div>
@@ -116,13 +117,9 @@ export function CheckoutPage() {
   });
   const [saveAddress, setSaveAddress] = useState(false);
 
-  const [selectedDelivery, setSelectedDelivery] = useState<DeliveryMethod>(deliveryMethods[0]);
-  const [billingIsSame, setBillingIsSame] = useState(true);
+  // No delivery step: every order ships standard.
+  const selectedDelivery: DeliveryMethod = deliveryMethods[0];
 
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
 
   const shippingAddress: Address =
     selectedAddressId !== 'new'
@@ -133,15 +130,15 @@ export function CheckoutPage() {
           isDefault: false,
         } as Address);
 
-  const shipping = cartTotal >= 75 ? 0 : selectedDelivery.price;
-  const tax = cartTotal * 0.0875;
+  const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : selectedDelivery.price;
+  const tax = calcTax(cartTotal);
   const total = cartTotal + shipping + tax;
 
   const handlePlaceOrder = async () => {
     setPaymentState('processing');
     await new Promise((r) => setTimeout(r, 2000));
 
-    // Simulate 90% success rate
+    // MOCK: open the payment gateway here and place the order once it confirms. Simulates a 90% success rate.
     if (Math.random() < 0.1) {
       setPaymentState('failed');
       return;
@@ -158,11 +155,11 @@ export function CheckoutPage() {
       tax,
       total,
       shippingAddress,
-      billingAddress: billingIsSame ? shippingAddress : shippingAddress,
+      billingAddress: shippingAddress,
       deliveryMethod: selectedDelivery,
       estimatedDelivery: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
       transactionRef: `txn_${Math.random().toString(36).slice(2)}`,
-      paymentMethod: `•••• ${cardNumber.slice(-4) || '4242'}`,
+      paymentMethod: 'Online payment', // MOCK: use the method reported by the payment gateway
     };
 
     dispatch({ type: 'PLACE_ORDER', order });
@@ -179,7 +176,7 @@ export function CheckoutPage() {
 
       <div className="grid lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
-          <StepIndicator current={step} />
+          <StepIndicator current={step} onSelect={setStep} />
 
           {/* Shipping step */}
           {step === 'shipping' && (
@@ -294,113 +291,9 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              <Button size="lg" onClick={() => setStep('delivery')}>
-                Continue to Delivery <ChevronRight size={16} />
+              <Button size="lg" onClick={() => setStep('review')}>
+                Continue to Review <ChevronRight size={16} />
               </Button>
-            </div>
-          )}
-
-          {/* Delivery step */}
-          {step === 'delivery' && (
-            <div className="space-y-6">
-              <h2 className="font-serif text-2xl font-semibold">Delivery Method</h2>
-              <div className="space-y-3">
-                {deliveryMethods.map((method) => (
-                  <label
-                    key={method.id}
-                    className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${selectedDelivery.id === method.id ? 'border-primary bg-primary/5' : 'border-border hover:border-border/80'}`}
-                  >
-                    <input
-                      type="radio"
-                      checked={selectedDelivery.id === method.id}
-                      onChange={() => setSelectedDelivery(method)}
-                      className="accent-primary"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{method.name}</span>
-                        <span className="text-sm font-semibold">
-                          {method.price === 0 ? 'Free' : `$${method.price.toFixed(2)}`}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{method.description} · {method.estimatedDays}</p>
-                    </div>
-                  </label>
-                ))}
-              </div>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('shipping')}>Back</Button>
-                <Button onClick={() => setStep('payment')}>
-                  Continue to Payment <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Payment step */}
-          {step === 'payment' && (
-            <div className="space-y-6">
-              <h2 className="font-serif text-2xl font-semibold">Payment</h2>
-
-              <div className="p-5 border border-border rounded-xl space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium mb-4">
-                  <Lock size={14} className="text-muted-foreground" />
-                  Secure payment — your information is encrypted
-                </div>
-                <TextField
-                  label="Cardholder Name"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  placeholder="Eleanor Voss"
-                />
-                <TextField
-                  label="Card Number"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
-                  placeholder="4242 4242 4242 4242"
-                />
-                <div className="grid grid-cols-2 gap-4">
-                  <TextField
-                    label="Expiry"
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    placeholder="MM / YY"
-                  />
-                  <TextField
-                    label="CVC"
-                    value={cardCvc}
-                    onChange={(e) => setCardCvc(e.target.value.slice(0, 3))}
-                    placeholder="•••"
-                  />
-                </div>
-              </div>
-
-              {/* Billing address */}
-              <div className="p-5 border border-border rounded-xl">
-                <h3 className="text-sm font-medium mb-3">Billing Address</h3>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={billingIsSame}
-                    onChange={(e) => setBillingIsSame(e.target.checked)}
-                    className="accent-primary rounded"
-                  />
-                  <span className="text-sm text-muted-foreground">Same as shipping address</span>
-                </label>
-              </div>
-
-              {paymentState === 'failed' && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-                  Payment failed. Please check your card details and try again. Your cart has been preserved.
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('delivery')}>Back</Button>
-                <Button onClick={() => setStep('review')}>
-                  Review Order <ChevronRight size={16} />
-                </Button>
-              </div>
             </div>
           )}
 
@@ -424,28 +317,16 @@ export function CheckoutPage() {
                   </p>
                 </div>
 
-                <div className="p-4 border border-border rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium">Delivery</h3>
-                    <button onClick={() => setStep('delivery')} className="text-xs text-primary hover:underline">Edit</button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{selectedDelivery.name} — {selectedDelivery.estimatedDays}</p>
-                </div>
-
-                <div className="p-4 border border-border rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium">Payment</h3>
-                    <button onClick={() => setStep('payment')} className="text-xs text-primary hover:underline">Edit</button>
-                  </div>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                    <CreditCard size={14} />
-                    •••• •••• •••• {cardNumber.slice(-4) || '4242'}
-                  </p>
-                </div>
               </div>
 
+              {paymentState === 'failed' && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700" role="alert">
+                  Payment didn't go through. Please try again. Your cart has been saved.
+                </div>
+              )}
+
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('payment')}>Back</Button>
+                <Button variant="outline" onClick={() => setStep('shipping')}>Back</Button>
                 <Button
                   size="lg"
                   loading={paymentState === 'processing'}
@@ -453,7 +334,7 @@ export function CheckoutPage() {
                   onClick={handlePlaceOrder}
                   className="flex-1"
                 >
-                  {paymentState === 'processing' ? 'Processing Payment…' : `Pay & Place Order — $${total.toFixed(2)}`}
+                  {paymentState === 'processing' ? 'Processing Payment…' : `Pay & Place Order — ${formatPrice(total)}`}
                 </Button>
               </div>
 

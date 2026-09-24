@@ -204,16 +204,6 @@ export function AuthPage() {
                 </p>
               )}
 
-              {mode === 'login' && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => { loginDemo(); navigate('home'); }}
-                >
-                  Demo: Sign in as Eleanor Voss
-                </Button>
-              )}
             </form>
           )}
         </div>

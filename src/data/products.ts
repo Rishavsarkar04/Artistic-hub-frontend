@@ -6,7 +6,7 @@ export const products: Product[] = [
     id: 'p1',
     name: 'Amber & Sandalwood',
     slug: 'amber-sandalwood',
-    price: 48,
+    price: 1599,
     image: photo('photo-1714228499605-367154d9bdb2', 600, 750),
     images: [
       photo('photo-1714228499605-367154d9bdb2', 1000, 1250),
@@ -26,9 +26,9 @@ export const products: Product[] = [
     description:
       'A warm, enveloping fragrance that opens with bright bergamot and cardamom, settling into a rich amber heart before releasing deep sandalwood and vanilla on the dry-down. Hand-poured in small batches in Portland, Oregon.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 28, originalPrice: 35, inStock: true },
-      { label: 'Medium', weight: '8 oz', price: 48, originalPrice: 60, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 78, originalPrice: 98, inStock: false },
+      { label: 'Small', weight: '4 oz', price: 899, originalPrice: 1199, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 1599, originalPrice: 1999, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2499, originalPrice: 3199, inStock: false },
     ],
     shortNote: 'A warm, cosy blend for slow evenings.',
     tags: ['woody', 'sweet', 'warm'],
@@ -41,7 +41,7 @@ export const products: Product[] = [
     id: 'p2',
     name: 'Cedarwood & Smoke',
     slug: 'cedarwood-smoke',
-    price: 52,
+    price: 1699,
     image: photo('photo-1596568840418-5f4db2029de0', 600, 750),
     images: [
       photo('photo-1596568840418-5f4db2029de0', 1000, 1250),
@@ -61,9 +61,9 @@ export const products: Product[] = [
     description:
       'Bold and contemplative. Dry birch and black pepper open to a smoky cedarwood heart, finishing with the deep resonance of aged leather and vetiver. Evokes late evenings by an open fire.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 30, originalPrice: 36, inStock: true },
-      { label: 'Medium', weight: '8 oz', price: 52, originalPrice: 65, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 84, originalPrice: 105, inStock: true },
+      { label: 'Small', weight: '4 oz', price: 999, originalPrice: 1199, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 1699, originalPrice: 2099, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2699, originalPrice: 3399, inStock: true },
     ],
     shortNote: 'Smoky and grounding, like a cabin fire.',
     tags: ['woody', 'smoky'],
@@ -76,7 +76,7 @@ export const products: Product[] = [
     id: 'p3',
     name: 'French Lavender',
     slug: 'french-lavender',
-    price: 42,
+    price: 1399,
     image: photo('photo-1643716991951-285e23e35961', 600, 750),
     images: [
       photo('photo-1643716991951-285e23e35961', 1000, 1250),
@@ -96,9 +96,9 @@ export const products: Product[] = [
     description:
       'Captured straight from the fields of Provence. An airy, calming fragrance built around authentic lavender and chamomile, lifted by eucalyptus and grounded by clean linen and soft wood.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 26, originalPrice: 32, inStock: true },
-      { label: 'Medium', weight: '8 oz', price: 42, originalPrice: 52, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 68, originalPrice: 85, inStock: true },
+      { label: 'Small', weight: '4 oz', price: 899, originalPrice: 1099, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 1399, originalPrice: 1699, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2199, originalPrice: 2799, inStock: true },
     ],
     shortNote: 'Calm and clean, made for winding down.',
     tags: ['floral', 'fresh', 'calming'],
@@ -111,7 +111,7 @@ export const products: Product[] = [
     id: 'p4',
     name: 'Wild Rose & Oud',
     slug: 'wild-rose-oud',
-    price: 64,
+    price: 2099,
     image: photo('photo-1603006905003-be475563bc59', 600, 750),
     images: [
       photo('photo-1603006905003-be475563bc59', 1000, 1250),
@@ -131,8 +131,8 @@ export const products: Product[] = [
     description:
       'A rare and opulent composition. Saffron and pink pepper announce a voluptuous Turkish rose heart, then bow to the meditative depth of genuine oud and ambergris. Reserved for those who linger.',
     sizes: [
-      { label: 'Medium', weight: '8 oz', price: 64, originalPrice: 80, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 98, originalPrice: 122, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 2099, originalPrice: 2599, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 3199, originalPrice: 3999, inStock: true },
     ],
     shortNote: 'Rich rose with a deep, woody finish.',
     tags: ['floral', 'woody', 'warm'],
@@ -144,7 +144,7 @@ export const products: Product[] = [
     id: 'p5',
     name: 'Sea Salt & Driftwood',
     slug: 'sea-salt-driftwood',
-    price: 46,
+    price: 1499,
     image: photo('photo-1528351655744-27cc30462816', 600, 750),
     images: [
       photo('photo-1528351655744-27cc30462816', 1000, 1250),
@@ -163,9 +163,9 @@ export const products: Product[] = [
     description:
       'Transportive and clean. The first strike brings a rush of sea spray and citrus, opening to a saline jasmine heart before drifting to the comfort of salt-bleached wood and warm musk.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 28, originalPrice: 35, inStock: true },
-      { label: 'Medium', weight: '8 oz', price: 46, originalPrice: 58, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 74, originalPrice: 92, inStock: true },
+      { label: 'Small', weight: '4 oz', price: 899, originalPrice: 1199, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 1499, originalPrice: 1899, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2399, originalPrice: 2999, inStock: true },
     ],
     shortNote: 'Bright sea air for sunny rooms.',
     tags: ['fresh', 'coastal'],
@@ -178,7 +178,7 @@ export const products: Product[] = [
     id: 'p6',
     name: 'Saffron & Honey',
     slug: 'saffron-honey',
-    price: 58,
+    price: 1899,
     image: photo('photo-1605651202774-7d573fd3f12d', 600, 750),
     images: [
       photo('photo-1605651202774-7d573fd3f12d', 1000, 1250),
@@ -198,9 +198,9 @@ export const products: Product[] = [
     description:
       'Golden and luminous. Saffron and neroli sparkle over a honeyed beeswax heart, settling into a resinous benzoin and amber base that glows like afternoon sunlight through amber glass.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 34, originalPrice: 42, inStock: false },
-      { label: 'Medium', weight: '8 oz', price: 58, originalPrice: 72, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 90, originalPrice: 112, inStock: true },
+      { label: 'Small', weight: '4 oz', price: 1099, originalPrice: 1399, inStock: false },
+      { label: 'Medium', weight: '8 oz', price: 1899, originalPrice: 2399, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2899, originalPrice: 3599, inStock: true },
     ],
     shortNote: 'Golden, honeyed and gently spiced.',
     tags: ['sweet', 'warm'],
@@ -213,7 +213,7 @@ export const products: Product[] = [
     id: 'p7',
     name: 'Ember & Bloom Gift Set',
     slug: 'gift-set-trio',
-    price: 98,
+    price: 3199,
     image: photo('photo-1603905179139-db12ab535ca9', 600, 750),
     images: [
       photo('photo-1603905179139-db12ab535ca9', 1000, 1250),
@@ -233,7 +233,7 @@ export const products: Product[] = [
     description:
       'Our most beloved gift: three 4 oz candles presented in a hand-stamped kraft box with tissue paper and a personalized note card. Includes Amber & Sandalwood, French Lavender, and Sea Salt & Driftwood.',
     sizes: [
-      { label: 'Trio Set', weight: '3 × 4 oz', price: 98, originalPrice: 122, inStock: true },
+      { label: 'Trio Set', weight: '3 × 4 oz', price: 3199, originalPrice: 3999, inStock: true },
     ],
     shortNote: 'Three favourites, boxed and ready to give.',
     tags: ['sweet', 'floral', 'coastal'],
@@ -246,7 +246,7 @@ export const products: Product[] = [
     id: 'p8',
     name: 'Fern & Rain',
     slug: 'fern-rain',
-    price: 44,
+    price: 1499,
     image: photo('photo-1757688525739-8d1e13daf44f', 600, 750),
     images: [
       photo('photo-1757688525739-8d1e13daf44f', 1000, 1250),
@@ -266,9 +266,9 @@ export const products: Product[] = [
     description:
       'Brings the forest indoors. Opening with a sharp, dewy petrichor and green fern, it settles into cool iris and violet leaf before resting on mossy earth and vetiver — the scent of the forest floor after rainfall.',
     sizes: [
-      { label: 'Small', weight: '4 oz', price: 27, originalPrice: 34, inStock: true },
-      { label: 'Medium', weight: '8 oz', price: 44, originalPrice: 55, inStock: true },
-      { label: 'Large', weight: '16 oz', price: 70, originalPrice: 88, inStock: true },
+      { label: 'Small', weight: '4 oz', price: 899, originalPrice: 1099, inStock: true },
+      { label: 'Medium', weight: '8 oz', price: 1499, originalPrice: 1799, inStock: true },
+      { label: 'Large', weight: '16 oz', price: 2299, originalPrice: 2899, inStock: true },
     ],
     shortNote: 'Green and earthy, like a walk after rain.',
     tags: ['fresh', 'earthy'],
@@ -307,21 +307,21 @@ export const deliveryMethods: DeliveryMethod[] = [
     id: 'standard',
     name: 'Standard Shipping',
     description: 'USPS First Class',
-    price: 6.95,
+    price: 99,
     estimatedDays: '5–7 business days',
   },
   {
     id: 'expedited',
     name: 'Expedited Shipping',
     description: 'UPS 2-Day',
-    price: 18.95,
+    price: 249,
     estimatedDays: '2–3 business days',
   },
   {
     id: 'overnight',
     name: 'Overnight Shipping',
     description: 'FedEx Next Day',
-    price: 34.95,
+    price: 499,
     estimatedDays: '1 business day',
   },
 ];
@@ -411,14 +411,15 @@ export const mockOrders = [
         quantity: 1,
       },
     ],
-    subtotal: 122,
-    shipping: 6.95,
-    tax: 10.24,
-    total: 139.19,
+    subtotal: 4097,
+    shipping: 0,
+    tax: 358,
+    total: 4455,
     shippingAddress: mockUser.addresses[0],
     billingAddress: mockUser.addresses[0],
     deliveryMethod: deliveryMethods[0],
     trackingNumber: '9400111899223456789012',
+    trackingUrl: 'https://www.example-courier.in/track/9400111899223456789012', // MOCK: courier tracking link
     estimatedDelivery: '2024-03-23',
     transactionRef: 'txn_3OqW8NLkz2eZvT',
     paymentMethod: 'Visa •••• 4242',
@@ -436,14 +437,15 @@ export const mockOrders = [
         quantity: 1,
       },
     ],
-    subtotal: 98,
+    subtotal: 3199,
     shipping: 0,
-    tax: 8.23,
-    total: 106.23,
+    tax: 280,
+    total: 3479,
     shippingAddress: mockUser.addresses[0],
     billingAddress: mockUser.addresses[0],
     deliveryMethod: deliveryMethods[0],
     trackingNumber: '9400111899223456781234',
+    trackingUrl: 'https://www.example-courier.in/track/9400111899223456781234', // MOCK: courier tracking link
     estimatedDelivery: '2024-02-20',
     transactionRef: 'txn_2NqV7MLjy1dYuS',
     paymentMethod: 'Visa •••• 4242',

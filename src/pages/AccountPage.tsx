@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import {
   User, MapPin, Package, ChevronRight, Plus, Trash2, Edit3,
   Check, Eye, EyeOff, LogOut, Star, Truck, CheckCircle2, Clock,
-  ExternalLink, Phone, XCircle, ChevronLeft, AlertCircle,
+  ExternalLink, Phone, XCircle, ChevronLeft,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import type { Address, AccountSection } from '../types';
@@ -408,7 +409,7 @@ function OrdersSection({ onViewDetail }: { onViewDetail: (orderId: string) => vo
                     </div>
                   )}
                   <div className="ml-2">
-                    <p className="text-sm font-semibold">${order.total.toFixed(2)}</p>
+                    <p className="text-sm font-semibold">{formatPrice(order.total)}</p>
                     <p className="text-xs text-muted-foreground">
                       {order.items.reduce((a, i) => a + i.quantity, 0)} items
                     </p>
@@ -461,7 +462,17 @@ function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () =
       {/* Progress */}
       {order.status !== 'cancelled' && (
         <div className="bg-card border border-border rounded-xl p-5">
-          <h3 className="text-sm font-medium mb-4">Order Progress</h3>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="text-sm font-medium">Order Progress</h3>
+            {order.trackingUrl ? (
+              <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:opacity-90">
+                Track order <ExternalLink size={12} />
+              </a>
+            ) : order.status === 'processing' ? (
+              <span className="text-xs text-muted-foreground">Tracking link available once shipped</span>
+            ) : null}
+          </div>
           <div className="flex items-center gap-0">
             {progressSteps.map((s, i) => (
               <React.Fragment key={s}>
@@ -478,11 +489,8 @@ function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () =
             ))}
           </div>
           {order.trackingNumber && (
-            <div className="mt-4 p-3 bg-muted rounded-lg flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Tracking: <span className="font-mono text-foreground">{order.trackingNumber}</span></span>
-              <button className="text-primary text-xs hover:underline flex items-center gap-1">
-                Track <ExternalLink size={11} />
-              </button>
+            <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
+              <span className="text-muted-foreground">Tracking number: <span className="font-mono text-foreground">{order.trackingNumber}</span></span>
             </div>
           )}
         </div>
@@ -499,18 +507,18 @@ function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () =
                 <p className="text-sm font-medium">{item.product.name}</p>
                 <p className="text-xs text-muted-foreground">{item.size.label} · {item.size.weight} · Qty {item.quantity}</p>
               </div>
-              <p className="text-sm font-semibold">${(item.size.price * item.quantity).toFixed(2)}</p>
+              <p className="text-sm font-semibold">{formatPrice(item.size.price * item.quantity)}</p>
             </div>
           ))}
         </div>
         <div className="border-t border-border mt-4 pt-4 space-y-1.5 text-sm">
-          <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>${order.subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>{formatPrice(order.subtotal)}</span></div>
           <div className="flex justify-between text-muted-foreground">
             <span>Shipping</span>
-            <span>{order.shipping === 0 ? <span className="text-emerald-600">Free</span> : `$${order.shipping.toFixed(2)}`}</span>
+            <span>{order.shipping === 0 ? <span className="text-emerald-600">Free</span> : formatPrice(order.shipping)}</span>
           </div>
-          <div className="flex justify-between text-muted-foreground"><span>Tax</span><span>${order.tax.toFixed(2)}</span></div>
-          <div className="flex justify-between font-semibold text-base pt-1"><span>Total</span><span>${order.total.toFixed(2)}</span></div>
+          <div className="flex justify-between text-muted-foreground"><span>Tax</span><span>{formatPrice(order.tax)}</span></div>
+          <div className="flex justify-between font-semibold text-base pt-1"><span>Total</span><span>{formatPrice(order.total)}</span></div>
         </div>
       </div>
 
@@ -530,11 +538,6 @@ function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () =
             {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
           </Badge>
         </div>
-      </div>
-
-      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
-        <AlertCircle size={14} className="text-muted-foreground shrink-0" />
-        Need help with this order? <button className="text-primary hover:underline">Contact support</button>
       </div>
     </div>
   );
@@ -574,14 +577,6 @@ export function AccountPage() {
           <h1 className="font-serif text-4xl font-semibold">{fullName(state.user)}</h1>
           <p className="text-muted-foreground mt-1">{state.user.email}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => dispatch({ type: 'LOGOUT' })}
-          className="text-muted-foreground"
-        >
-          <LogOut size={14} /> Sign Out
-        </Button>
       </div>
 
       <div className="flex gap-8">
@@ -630,6 +625,12 @@ export function AccountPage() {
                 <Icon size={14} /> {label}
               </button>
             ))}
+            <button
+              onClick={() => dispatch({ type: 'LOGOUT' })}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 bg-muted text-muted-foreground"
+            >
+              <LogOut size={14} /> Sign out
+            </button>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { formatPrice } from '@/lib/money';
 import { SlidersHorizontal, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { products, collections as collectionData } from '../data/products';
@@ -18,11 +19,11 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
   { id: 'price-desc', label: 'Price: high to low' },
 ];
 
-// Slider bounds, rounded out to the nearest $5 around the catalogue's prices.
+// Slider bounds, rounded out to the nearest ₹100 around the catalogue's prices.
 const HEADER_BACKDROP = photo('photo-1613068431228-8cb6a1e92573', 1600, 700);
 
-const PRICE_MIN = Math.floor(Math.min(...products.map(productPrice)) / 5) * 5;
-const PRICE_MAX = Math.ceil(Math.max(...products.map(productPrice)) / 5) * 5;
+const PRICE_MIN = Math.floor(Math.min(...products.map(productPrice)) / 100) * 100;
+const PRICE_MAX = Math.ceil(Math.max(...products.map(productPrice)) / 100) * 100;
 
 interface Filters { tags: string[]; colors: string[]; price: [number, number] }
 const EMPTY: Filters = { tags: [], colors: [], price: [PRICE_MIN, PRICE_MAX] };
@@ -107,11 +108,11 @@ export function ProductListingPage() {
       <Group title="Price range">
         <div className="basis-full">
           <div className="flex items-center justify-between text-sm tabular mb-3">
-            <span>${filters.price[0]}</span><span className="text-muted-foreground">to</span><span>${filters.price[1]}</span>
+            <span>{formatPrice(filters.price[0])}</span><span className="text-muted-foreground">to</span><span>{formatPrice(filters.price[1])}</span>
           </div>
-          <Slider min={PRICE_MIN} max={PRICE_MAX} step={1} minStepsBetweenThumbs={1} value={filters.price} thumbLabels={['Minimum price', 'Maximum price']}
+          <Slider min={PRICE_MIN} max={PRICE_MAX} step={50} minStepsBetweenThumbs={1} value={filters.price} thumbLabels={['Minimum price', 'Maximum price']}
             onValueChange={(v) => setFilters((f) => ({ ...f, price: [v[0], v[1]] }))} />
-          <div className="flex justify-between text-xs text-muted-foreground mt-2 tabular"><span>${PRICE_MIN}</span><span>${PRICE_MAX}</span></div>
+          <div className="flex justify-between text-xs text-muted-foreground mt-2 tabular"><span>{formatPrice(PRICE_MIN)}</span><span>{formatPrice(PRICE_MAX)}</span></div>
         </div>
       </Group>
       <Group title="Color">

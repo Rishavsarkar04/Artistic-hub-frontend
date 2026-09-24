@@ -1,4 +1,6 @@
 import React from 'react';
+import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
+import { deliveryMethods } from '../data/products';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Button } from '@/components/ui/button';
@@ -7,8 +9,8 @@ export function CartPage() {
   const { state, dispatch, navigate, cartTotal } = useApp();
   const { cart } = state;
 
-  const shipping = cartTotal >= 75 ? 0 : 6.95;
-  const tax = cartTotal * 0.0875;
+  const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : deliveryMethods[0].price;
+  const tax = calcTax(cartTotal);
   const total = cartTotal + shipping + tax;
 
   if (cart.length === 0) {
@@ -45,11 +47,11 @@ export function CartPage() {
       <div className="grid lg:grid-cols-3 gap-10">
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
-          {cartTotal < 75 && (
+          {cartTotal < FREE_SHIPPING_MIN && (
             <div className="flex items-center gap-3 p-4 bg-accent/10 border border-accent/20 rounded-lg text-sm">
               <AlertTriangle size={16} className="text-accent shrink-0" />
               <span>
-                Add <span className="font-semibold">${(75 - cartTotal).toFixed(2)}</span> more to qualify for free shipping.
+                Add <span className="font-semibold">{formatPrice(FREE_SHIPPING_MIN - cartTotal)}</span> more to qualify for free shipping.
               </span>
             </div>
           )}
@@ -107,7 +109,7 @@ export function CartPage() {
                       <Plus size={13} />
                     </button>
                   </div>
-                  <p className="font-semibold">${(item.size.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-semibold">{formatPrice(item.size.price * item.quantity)}</p>
                 </div>
               </div>
             </div>
@@ -125,19 +127,19 @@ export function CartPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping</span>
-                <span>{shipping === 0 ? <span className="text-emerald-600 font-medium">Free</span> : `$${shipping.toFixed(2)}`}</span>
+                <span>{shipping === 0 ? <span className="text-emerald-600 font-medium">Free</span> : formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Estimated Tax</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>{formatPrice(tax)}</span>
               </div>
               <div className="border-t border-border pt-3 flex justify-between font-semibold text-base">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
             </div>
 
