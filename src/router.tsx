@@ -15,7 +15,7 @@ import { ContactPage } from './pages/ContactPage';
 import { ContentPage } from './pages/ContentPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { useAuthStore } from './stores/authStore';
-import { paths } from './routes';
+import { ROUTES, paths } from './routes';
 import { products } from './data/products';
 
 /** Navbar + footer around every page except sign-in. */
@@ -68,24 +68,24 @@ export function AppRoutes() {
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/login" element={<AuthPage mode="login" />} />
-        <Route path="/register" element={<AuthPage mode="register" />} />
-        <Route path="/forgot-password" element={<AuthPage mode="forgot" />} />
+        <Route path={ROUTES.login} element={<AuthPage mode="login" />} />
+        <Route path={ROUTES.register} element={<AuthPage mode="register" />} />
+        <Route path={ROUTES.forgotPassword} element={<AuthPage mode="forgot" />} />
 
         <Route element={<ShopLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="shop" element={<ShopRoute />} />
-          <Route path="products/:productId" element={<ProductRoute />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
-          <Route path="order-confirmation/:orderId" element={<RequireAuth><OrderConfirmationPage /></RequireAuth>} />
-          <Route path="account" element={<Navigate to={paths.account()} replace />} />
-          <Route path="account/orders/:orderId" element={<RequireAuth><AccountPage /></RequireAuth>} />
-          <Route path="account/:tab" element={<RequireAuth><AccountPage /></RequireAuth>} />
-          <Route path="story" element={<StoryPage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="pages/:slug" element={<ContentRoute />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path={ROUTES.home} element={<HomePage />} />
+          <Route path={ROUTES.shop} element={<ShopRoute />} />
+          <Route path={ROUTES.product} element={<ProductRoute />} />
+          <Route path={ROUTES.cart} element={<CartPage />} />
+          <Route path={ROUTES.checkout} element={<RequireAuth><CheckoutPage /></RequireAuth>} />
+          <Route path={ROUTES.orderConfirmation} element={<RequireAuth><OrderConfirmationPage /></RequireAuth>} />
+          <Route path={ROUTES.account} element={<Navigate to={paths.account()} replace />} />
+          <Route path={ROUTES.accountOrder} element={<RequireAuth><AccountPage /></RequireAuth>} />
+          <Route path={ROUTES.accountTab} element={<RequireAuth><AccountPage /></RequireAuth>} />
+          <Route path={ROUTES.story} element={<StoryPage />} />
+          <Route path={ROUTES.contact} element={<ContactPage />} />
+          <Route path={ROUTES.page} element={<ContentRoute />} />
+          <Route path={ROUTES.notFound} element={<NotFoundPage />} />
         </Route>
       </Routes>
     </>

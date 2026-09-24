@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { paths } from '../../routes';
+import { Link, matchPath, useLocation, useNavigate } from 'react-router-dom';
+import { ROUTES, paths } from '../../routes';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartCount } from '../../stores/cartStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -43,7 +43,7 @@ export function Navbar() {
 
   const primaryLinks = [
     { label: 'Home', to: paths.home, active: pathname === paths.home },
-    { label: 'Shop', to: paths.shop(), active: pathname.startsWith('/shop') || pathname.startsWith('/products') },
+    { label: 'Shop', to: paths.shop(), active: !!matchPath(ROUTES.shop, pathname) || !!matchPath(ROUTES.product, pathname) },
     { label: 'Our story', to: paths.story, active: pathname === paths.story },
     { label: 'Contact', to: paths.contact, active: pathname === paths.contact },
   ];
