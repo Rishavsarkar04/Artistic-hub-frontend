@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { paths } from '../routes';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';

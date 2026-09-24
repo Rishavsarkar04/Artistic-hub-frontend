@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '../../routes';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartCount } from '../../stores/cartStore';

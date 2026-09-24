@@ -1,6 +1,6 @@
 import { photo } from '@/data/images';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { paths } from '../routes';
 import { Mail, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';

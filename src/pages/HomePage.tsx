@@ -1,6 +1,6 @@
 import { photo } from '@/data/images';
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { paths } from '../routes';
 import { motion, type Variants } from 'motion/react';
 import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { paths, ACCOUNT_TABS, type AccountTab } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';

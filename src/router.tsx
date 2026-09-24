@@ -1,5 +1,5 @@
-import React from 'react';
-import { createBrowserRouter, Navigate, Outlet, ScrollRestoration, useLocation, useParams } from 'react-router';
+import React, { useLayoutEffect } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
@@ -31,14 +31,13 @@ function ShopLayout() {
   );
 }
 
-function Root() {
-  return (
-    <>
-      <Outlet />
-      {/* Scrolls to top on new pages and restores position on back/forward. */}
-      <ScrollRestoration />
-    </>
-  );
+/** Starts each new page at the top; in-page `#anchor` links keep their own scrolling. */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useLayoutEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
 }
 
 /** Sends signed-out visitors to sign in, then back here afterwards. */
@@ -63,31 +62,32 @@ function ContentRoute() {
   return <ContentPage key={useParams().slug} />;
 }
 
-export const router = createBrowserRouter([
-  {
-    element: <Root />,
-    children: [
-      { path: '/login', element: <AuthPage mode="login" /> },
-      { path: '/register', element: <AuthPage mode="register" /> },
-      { path: '/forgot-password', element: <AuthPage mode="forgot" /> },
-      {
-        element: <ShopLayout />,
-        children: [
-          { index: true, element: <HomePage /> },
-          { path: 'shop', element: <ShopRoute /> },
-          { path: 'products/:productId', element: <ProductRoute /> },
-          { path: 'cart', element: <CartPage /> },
-          { path: 'checkout', element: <RequireAuth><CheckoutPage /></RequireAuth> },
-          { path: 'order-confirmation/:orderId', element: <RequireAuth><OrderConfirmationPage /></RequireAuth> },
-          { path: 'account', element: <Navigate to={paths.account()} replace /> },
-          { path: 'account/orders/:orderId', element: <RequireAuth><AccountPage /></RequireAuth> },
-          { path: 'account/:tab', element: <RequireAuth><AccountPage /></RequireAuth> },
-          { path: 'story', element: <StoryPage /> },
-          { path: 'contact', element: <ContactPage /> },
-          { path: 'pages/:slug', element: <ContentRoute /> },
-          { path: '*', element: <NotFoundPage /> },
-        ],
-      },
-    ],
-  },
-]);
+/** All routes. Rendered inside <BrowserRouter> in App.tsx. */
+export function AppRoutes() {
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/login" element={<AuthPage mode="login" />} />
+        <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route path="/forgot-password" element={<AuthPage mode="forgot" />} />
+
+        <Route element={<ShopLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="shop" element={<ShopRoute />} />
+          <Route path="products/:productId" element={<ProductRoute />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
+          <Route path="order-confirmation/:orderId" element={<RequireAuth><OrderConfirmationPage /></RequireAuth>} />
+          <Route path="account" element={<Navigate to={paths.account()} replace />} />
+          <Route path="account/orders/:orderId" element={<RequireAuth><AccountPage /></RequireAuth>} />
+          <Route path="account/:tab" element={<RequireAuth><AccountPage /></RequireAuth>} />
+          <Route path="story" element={<StoryPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="pages/:slug" element={<ContentRoute />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </>
+  );
+}

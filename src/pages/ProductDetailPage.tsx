@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { ChevronLeft, ChevronRight, Minus, Plus, Check, ArrowRight } from 'lucide-react';

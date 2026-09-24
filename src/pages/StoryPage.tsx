@@ -1,6 +1,6 @@
 import { photo } from '@/data/images';
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { paths } from '../routes';
 import { ArrowRight, Leaf, Droplets, Recycle, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';

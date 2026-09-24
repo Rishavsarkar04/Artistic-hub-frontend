@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, type Location } from 'react-router';
+import { useLocation, useNavigate, type Location } from 'react-router-dom';
 import { paths } from '../routes';
 import { Eye, EyeOff, Flame, ArrowLeft, Check } from 'lucide-react';
 import type { AuthMode } from '../types';

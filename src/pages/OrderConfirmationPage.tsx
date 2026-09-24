@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';

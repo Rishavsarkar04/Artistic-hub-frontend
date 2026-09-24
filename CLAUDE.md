@@ -21,8 +21,8 @@ Run the type check and `npm run build` after every change.
 
 ## Architecture
 
-- `src/App.tsx` — providers (`MotionConfig`, `AppProvider`, `RouterProvider`).
-- `src/router.tsx` — React Router (v8, data router): every route, the navbar/footer layout, `RequireAuth` for checkout, order confirmation and account, `ScrollRestoration`, and the 404 fallback.
+- `src/App.tsx` — providers: `MotionConfig`, `AppProvider`, `<BrowserRouter>`.
+- `src/router.tsx` — `AppRoutes`: every route as JSX `<Routes>`/`<Route>` (react-router-dom v7), the navbar/footer layout route, `RequireAuth` for checkout, order confirmation and account, `ScrollToTop`, and the 404 fallback.
 - `src/routes.ts` — `paths`, the builder for **every URL** (e.g. `paths.product(id)`, `paths.shop({ collection, tag })`, `paths.account('orders')`).
 - `src/pages/NotFoundPage.tsx` — the 404 page, also used for unknown products.
 - `src/store/AppContext.tsx` — orders only (reducer + context). Orders become API data once the backend is connected.
@@ -49,7 +49,7 @@ Run the type check and `npm run build` after every change.
 
 ### Navigation
 
-- Routing is React Router (`react-router`). Build every URL with `paths` from `src/routes.ts`. Never write path strings in components or use `window.location`.
+- Routing is `react-router-dom` with JSX routes. Import from `react-router-dom`, and don't switch to `createBrowserRouter` or route-object arrays. Build every URL with `paths` from `src/routes.ts`. Never write path strings in components or use `window.location`.
 - For plain navigation use `<Link to={paths.x}>`, so links can open in a new tab and search engines can follow them. Use `useNavigate()` only after an action (submit, sign-out, add to cart).
 - Page state that should survive a refresh or a shared link belongs in the URL: path params (`useParams`) or the query string (`useSearchParams`). Examples: product id, account tab, `?collection=` and `?tag=` on /shop.
 - To add a page: add its URL to `paths`, then a route in `src/router.tsx`. Wrap it in `RequireAuth` if it needs a signed-in user. That sends visitors to /login and back afterwards via `location.state.from`.

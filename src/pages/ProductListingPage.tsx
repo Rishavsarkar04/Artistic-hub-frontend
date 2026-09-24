@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { SlidersHorizontal, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
