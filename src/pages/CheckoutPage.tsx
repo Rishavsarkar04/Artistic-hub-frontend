@@ -3,6 +3,8 @@ import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { useAuthStore } from '../stores/authStore';
+import { useCartStore, useCartTotal } from '../stores/cartStore';
 import { deliveryMethods } from '../data/products';
 import type { Address, Order, DeliveryMethod } from '../types';
 import { Button } from '@/components/ui/button';
@@ -54,7 +56,8 @@ function StepIndicator({ current, onSelect }: { current: Step; onSelect: (s: Ste
 }
 
 function OrderSummary({ compact = false }: { compact?: boolean }) {
-  const { state, cartTotal } = useApp();
+  const cart = useCartStore((s) => s.items);
+  const cartTotal = useCartTotal();
   const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : deliveryMethods[0].price;
   const tax = calcTax(cartTotal);
   const total = cartTotal + shipping + tax;
@@ -64,7 +67,7 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
       <h3 className="font-medium mb-4">Order Summary</h3>
       {!compact && (
         <div className="space-y-3 mb-4">
-          {state.cart.map((item) => (
+          {cart.map((item) => (
             <div key={`${item.productId}-${item.size.label}`} className="flex items-center gap-3">
               <div className="relative">
                 <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-md object-cover bg-muted" />
@@ -104,11 +107,15 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
 }
 
 export function CheckoutPage() {
-  const { state, dispatch, navigate, cartTotal } = useApp();
+  const { dispatch, navigate } = useApp();
+  const cart = useCartStore((s) => s.items);
+  const clearCart = useCartStore((s) => s.clear);
+  const cartTotal = useCartTotal();
+  const user = useAuthStore((s) => s.user);
   const [step, setStep] = useState<Step>('shipping');
   const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'failed'>('idle');
 
-  const savedAddresses = state.user?.addresses ?? [];
+  const savedAddresses = user?.addresses ?? [];
   const defaultAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0];
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | 'new'>(defaultAddr?.id ?? 'new');
@@ -149,7 +156,7 @@ export function CheckoutPage() {
       date: new Date().toISOString().split('T')[0],
       status: 'processing',
       paymentStatus: 'paid',
-      items: state.cart,
+      items: cart,
       subtotal: cartTotal,
       shipping,
       tax,
@@ -163,6 +170,7 @@ export function CheckoutPage() {
     };
 
     dispatch({ type: 'PLACE_ORDER', order });
+    clearCart();
     navigate('confirmation', { orderId: order.id });
   };
 
@@ -277,7 +285,7 @@ export function CheckoutPage() {
                     <option>Canada</option>
                     <option>United Kingdom</option>
                   </SelectField>
-                  {state.user && (
+                  {user && (
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"

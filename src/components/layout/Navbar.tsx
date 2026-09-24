@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
+import { useAuthStore } from '../../stores/authStore';
+import { useCartCount } from '../../stores/cartStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { cn, fullName } from '@/lib/utils';
@@ -19,7 +21,10 @@ export function Logo({ light = false }: { light?: boolean }) {
 }
 
 export function Navbar() {
-  const { state, navigate, cartCount, dispatch } = useApp();
+  const { state, navigate, dispatch } = useApp();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const cartCount = useCartCount();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -70,22 +75,22 @@ export function Navbar() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label={state.user ? 'Account menu' : 'Account'}>
-                    {state.user
-                      ? <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(state.user.firstName[0] ?? '') + (state.user.lastName[0] ?? '')}</span>
+                  <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label={user ? 'Account menu' : 'Account'}>
+                    {user
+                      ? <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}</span>
                       : <User size={19} />}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {state.user ? (
+                  {user ? (
                     <>
-                      <DropdownMenuLabel><p className="text-sm font-medium">{fullName(state.user)}</p><p className="text-xs text-muted-foreground font-normal">{state.user.email}</p></DropdownMenuLabel>
+                      <DropdownMenuLabel><p className="text-sm font-medium">{fullName(user)}</p><p className="text-xs text-muted-foreground font-normal">{user.email}</p></DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'profile' })}><User />Profile</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'orders' })}><Package />Orders</DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => navigate('account', { accountSection: 'addresses' })}><MapPin />Addresses</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => dispatch({ type: 'LOGOUT' })}><LogOut />Sign out</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => { logout(); navigate('home'); }}><LogOut />Sign out</DropdownMenuItem>
                     </>
                   ) : (
                     <>
@@ -119,8 +124,8 @@ export function Navbar() {
               </button>
             ))}
             <div className="grid grid-cols-2 gap-3 mt-8 pb-6">
-              <button onClick={() => go(() => (state.user ? navigate('account') : navigate('auth')))} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
-                <User size={16} />{state.user ? state.user.firstName : 'Sign in'}
+              <button onClick={() => go(() => (user ? navigate('account') : navigate('auth')))} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
+                <User size={16} />{user ? user.firstName : 'Sign in'}
               </button>
               <button onClick={() => go(() => navigate('cart'))} className="h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
                 <ShoppingBag size={16} />Cart ({cartCount})

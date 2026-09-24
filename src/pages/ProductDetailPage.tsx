@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { formatPrice } from '@/lib/money';
 import { ChevronLeft, ChevronRight, Minus, Plus, Check, ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { useCartStore } from '../stores/cartStore';
 import { products } from '../data/products';
 import type { Product, ProductSize } from '../types';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,8 @@ import { ProductCard, allSoldOut } from '../components/product/ProductCard';
 import { getTag } from '../data/tags';
 
 export function ProductDetailPage() {
-  const { state, navigate, addToCart } = useApp();
+  const { state, navigate } = useApp();
+  const addToCart = useCartStore((s) => s.add);
   const product = products.find((p) => p.id === state.currentProductId) ?? products[0];
 
   const [selectedImage, setSelectedImage] = useState(0);

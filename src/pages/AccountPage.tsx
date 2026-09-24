@@ -7,6 +7,10 @@ import {
   ExternalLink, Phone, XCircle, ChevronLeft,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { useAuthStore } from '../stores/authStore';
+
+// Stable fallback so the store selector doesn't return a new array on every render.
+const NO_ADDRESSES: Address[] = [];
 import type { Address, AccountSection } from '../types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';
@@ -16,8 +20,8 @@ import { Modal } from '@/components/shared/Modal';
 // ─── Profile ────────────────────────────────────────────────────────────────
 
 function ProfileSection() {
-  const { state, dispatch } = useApp();
-  const user = state.user!;
+  const user = useAuthStore((s) => s.user)!;
+  const updateUser = useAuthStore((s) => s.updateUser);
 
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
@@ -37,7 +41,7 @@ function ProfileSection() {
     e.preventDefault();
     setSaving(true);
     await new Promise((r) => setTimeout(r, 800));
-    dispatch({ type: 'UPDATE_USER', user: { ...user, firstName, lastName, email, phone } });
+    updateUser({ firstName, lastName, email, phone });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -183,18 +187,18 @@ function AddressForm({
 }
 
 function AddressesSection() {
-  const { state, dispatch } = useApp();
-  const addresses = state.user?.addresses ?? [];
+  const addresses = useAuthStore((s) => s.user?.addresses ?? NO_ADDRESSES);
+  const { saveAddress, deleteAddress, setDefaultAddress } = useAuthStore.getState();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Address | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Address | null>(null);
 
   const handleSave = (addr: Address) => {
     if (editing) {
-      dispatch({ type: 'UPDATE_ADDRESS', address: addr });
+      saveAddress(addr);
       setEditing(null);
     } else {
-      dispatch({ type: 'ADD_ADDRESS', address: addr });
+      saveAddress(addr);
       setAdding(false);
     }
   };
@@ -248,7 +252,7 @@ function AddressesSection() {
                 <div className="flex items-center gap-1 shrink-0">
                   {!addr.isDefault && (
                     <button
-                      onClick={() => dispatch({ type: 'SET_DEFAULT_ADDRESS', id: addr.id })}
+                      onClick={() => setDefaultAddress(addr.id)}
                       className="text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded hover:bg-muted"
                     >
                       Set default
@@ -302,7 +306,7 @@ function AddressesSection() {
             <Button
               variant="destructive"
               onClick={() => {
-                dispatch({ type: 'DELETE_ADDRESS', id: deleteConfirm!.id });
+                deleteAddress(deleteConfirm!.id);
                 setDeleteConfirm(null);
               }}
             >
@@ -553,10 +557,13 @@ const navItems: { id: AccountSection; label: string; icon: React.ElementType }[]
 
 export function AccountPage() {
   const { state, dispatch, navigate } = useApp();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const signOut = () => { logout(); navigate('home'); };
   const section = state.accountSection;
   const viewingOrderId = state.currentOrderId;
 
-  if (!state.user) {
+  if (!user) {
     navigate('auth');
     return null;
   }
@@ -574,8 +581,8 @@ export function AccountPage() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">My Account</p>
-          <h1 className="font-serif text-4xl font-semibold">{fullName(state.user)}</h1>
-          <p className="text-muted-foreground mt-1">{state.user.email}</p>
+          <h1 className="font-serif text-4xl font-semibold">{fullName(user)}</h1>
+          <p className="text-muted-foreground mt-1">{user.email}</p>
         </div>
       </div>
 
@@ -599,7 +606,7 @@ export function AccountPage() {
             ))}
             <div className="border-t border-border pt-2 mt-2">
               <button
-                onClick={() => dispatch({ type: 'LOGOUT' })}
+                onClick={signOut}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
               >
                 <LogOut size={16} />
@@ -626,7 +633,7 @@ export function AccountPage() {
               </button>
             ))}
             <button
-              onClick={() => dispatch({ type: 'LOGOUT' })}
+              onClick={signOut}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 bg-muted text-muted-foreground"
             >
               <LogOut size={14} /> Sign out

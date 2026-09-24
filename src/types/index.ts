@@ -141,8 +141,6 @@ export interface AppState {
   currentSlug: string | null;
   accountSection: AccountSection;
   authMode: AuthMode;
-  cart: CartItem[];
-  user: User | null;
   orders: Order[];
   checkoutPendingProduct: { productId: string; size: ProductSize } | null;
   listingCollection: string;
@@ -152,15 +150,4 @@ export interface AppState {
 export type AppAction =
   | { type: 'NAVIGATE'; page: Page; productId?: string; orderId?: string; accountSection?: AccountSection; collection?: string; scent?: string | null; slug?: string }
   | { type: 'SET_AUTH_MODE'; mode: AuthMode }
-  | { type: 'LOGIN'; user: User }
-  | { type: 'LOGOUT' }
-  | { type: 'ADD_TO_CART'; item: CartItem }
-  | { type: 'UPDATE_CART_QTY'; productId: string; sizeLabel: string; qty: number }
-  | { type: 'REMOVE_FROM_CART'; productId: string; sizeLabel: string }
-  | { type: 'CLEAR_CART' }
-  | { type: 'PLACE_ORDER'; order: Order }
-  | { type: 'UPDATE_USER'; user: User }
-  | { type: 'ADD_ADDRESS'; address: Address }
-  | { type: 'UPDATE_ADDRESS'; address: Address }
-  | { type: 'DELETE_ADDRESS'; id: string }
-  | { type: 'SET_DEFAULT_ADDRESS'; id: string };
+  | { type: 'PLACE_ORDER'; order: Order };

@@ -3,11 +3,16 @@ import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { deliveryMethods } from '../data/products';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { useAuthStore } from '../stores/authStore';
+import { useCartStore, useCartTotal } from '../stores/cartStore';
 import { Button } from '@/components/ui/button';
 
 export function CartPage() {
-  const { state, dispatch, navigate, cartTotal } = useApp();
-  const { cart } = state;
+  const { navigate } = useApp();
+  const cart = useCartStore((s) => s.items);
+  const { remove, setQuantity } = useCartStore.getState();
+  const cartTotal = useCartTotal();
+  const user = useAuthStore((s) => s.user);
 
   const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : deliveryMethods[0].price;
   const tax = calcTax(cartTotal);
@@ -80,7 +85,7 @@ export function CartPage() {
                     <p className="text-sm text-muted-foreground">{item.product.scent}</p>
                   </div>
                   <button
-                    onClick={() => dispatch({ type: 'REMOVE_FROM_CART', productId: item.productId, sizeLabel: item.size.label })}
+                    onClick={() => remove(item.productId, item.size.label)}
                     className="p-1.5 text-muted-foreground hover:text-destructive transition-colors shrink-0"
                     aria-label="Remove item"
                   >
@@ -92,9 +97,9 @@ export function CartPage() {
                     <button
                       onClick={() => {
                         if (item.quantity === 1) {
-                          dispatch({ type: 'REMOVE_FROM_CART', productId: item.productId, sizeLabel: item.size.label });
+                          remove(item.productId, item.size.label);
                         } else {
-                          dispatch({ type: 'UPDATE_CART_QTY', productId: item.productId, sizeLabel: item.size.label, qty: item.quantity - 1 });
+                          setQuantity(item.productId, item.size.label, item.quantity - 1);
                         }
                       }}
                       className="p-2 hover:bg-muted rounded-l-md transition-colors"
@@ -103,7 +108,7 @@ export function CartPage() {
                     </button>
                     <span className="px-4 text-sm font-medium min-w-[2rem] text-center">{item.quantity}</span>
                     <button
-                      onClick={() => dispatch({ type: 'UPDATE_CART_QTY', productId: item.productId, sizeLabel: item.size.label, qty: item.quantity + 1 })}
+                      onClick={() => setQuantity(item.productId, item.size.label, item.quantity + 1)}
                       className="p-2 hover:bg-muted rounded-r-md transition-colors"
                     >
                       <Plus size={13} />
@@ -146,9 +151,9 @@ export function CartPage() {
             <Button
               size="lg"
               className="w-full mt-6"
-              onClick={() => state.user ? navigate('checkout') : navigate('auth')}
+              onClick={() => user ? navigate('checkout') : navigate('auth')}
             >
-              {state.user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
+              {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-3">
               Taxes and shipping calculated at checkout

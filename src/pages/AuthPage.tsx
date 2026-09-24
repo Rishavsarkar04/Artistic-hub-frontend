@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Flame, ArrowLeft, Check } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { useAuthStore } from '../stores/authStore';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/shared/FormField';
 import { mockUser } from '../data/products';
@@ -27,7 +28,8 @@ function PasswordInput({ label, value, onChange, error, placeholder }: {
 }
 
 export function AuthPage() {
-  const { state, dispatch, navigate, loginDemo } = useApp();
+  const { state, dispatch, navigate } = useApp();
+  const login = useAuthStore((s) => s.login);
   const mode = state.authMode;
 
   const [firstName, setFirstName] = useState('');
@@ -72,7 +74,7 @@ export function AuthPage() {
       setSuccess(true);
       return;
     }
-    loginDemo();
+    login(mockUser); // MOCK: call endpoints.auth.login / register and store the returned user and token
     navigate('home');
   };
 
