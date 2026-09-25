@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_TIMEOUT } from './config';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 /** Every failed request rejects with this, so callers handle one error shape. */
 export class ApiError extends Error {

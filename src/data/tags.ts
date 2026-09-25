@@ -1,4 +1,4 @@
-import type { Product, Tag } from '../types';
+import type { Product, Tag } from '@/types';
 
 /** Product tags offered as a filter; products reference these by id. */
 export const tags: Tag[] = [

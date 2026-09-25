@@ -1,13 +1,9 @@
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { paths, ACCOUNT_TABS, type AccountTab } from '@/router/paths';
-
 import { fullName } from '@/lib/utils';
 import { User, MapPin, Package, LogOut } from 'lucide-react';
-
 import { useAuthStore } from '@/stores/authStore';
-
 import type { AccountSection } from '@/types';
-
 import { ProfileSection } from './ProfileSection';
 import { AddressesSection } from './AddressesSection';
 import { OrdersSection } from './OrdersSection';

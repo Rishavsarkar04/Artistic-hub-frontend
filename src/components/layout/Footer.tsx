@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { paths } from '@/router/paths';
-import { publishedPages } from '../../data/pages';
+import { publishedPages } from '@/data/pages';
 
 export function Footer() {
   const help: [string, string][] = [

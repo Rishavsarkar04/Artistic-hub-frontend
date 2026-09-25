@@ -1,112 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
-import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
-import { useOrdersStore } from '../stores/ordersStore';
-import { useAuthStore } from '../stores/authStore';
-import { useCartStore, useCartTotal } from '../stores/cartStore';
-import { deliveryMethods } from '../data/shipping';
-import type { Address, Order, DeliveryMethod } from '../types';
+import { ChevronRight, Lock } from 'lucide-react';
+import { useOrdersStore } from '@/stores/ordersStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useCartStore, useCartTotal } from '@/stores/cartStore';
+import { deliveryMethods } from '@/data/shipping';
+import type { Address, Order, DeliveryMethod } from '@/types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';
-
-type Step = 'shipping' | 'review';
-
-const steps: { id: Step; label: string; icon: React.ElementType }[] = [
-  { id: 'shipping', label: 'Shipping', icon: MapPin },
-  { id: 'review', label: 'Review & pay', icon: Eye },
-];
-
-/** Two-part progress bar; finished steps stay clickable to go back. */
-function StepIndicator({ current, onSelect }: { current: Step; onSelect: (s: Step) => void }) {
-  const currentIdx = steps.findIndex((s) => s.id === current);
-  return (
-    <ol className="grid grid-cols-2 gap-3 mb-10" aria-label="Checkout progress">
-      {steps.map((step, i) => {
-        const done = i < currentIdx;
-        const active = i === currentIdx;
-        const Icon = step.icon;
-        return (
-          <li key={step.id}>
-            <button
-              type="button"
-              onClick={() => done && onSelect(step.id)}
-              disabled={!done}
-              aria-current={active ? 'step' : undefined}
-              className="group w-full text-left disabled:cursor-default"
-            >
-              <span className="block h-1.5 rounded-full bg-border overflow-hidden">
-                <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${done || active ? 'w-full' : 'w-0'}`} />
-              </span>
-              <span className="mt-3 flex items-center gap-2.5">
-                <span className={`size-8 shrink-0 rounded-full flex items-center justify-center transition-colors ${done ? 'bg-primary text-primary-foreground' : active ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'}`}>
-                  {done ? <Check size={15} /> : <Icon size={15} />}
-                </span>
-                <span className="leading-tight">
-                  <span className="block text-xs text-muted-foreground">Step {i + 1} of {steps.length}</span>
-                  <span className={`block text-sm font-medium ${active || done ? 'text-foreground' : 'text-muted-foreground'} ${done ? 'group-hover:underline underline-offset-4' : ''}`}>{step.label}</span>
-                </span>
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function OrderSummary({ compact = false }: { compact?: boolean }) {
-  const cart = useCartStore((s) => s.items);
-  const cartTotal = useCartTotal();
-  const shipping = cartTotal >= FREE_SHIPPING_MIN ? 0 : deliveryMethods[0].price;
-  const tax = calcTax(cartTotal);
-  const total = cartTotal + shipping + tax;
-
-  return (
-    <div className="bg-card border border-border rounded-xl p-5">
-      <h3 className="font-medium mb-4">Order Summary</h3>
-      {!compact && (
-        <div className="space-y-3 mb-4">
-          {cart.map((item) => (
-            <div key={`${item.productId}-${item.size.label}`} className="flex items-center gap-3">
-              <div className="relative">
-                <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-md object-cover bg-muted" />
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-muted-foreground text-card text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {item.quantity}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{item.product.name}</p>
-                <p className="text-xs text-muted-foreground">{item.size.label} · {item.size.weight}</p>
-              </div>
-              <p className="text-sm font-medium">{formatPrice(item.size.price * item.quantity)}</p>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="space-y-2 text-sm border-t border-border pt-4">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatPrice(cartTotal)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Shipping</span>
-          <span>{shipping === 0 ? <span className="text-emerald-600 font-medium">Free</span> : formatPrice(shipping)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Tax</span>
-          <span>{formatPrice(tax)}</span>
-        </div>
-        <div className="border-t border-border pt-2 flex justify-between font-semibold text-base">
-          <span>Total</span>
-          <span>{formatPrice(total)}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { StepIndicator, type Step } from './StepIndicator';
+import { OrderSummary } from './OrderSummary';
 
 export function CheckoutPage() {
   const addOrder = useOrdersStore((s) => s.add);
@@ -129,7 +35,6 @@ export function CheckoutPage() {
 
   // No delivery step: every order ships standard.
   const selectedDelivery: DeliveryMethod = deliveryMethods[0];
-
 
   const shippingAddress: Address =
     selectedAddressId !== 'new'

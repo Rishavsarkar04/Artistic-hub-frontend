@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-
 import { Check, Eye, EyeOff } from 'lucide-react';
-
 import { useAuthStore } from '@/stores/authStore';
-
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/shared/FormField';
 
-function ProfileSection() {
+export function ProfileSection() {
   const user = useAuthStore((s) => s.user)!;
   const updateUser = useAuthStore((s) => s.updateUser);
 

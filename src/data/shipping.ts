@@ -1,4 +1,4 @@
-import type { DeliveryMethod } from '../types';
+import type { DeliveryMethod } from '@/types';
 
 // MOCK: the courier options; they still name US carriers until the real Indian couriers are chosen.
 export const deliveryMethods: DeliveryMethod[] = [

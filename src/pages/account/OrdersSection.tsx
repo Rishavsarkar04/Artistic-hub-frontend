@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { formatPrice } from '@/lib/money';
-
 import { Package, ExternalLink } from 'lucide-react';
 import { useOrdersStore } from '@/stores/ordersStore';
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
 import { statusIcon, statusVariant } from './orderStatus';
 
-function OrdersSection({ onViewDetail }: { onViewDetail: (orderId: string) => void }) {
+export function OrdersSection({ onViewDetail }: { onViewDetail: (orderId: string) => void }) {
   const orders = useOrdersStore((s) => s.orders);
   const [filter, setFilter] = useState<string>('all');
 

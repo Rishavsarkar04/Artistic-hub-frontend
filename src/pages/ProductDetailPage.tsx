@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { formatPrice } from '@/lib/money';
 import { ChevronLeft, ChevronRight, Minus, Plus, Check, ArrowRight } from 'lucide-react';
-import { useCartStore } from '../stores/cartStore';
-import { products } from '../data/products';
-import type { Product, ProductSize } from '../types';
+import { useCartStore } from '@/stores/cartStore';
+import { products } from '@/data/products';
+import type { Product, ProductSize } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ProductCard } from '../components/product/ProductCard';
+import { ProductCard } from '@/components/product/ProductCard';
 import { allSoldOut } from '@/lib/product';
-import { getTag } from '../data/tags';
+import { getTag } from '@/data/tags';
 
 export function ProductDetailPage({ product }: { product: Product }) {
   const navigate = useNavigate();

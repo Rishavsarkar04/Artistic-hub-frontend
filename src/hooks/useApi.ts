@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { api, ApiError } from '../api/client';
+import { api, ApiError } from '@/api/client';
 
 type Params = Record<string, string | number | boolean | null | undefined>;
 

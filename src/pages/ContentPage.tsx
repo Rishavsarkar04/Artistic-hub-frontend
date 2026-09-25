@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
-import { getPageBySlug, formatDate } from '../data/pages';
+import { getPageBySlug, formatDate } from '@/data/pages';
 
 /** Renders any published CMS page by slug; content is rich-text HTML from the editor. */
 export function ContentPage() {

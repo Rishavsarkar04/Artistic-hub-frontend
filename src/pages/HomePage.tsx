@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { motion, type Variants } from 'motion/react';
 import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
-import { products, collections } from '../data/products';
-import { testimonials } from '../data/testimonials';
+import { products, collections } from '@/data/products';
+import { testimonials } from '@/data/testimonials';
 import { Button } from '@/components/ui/button';
-import { ProductCard } from '../components/product/ProductCard';
-import { BlurText } from '../components/motion/BlurText';
-import { FadeContent } from '../components/motion/FadeContent';
+import { ProductCard } from '@/components/product/ProductCard';
+import { BlurText } from '@/components/motion/BlurText';
+import { FadeContent } from '@/components/motion/FadeContent';
 
 const HERO_IMG = photo('photo-1613068431228-8cb6a1e92573', 2000, 1400);
 const STORY_IMG = photo('photo-1612293905607-b003de9e54fb', 1200, 1400);

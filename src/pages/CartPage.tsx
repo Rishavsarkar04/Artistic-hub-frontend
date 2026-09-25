@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
-import { deliveryMethods } from '../data/shipping';
+import { deliveryMethods } from '@/data/shipping';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react';
-import { useAuthStore } from '../stores/authStore';
-import { useCartStore, useCartTotal } from '../stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useCartStore, useCartTotal } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 
 export function CartPage() {

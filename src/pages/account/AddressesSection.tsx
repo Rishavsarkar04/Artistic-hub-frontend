@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-
 import { fullName } from '@/lib/utils';
 import { MapPin, Plus, Trash2, Edit3, Phone } from 'lucide-react';
-
 import { useAuthStore } from '@/stores/authStore';
-
 import type { Address } from '@/types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';
@@ -81,7 +78,7 @@ function AddressForm({
   );
 }
 
-function AddressesSection() {
+export function AddressesSection() {
   const addresses = useAuthStore((s) => s.user?.addresses ?? NO_ADDRESSES);
   const { saveAddress, deleteAddress, setDefaultAddress } = useAuthStore.getState();
   const [adding, setAdding] = useState(false);

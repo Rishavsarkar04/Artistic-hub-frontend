@@ -1,4 +1,4 @@
-import type { CmsPage } from '../types';
+import type { CmsPage } from '@/types';
 
 // MOCK: rows from the CMS `pages` table. Replace with API calls (list published pages, fetch one by slug).
 export const cmsPages: CmsPage[] = [

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Order } from '../types';
-import { mockOrders } from '../data/account';
+import type { Order } from '@/types';
+import { mockOrders } from '@/data/account';
 
 interface OrdersState {
   orders: Order[];

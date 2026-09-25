@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatPrice } from '@/lib/money';
 import { ArrowUpRight } from 'lucide-react';
-import type { Product } from '../../types';
+import type { Product } from '@/types';
 import { Link } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { Badge } from '@/components/ui/badge';

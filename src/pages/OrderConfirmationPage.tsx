@@ -4,7 +4,7 @@ import { paths } from '@/router/paths';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, Package, MapPin, ExternalLink, Clock } from 'lucide-react';
-import { useOrdersStore } from '../stores/ordersStore';
+import { useOrdersStore } from '@/stores/ordersStore';
 import { Button } from '@/components/ui/button';
 
 export function OrderConfirmationPage() {

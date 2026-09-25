@@ -1,18 +1,15 @@
+import React from 'react';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
-import { Package, Check, ExternalLink, ChevronLeft } from 'lucide-react';
+import { Check, ExternalLink, ChevronLeft } from 'lucide-react';
 import { useOrdersStore } from '@/stores/ordersStore';
-
 import { Badge } from '@/components/ui/badge';
 
-import { statusIcon } from './orderStatus';
-
-function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () => void }) {
+export function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () => void }) {
   const order = useOrdersStore((s) => s.orders.find((o) => o.id === orderId));
 
   if (!order) return <div className="text-center py-12 text-muted-foreground">Order not found.</div>;
 
-  const Icon = statusIcon[order.status] ?? Package;
   const progressSteps = ['Order Placed', 'Processing', 'Shipped', 'Delivered'];
   const progressIdx =
     order.status === 'processing' ? 1 :
