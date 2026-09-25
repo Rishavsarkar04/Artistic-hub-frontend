@@ -4,14 +4,13 @@ import { paths } from '../routes';
 import { formatPrice } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, Package, MapPin, ExternalLink, Clock } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import { useOrdersStore } from '../stores/ordersStore';
 import { Button } from '@/components/ui/button';
 
 export function OrderConfirmationPage() {
-  const { state } = useApp();
   const navigate = useNavigate();
   const { orderId } = useParams();
-  const order = state.orders.find((o) => o.id === orderId);
+  const order = useOrdersStore((s) => s.orders.find((o) => o.id === orderId));
 
   if (!order) {
     return (

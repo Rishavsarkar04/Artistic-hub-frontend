@@ -21,12 +21,11 @@ Run the type check and `npm run build` after every change.
 
 ## Architecture
 
-- `src/App.tsx` — providers: `MotionConfig`, `AppProvider`, `<BrowserRouter>`.
+- `src/App.tsx` — providers: `MotionConfig` and `<BrowserRouter>`.
 - `src/router.tsx` — `AppRoutes`: every route as JSX `<Routes>`/`<Route>` (react-router-dom v7), the navbar/footer layout route, `RequireAuth` for checkout, order confirmation and account, `ScrollToTop`, and the 404 fallback.
 - `src/routes.ts` — `ROUTES`, every route **pattern** (e.g. `ROUTES.product = '/products/:productId'`), used by `<Route path={ROUTES.x}>` and `matchPath`. Also `paths`, which fills those patterns in with `generatePath` to build links (e.g. `paths.product(id)`, `paths.shop({ collection, tag })`, `paths.account('orders')`).
 - `src/pages/NotFoundPage.tsx` — the 404 page, also used for unknown products.
-- `src/store/AppContext.tsx` — orders only (reducer + context). Orders become API data once the backend is connected.
-- `src/stores/` — Zustand stores, persisted to localStorage: `cartStore.ts` (`useCartStore`, `useCartCount`, `useCartTotal`) and `authStore.ts` (`useAuthStore`: user, token, profile and addresses).
+- `src/stores/` — Zustand stores, persisted to localStorage: `cartStore.ts` (`useCartStore`, `useCartCount`, `useCartTotal`), `authStore.ts` (`useAuthStore`: user, token, profile and addresses) and `ordersStore.ts` (`useOrdersStore`: orders, `add`). The orders store is a MOCK until orders come from the API.
 - `src/api/config.ts` — API base URL, timeout and **every endpoint path**.
 - `src/api/client.ts` — the shared **axios** instance (`http`) and `api.get/post/put/patch/delete`, which resolve to the response body. Interceptors add the Bearer token, turn failures into `ApiError` (status + message), and sign the user out on a 401. Query params go in `{ params }`.
 - `src/hooks/useApi.ts` — `useApiQuery<T>(url, params?)` loads data (`data`, `error`, `isLoading`, `refetch`; pass `null` to skip; cancels on unmount). `useApiMutation(fn)` runs writes (`mutate` never throws, `mutateAsync` throws; `isLoading`, `error`).
@@ -82,7 +81,7 @@ Run the type check and `npm run build` after every change.
 
 ## State management
 
-- Client state lives in Zustand stores in `src/stores/`, one per concern: the cart in `useCartStore`, the session and user in `useAuthStore`. Select narrowly (`useCartStore((s) => s.items)`), and return stable references from selectors: never `?? []` inline.
+- All global state lives in Zustand stores in `src/stores/`, one per concern: the cart in `useCartStore`, the session and user in `useAuthStore`, and orders (mock) in `useOrdersStore`. There is no React context for app state; don't add one. Select narrowly (`useCartStore((s) => s.items)`), and return stable references from selectors: never `?? []` inline.
 - Don't copy API data into a store. In components, load server data with `useApiQuery` and send changes with `useApiMutation`, both built on `api` + `endpoints`. Use axios only through `src/api/client.ts`, never `fetch` or a new axios instance.
 - Local UI state: `useState` / `useReducer`.
 - Don't add Redux or React Query without discussing it first.

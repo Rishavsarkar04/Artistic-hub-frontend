@@ -4,7 +4,7 @@ import { paths } from '../routes';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import { useOrdersStore } from '../stores/ordersStore';
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore, useCartTotal } from '../stores/cartStore';
 import { deliveryMethods } from '../data/products';
@@ -109,7 +109,7 @@ function OrderSummary({ compact = false }: { compact?: boolean }) {
 }
 
 export function CheckoutPage() {
-  const { dispatch } = useApp();
+  const addOrder = useOrdersStore((s) => s.add);
   const navigate = useNavigate();
   const cart = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clear);
@@ -172,7 +172,7 @@ export function CheckoutPage() {
       paymentMethod: 'Online payment', // MOCK: use the method reported by the payment gateway
     };
 
-    dispatch({ type: 'PLACE_ORDER', order });
+    addOrder(order);
     clearCart();
     // Replace so Back from the confirmation doesn't return to a finished checkout.
     navigate(paths.orderConfirmation(order.id), { replace: true });

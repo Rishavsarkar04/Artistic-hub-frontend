@@ -8,7 +8,7 @@ import {
   Check, Eye, EyeOff, LogOut, Star, Truck, CheckCircle2, Clock,
   ExternalLink, Phone, XCircle, ChevronLeft,
 } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import { useOrdersStore } from '../stores/ordersStore';
 import { useAuthStore } from '../stores/authStore';
 
 // Stable fallback so the store selector doesn't return a new array on every render.
@@ -339,8 +339,7 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'success' | 'warni
 };
 
 function OrdersSection({ onViewDetail }: { onViewDetail: (orderId: string) => void }) {
-  const { state } = useApp();
-  const orders = state.orders;
+  const orders = useOrdersStore((s) => s.orders);
   const [filter, setFilter] = useState<string>('all');
 
   const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
@@ -441,8 +440,7 @@ function OrdersSection({ onViewDetail }: { onViewDetail: (orderId: string) => vo
 // ─── Order Detail ────────────────────────────────────────────────────────────
 
 function OrderDetailSection({ orderId, onBack }: { orderId: string; onBack: () => void }) {
-  const { state } = useApp();
-  const order = state.orders.find((o) => o.id === orderId);
+  const order = useOrdersStore((s) => s.orders.find((o) => o.id === orderId));
 
   if (!order) return <div className="text-center py-12 text-muted-foreground">Order not found.</div>;
 

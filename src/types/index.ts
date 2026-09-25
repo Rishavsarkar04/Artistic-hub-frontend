@@ -117,9 +117,3 @@ export interface CmsPage {
   created_at: string;
   updated_at: string;
 }
-
-export interface AppState {
-  orders: Order[];
-}
-
-export type AppAction = { type: 'PLACE_ORDER'; order: Order };
