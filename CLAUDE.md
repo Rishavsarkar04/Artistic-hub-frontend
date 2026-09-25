@@ -22,36 +22,38 @@ Run the type check and `npm run build` after every change.
 ## Architecture
 
 - `src/App.tsx` — providers: `MotionConfig` and `<BrowserRouter>`.
-- `src/router.tsx` — `AppRoutes`: every route as JSX `<Routes>`/`<Route>` (react-router-dom v7), the navbar/footer layout route, `RequireAuth` for checkout, order confirmation and account, `ScrollToTop`, and the 404 fallback.
-- `src/routes.ts` — `ROUTES`, every route **pattern** (e.g. `ROUTES.product = '/products/:productId'`), used by `<Route path={ROUTES.x}>` and `matchPath`. Also `paths`, which fills those patterns in with `generatePath` to build links (e.g. `paths.product(id)`, `paths.shop({ collection, tag })`, `paths.account('orders')`).
+- `src/router/AppRoutes.tsx` — `AppRoutes`: every route as JSX `<Routes>`/`<Route>` (react-router-dom v7), the navbar/footer layout route, `RequireAuth` for checkout, order confirmation and account, `ScrollToTop`, and the 404 fallback.
+- `src/router/paths.ts` — `ROUTES`, every route **pattern** (e.g. `ROUTES.product = '/products/:productId'`), used by `<Route path={ROUTES.x}>` and `matchPath`. Also `paths`, which fills those patterns in with `generatePath` to build links (e.g. `paths.product(id)`, `paths.shop({ collection, tag })`, `paths.account('orders')`).
 - `src/pages/NotFoundPage.tsx` — the 404 page, also used for unknown products.
 - `src/stores/` — Zustand stores, persisted to localStorage: `cartStore.ts` (`useCartStore`, `useCartCount`, `useCartTotal`), `authStore.ts` (`useAuthStore`: user, token, profile and addresses) and `ordersStore.ts` (`useOrdersStore`: orders, `add`). The orders store is a MOCK until orders come from the API.
 - `src/api/config.ts` — API base URL, timeout and **every endpoint path**.
 - `src/api/client.ts` — the shared **axios** instance (`http`) and `api.get/post/put/patch/delete`, which resolve to the response body. Interceptors add the Bearer token, turn failures into `ApiError` (status + message), and sign the user out on a 401. Query params go in `{ params }`.
 - `src/hooks/useApi.ts` — `useApiQuery<T>(url, params?)` loads data (`data`, `error`, `isLoading`, `refetch`; pass `null` to skip; cancels on unmount). `useApiMutation(fn)` runs writes (`mutate` never throws, `mutateAsync` throws; `isLoading`, `error`).
-- `src/pages/` — one component per page (home, listing, product detail, cart, checkout, account, CMS content page, etc.).
+- `src/pages/` — one component per page. A page that grows past one file gets its own folder with its parts beside it: `pages/account/` (`AccountPage` shell plus `ProfileSection`, `AddressesSection`, `OrdersSection`, `OrderDetailSection` and `orderStatus.ts`) and `pages/checkout/` (`CheckoutPage`, `StepIndicator`, `OrderSummary`).
 - `src/components/layout/` — `Navbar`, `Footer`.
-- `src/components/product/ProductCard.tsx` — shared product card, plus `defaultSize()`, `productPrice()` and `allSoldOut()`.
+- `src/components/product/ProductCard.tsx` — the shared product card.
+- `src/lib/product.ts` — `defaultSize()`, `productPrice()` and `allSoldOut()`.
 - `src/components/motion/` — `BlurText` and `FadeContent`, built on Motion.
 - `src/components/shared/` — `FormField` (`TextField`, `SelectField`) and `Modal`.
 - `src/components/ui/` — shadcn/ui primitives.
-- `src/data/` — mock data: `products.ts` (products, delivery methods, sample user and orders), `tags.ts` (flat tag list and colours), `pages.ts` (CMS pages), `images.ts` (`photo()`).
+- `src/data/` — mock data, one file per topic: `products.ts` (products, collections), `account.ts` (`mockUser`, `mockOrders`), `shipping.ts` (`deliveryMethods`), `testimonials.ts`, `tags.ts` (flat tag list and colours), `pages.ts` (CMS pages). `images.ts` holds `photo()`.
 - `src/lib/money.ts` — `formatPrice()`, `FREE_SHIPPING_MIN`, `calcTax()`.
 - `src/lib/utils.ts` — `cn()` and `fullName()`.
-- `src/types/index.ts` — all shared types.
+- `src/types/` — shared types by topic: `product.ts`, `order.ts`, `user.ts`, `cms.ts`. `index.ts` re-exports them all, so import from `@/types`.
 
 ## Conventions
 
 - Functional components with named exports. `App` is the only default export.
 - Props: destructure in the signature, and type them inline or with an interface next to the component.
 - Match the surrounding code's style and comment density. Keep comments for the why, not the what.
+- Imports: use the `@/` alias for anything outside the current folder (`@/stores/cartStore`, `@/router/paths`) and `./` only for files in the same folder. No `../` imports.
 
 ### Navigation
 
-- Routing is `react-router-dom` with JSX routes. Import from `react-router-dom`, and don't switch to `createBrowserRouter` or route-object arrays. Build every URL with `paths` from `src/routes.ts`. Never write path strings in components or use `window.location`.
+- Routing is `react-router-dom` with JSX routes. Import from `react-router-dom`, and don't switch to `createBrowserRouter` or route-object arrays. Build every URL with `paths` from `src/router/paths.ts`. Never write path strings in components or use `window.location`.
 - For plain navigation use `<Link to={paths.x}>`, so links can open in a new tab and search engines can follow them. Use `useNavigate()` only after an action (submit, sign-out, add to cart).
 - Page state that should survive a refresh or a shared link belongs in the URL: path params (`useParams`) or the query string (`useSearchParams`). Examples: product id, account tab, `?collection=` and `?tag=` on /shop.
-- To add a page: add its pattern to `ROUTES`, a builder to `paths`, then `<Route path={ROUTES.x}>` in `src/router.tsx`. Never write a route string anywhere else; use `matchPath(ROUTES.x, pathname)` for "is this page active" checks. Wrap it in `RequireAuth` if it needs a signed-in user. That sends visitors to /login and back afterwards via `location.state.from`.
+- To add a page: add its pattern to `ROUTES`, a builder to `paths`, then `<Route path={ROUTES.x}>` in `src/router/AppRoutes.tsx`. Never write a route string anywhere else; use `matchPath(ROUTES.x, pathname)` for "is this page active" checks. Wrap it in `RequireAuth` if it needs a signed-in user. That sends visitors to /login and back afterwards via `location.state.from`.
 - Pages whose local state must reset when the URL changes are keyed in the router (see `ShopRoute`, `ProductRoute`, `ContentRoute`).
 - CMS pages (privacy, terms, and similar) are data-driven at `/pages/:slug`, rendered by `ContentPage`. Don't hard-code new content pages.
 - Back buttons use `navigate(-1)`, falling back to home when `location.key === 'default'` (the first page of the visit).
@@ -89,7 +91,7 @@ Run the type check and `npm run build` after every change.
 ## TypeScript
 
 - Strict mode. Don't use `any` unless a comment explains why.
-- Shared types go in `src/types/index.ts`.
+- Shared types go in the matching file in `src/types/` (add a new topic file and re-export it from `index.ts` if none fits).
 
 ## Git
 
