@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
@@ -208,9 +208,12 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              <Button size="lg" onClick={() => setStep('review')}>
-                Continue to Review <ChevronRight size={16} />
-              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" asChild><Link to={paths.cart}>Back</Link></Button>
+                <Button size="lg" onClick={() => setStep('review')} className="flex-1">
+                  Continue to Review <ChevronRight size={16} />
+                </Button>
+              </div>
             </div>
           )}
 

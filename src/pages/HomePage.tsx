@@ -1,6 +1,6 @@
 import { photo } from '@/data/images';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { motion, type Variants } from 'motion/react';
 import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
@@ -66,7 +66,10 @@ export function HomePage() {
                 Small-batch candles in coconut-soy and beeswax, with fragrance built slowly and a clean, even burn to the last centimetre.
               </p>
               <div className="rise rise-4 flex flex-wrap gap-3 mt-9">
-                <Button size="lg" variant="light" onClick={() => navigate(paths.shop())}>Shop candles <ArrowRight size={17} /></Button>
+                <Button size="lg" variant="light" asChild
+                  className="group h-16 px-10 text-lg font-semibold gap-3 shadow-[0_12px_40px_-8px_rgba(242,194,123,.55)] hover:shadow-[0_16px_48px_-8px_rgba(242,194,123,.75)] transition-shadow">
+                  <Link to={paths.shop()}>Shop candles <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" /></Link>
+                </Button>
               </div>
             </div>
           </div>
