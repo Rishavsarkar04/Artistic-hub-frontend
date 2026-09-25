@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { STORAGE_KEYS } from './storageKeys';
 import type { Address, User } from '@/types';
 
 interface AuthState {
@@ -33,6 +34,6 @@ export const useAuthStore = create<AuthState>()(
         setDefaultAddress: (id) => updateAddresses((list) => list.map((a) => ({ ...a, isDefault: a.id === id }))),
       };
     },
-    { name: 'eb-auth' },
+    { name: STORAGE_KEYS.session },
   ),
 );

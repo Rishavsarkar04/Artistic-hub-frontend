@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { STORAGE_KEYS } from './storageKeys';
 import type { CartItem } from '@/types';
 
 interface CartState {
@@ -30,7 +31,7 @@ export const useCartStore = create<CartState>()(
       remove: (productId, sizeLabel) => set((s) => ({ items: s.items.filter((i) => !sameLine(i, productId, sizeLabel)) })),
       clear: () => set({ items: [] }),
     }),
-    { name: 'eb-cart' },
+    { name: STORAGE_KEYS.cart },
   ),
 );
 

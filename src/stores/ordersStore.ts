@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { STORAGE_KEYS } from './storageKeys';
 import type { Order } from '@/types';
 import { mockOrders } from '@/data/account';
 
@@ -19,6 +20,6 @@ export const useOrdersStore = create<OrdersState>()(
       orders: mockOrders as Order[],
       add: (order) => set((s) => ({ orders: [order, ...s.orders] })),
     }),
-    { name: 'eb-orders' },
+    { name: STORAGE_KEYS.orders },
   ),
 );
