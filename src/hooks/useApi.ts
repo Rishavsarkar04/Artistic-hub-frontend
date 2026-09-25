@@ -55,8 +55,13 @@ export function useApiMutation<TResult, TInput = void>(request: (input: TInput) 
   // Keep the latest request function without making callers memoise it.
   const requestRef = useRef(request);
   requestRef.current = request;
+  // Skip state updates if the request finishes after the component has gone. Set to true in the
+  // effect too: StrictMode mounts, unmounts and re-mounts in development, and the re-mount must undo the cleanup.
   const mounted = useRef(true);
-  useEffect(() => () => { mounted.current = false; }, []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const mutateAsync = useCallback(async (input: TInput) => {
     setIsLoading(true);
@@ -65,7 +70,7 @@ export function useApiMutation<TResult, TInput = void>(request: (input: TInput) 
       const result = await requestRef.current(input);
       if (mounted.current) setData(result);
       return result;
-    } catch (e) {
+    } catch (e) { 
       const err = toApiError(e);
       if (mounted.current) setError(err);
       throw err;
