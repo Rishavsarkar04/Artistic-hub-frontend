@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, Menu, ArrowRight, Package, MapPin, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { Link, matchPath, useLocation, useNavigate } from 'react-router-dom';
-import { ROUTES, paths } from '../../routes';
+import { ROUTES, paths } from '@/router/paths';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartCount } from '../../stores/cartStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';

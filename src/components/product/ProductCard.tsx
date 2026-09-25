@@ -3,14 +3,9 @@ import { formatPrice } from '@/lib/money';
 import { ArrowUpRight } from 'lucide-react';
 import type { Product } from '../../types';
 import { Link } from 'react-router-dom';
-import { paths } from '../../routes';
+import { paths } from '@/router/paths';
 import { Badge } from '@/components/ui/badge';
-
-/** The size a product is sold in (no size picker): its first in-stock size, else its first size. */
-export const defaultSize = (p: Product) => p.sizes.find((s) => s.inStock) ?? p.sizes[0];
-/** Effective price shown on cards and the product page, and used for price filters and sorting. */
-export const productPrice = (p: Product) => defaultSize(p).price;
-export const allSoldOut = (p: Product) => !p.inStock || p.sizes.every((s) => !s.inStock);
+import { defaultSize, productPrice, allSoldOut } from '@/lib/product';
 
 interface ProductCardProps {
   product: Product;

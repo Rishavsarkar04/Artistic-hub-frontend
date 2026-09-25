@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { getPageBySlug, formatDate } from '../data/pages';

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { fullName } from '@/lib/utils';
 import { Check, ChevronRight, Lock, MapPin, Eye } from 'lucide-react';
 import { useOrdersStore } from '../stores/ordersStore';
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore, useCartTotal } from '../stores/cartStore';
-import { deliveryMethods } from '../data/products';
+import { deliveryMethods } from '../data/shipping';
 import type { Address, Order, DeliveryMethod } from '../types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';

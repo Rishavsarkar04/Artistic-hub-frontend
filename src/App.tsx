@@ -1,7 +1,7 @@
 import React from 'react';
 import { MotionConfig } from 'motion/react';
 import { BrowserRouter } from 'react-router-dom';
-import { AppRoutes } from './router';
+import { AppRoutes } from '@/router/AppRoutes';
 
 export default function App() {
   return (

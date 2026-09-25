@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 
 export function NotFoundPage({ title = 'Page not found', message = 'This page may have moved or is no longer available.' }: { title?: string; message?: string }) {
   return (

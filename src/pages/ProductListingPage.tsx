@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 import { formatPrice } from '@/lib/money';
 import { SlidersHorizontal, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import { products, collections as collectionData } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
-import { ProductCard, productPrice, allSoldOut } from '../components/product/ProductCard';
+import { ProductCard } from '../components/product/ProductCard';
+import { productPrice, allSoldOut } from '@/lib/product';
 import { Slider } from '@/components/ui/slider';
 import { photo } from '@/data/images';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';

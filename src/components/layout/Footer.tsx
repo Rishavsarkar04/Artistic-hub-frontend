@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { paths } from '../../routes';
+import { paths } from '@/router/paths';
 import { publishedPages } from '../../data/pages';
 
 export function Footer() {

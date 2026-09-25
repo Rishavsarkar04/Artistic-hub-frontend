@@ -1,22 +1,22 @@
 import React, { useLayoutEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { Navbar } from './components/layout/Navbar';
-import { Footer } from './components/layout/Footer';
-import { HomePage } from './pages/HomePage';
-import { ProductListingPage } from './pages/ProductListingPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { CartPage } from './pages/CartPage';
-import { AuthPage } from './pages/AuthPage';
-import { CheckoutPage } from './pages/CheckoutPage';
-import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
-import { AccountPage } from './pages/AccountPage';
-import { StoryPage } from './pages/StoryPage';
-import { ContactPage } from './pages/ContactPage';
-import { ContentPage } from './pages/ContentPage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { useAuthStore } from './stores/authStore';
-import { ROUTES, paths } from './routes';
-import { products } from './data/products';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { HomePage } from '@/pages/HomePage';
+import { ProductListingPage } from '@/pages/ProductListingPage';
+import { ProductDetailPage } from '@/pages/ProductDetailPage';
+import { CartPage } from '@/pages/CartPage';
+import { AuthPage } from '@/pages/AuthPage';
+import { CheckoutPage } from '@/pages/CheckoutPage';
+import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
+import { AccountPage } from '@/pages/account/AccountPage';
+import { StoryPage } from '@/pages/StoryPage';
+import { ContactPage } from '@/pages/ContactPage';
+import { ContentPage } from '@/pages/ContentPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
+import { useAuthStore } from '@/stores/authStore';
+import { ROUTES, paths } from './paths';
+import { products } from '@/data/products';
 
 /** Navbar + footer around every page except sign-in. */
 function ShopLayout() {

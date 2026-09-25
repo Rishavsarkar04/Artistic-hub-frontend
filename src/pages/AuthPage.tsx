@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, type Location } from 'react-router-dom';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 import { Eye, EyeOff, Flame, ArrowLeft, Check } from 'lucide-react';
 import type { AuthMode } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/shared/FormField';
-import { mockUser } from '../data/products';
+import { mockUser } from '../data/account';
 
 function PasswordInput({ label, value, onChange, error, placeholder }: {
   label: string; value: string; onChange: (v: string) => void; error?: string; placeholder?: string;

@@ -1,10 +1,11 @@
 import { photo } from '@/data/images';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '../routes';
+import { paths } from '@/router/paths';
 import { motion, type Variants } from 'motion/react';
 import { ArrowRight, Star, Leaf, Flame, Hourglass, Recycle } from 'lucide-react';
-import { products, collections, testimonials } from '../data/products';
+import { products, collections } from '../data/products';
+import { testimonials } from '../data/testimonials';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '../components/product/ProductCard';
 import { BlurText } from '../components/motion/BlurText';
