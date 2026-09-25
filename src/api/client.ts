@@ -4,9 +4,16 @@ import { useAuthStore } from '@/stores/authStore';
 
 /** Every failed request rejects with this, so callers handle one error shape. */
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: unknown) {
+  /** HTTP status code; 0 when there was no response (network error or timeout). */
+  readonly status: number;
+  /** The response body, e.g. the backend's validation errors. */
+  readonly data?: unknown;
+
+  constructor(status: number, message: string, data?: unknown) {
     super(message);
     this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
   }
 }
 
