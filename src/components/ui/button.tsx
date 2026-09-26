@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-ink-soft shadow-[0_1px_0_rgba(255,255,255,.08)_inset,0_8px_20px_-10px_rgba(22,19,15,.55)]',
+        default: 'bg-flame text-primary-foreground',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-foreground/15 bg-transparent text-foreground hover:border-foreground/40 hover:bg-card',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-muted',
@@ -21,8 +21,8 @@ const buttonVariants = cva(
       size: {
         default: 'h-11 px-6 text-sm',
         md: 'h-11 px-6 text-sm',
-        sm: 'h-9 px-4 text-[13px]',
-        lg: 'h-13 px-8 text-[15px]',
+        sm: 'h-9 px-4 text-[0.9375rem]',
+        lg: 'h-13 px-8 text-[1rem]',
         icon: 'size-11',
       },
     },

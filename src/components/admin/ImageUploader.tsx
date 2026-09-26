@@ -107,7 +107,7 @@ export function ImageUploader({ images, setImages, upload, compact = false }: Im
             <li key={img.key} className="min-w-0">
               <div className="group relative aspect-square rounded-xl overflow-hidden bg-secondary">
                 <img src={img.url ?? img.preview} alt="" className={cn('h-full w-full object-cover', img.status !== 'done' && 'opacity-50')} />
-                {i === 0 && <span className="absolute left-2 top-2 rounded-full bg-ink/85 px-2 py-0.5 text-[10px] font-medium text-[#F7F4EF]">Cover</span>}
+                {i === 0 && <span className="absolute left-2 top-2 rounded-full bg-ink/85 px-2 py-0.5 text-[0.8125rem] font-medium text-[#F7F4EF]">Cover</span>}
                 {img.status === 'uploading' && <span className="absolute inset-0 flex items-center justify-center" aria-label="Uploading"><Loader2 size={20} className="animate-spin" /></span>}
                 {img.status === 'error' && (
                   <button type="button" onClick={() => start(img)} className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-card/70 text-xs font-medium text-destructive">

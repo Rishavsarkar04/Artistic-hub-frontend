@@ -13,10 +13,10 @@ export function Logo({ light = false }: { light?: boolean }) {
   return (
     <span className="inline-flex items-center gap-2">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-        <path d="M12 2.5c-3.2 4.3-5.2 7.6-5.2 10.6a5.2 5.2 0 0 0 10.4 0c0-3-2-6.3-5.2-10.6Z" fill={light ? '#F2C27B' : '#1B1814'} />
-        <path d="M12 10.2c-1.3 1.9-2.1 3.3-2.1 4.6a2.1 2.1 0 0 0 4.2 0c0-1.3-.8-2.7-2.1-4.6Z" fill={light ? '#1B1814' : '#F2C27B'} />
+        <path d="M12 2.5c-3.2 4.3-5.2 7.6-5.2 10.6a5.2 5.2 0 0 0 10.4 0c0-3-2-6.3-5.2-10.6Z" fill={light ? '#FFC93D' : '#D23A1A'} />
+        <path d="M12 10.2c-1.3 1.9-2.1 3.3-2.1 4.6a2.1 2.1 0 0 0 4.2 0c0-1.3-.8-2.7-2.1-4.6Z" fill={light ? '#7A1E0E' : '#FFC93D'} />
       </svg>
-      <span className={cn('font-serif text-[22px] leading-none tracking-[-0.02em]', light && 'text-[#F7F4EF]')}>Ember <em>&amp;</em> Bloom</span>
+      <span className={cn('font-serif text-[1.375rem] leading-none tracking-[-0.02em]', light && 'text-[#F7F4EF]')}>Ember <em>&amp;</em> Bloom</span>
     </span>
   );
 }
@@ -79,7 +79,7 @@ export function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label="Account menu">
-                      <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}</span>
+                      <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[0.8125rem] font-semibold flex items-center justify-center">{(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -102,10 +102,13 @@ export function Navbar() {
                 </>
               )}
 
-              <Link to={paths.cart} className="ml-1 h-10 pl-3.5 pr-4 rounded-full bg-ink text-[#F7F4EF] text-sm font-medium flex items-center gap-2 hover:bg-ink-soft"
-                aria-label={`Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}>
-                <ShoppingBag size={16} /><span className="tabular">{cartCount}</span>
-              </Link>
+              {/* The cart belongs to an account, so it only shows once signed in. */}
+              {user && (
+                <Link to={paths.cart} className="ml-1 h-10 pl-3.5 pr-4 rounded-full bg-flame text-[#F7F4EF] text-sm font-medium flex items-center gap-2"
+                  aria-label={`Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}>
+                  <ShoppingBag size={16} /><span className="tabular">{cartCount}</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -132,16 +135,16 @@ export function Navbar() {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3 mt-4 pb-6">
-              {user && (
+            {user && (
+              <div className="grid grid-cols-2 gap-3 mt-4 pb-6">
                 <Link to={paths.account()} onClick={closeMenu} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
                   <User size={16} />{user.firstName}
                 </Link>
-              )}
-              <Link to={paths.cart} onClick={closeMenu} className={cn('h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium', !user && 'col-span-2')}>
-                <ShoppingBag size={16} />Cart ({cartCount})
-              </Link>
-            </div>
+                <Link to={paths.cart} onClick={closeMenu} className="h-12 rounded-full bg-flame text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
+                  <ShoppingBag size={16} />Cart ({cartCount})
+                </Link>
+              </div>
+            )}
           </div>
         </SheetContent>
       </Sheet>

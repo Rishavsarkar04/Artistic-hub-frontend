@@ -55,7 +55,7 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 function Chip({ on, onClick, children, count }: { on: boolean; onClick: () => void; children: React.ReactNode; count?: number }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on} disabled={count === 0 && !on}
-      className={`h-9 px-3.5 rounded-full text-[13px] border flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed ${on ? 'bg-ink text-[#F7F4EF] border-ink' : 'bg-card border-border hover:border-foreground/40'}`}>
+      className={`h-9 px-3.5 rounded-full text-[0.9375rem] border flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed ${on ? 'bg-ink text-[#F7F4EF] border-ink' : 'bg-card border-border hover:border-foreground/40'}`}>
       {children}{count !== undefined && <span className={`tabular ${on ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>}
     </button>
   );
@@ -126,7 +126,7 @@ export function ProductListingPage() {
     <div>
       {/* Header band */}
       <section className="px-3 sm:px-4 pt-3">
-        <div className={`relative rounded-[28px] overflow-hidden ${head.img ? 'bg-ink text-[#F7F4EF]' : 'bg-secondary'} `}>
+        <div className={`relative rounded-[28px] overflow-hidden ${head.img ? 'bg-ember text-[#F7F4EF]' : 'bg-secondary'} `}>
           {head.img ? (
             <><img src={head.img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-r from-ink/85 to-ink/10" /></>
           ) : (

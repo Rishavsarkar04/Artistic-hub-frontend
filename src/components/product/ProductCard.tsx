@@ -62,8 +62,8 @@ export function ProductCard({ product, size = 'md', className = '' }: ProductCar
         <div className="@container pt-4 px-0.5">
           <div className="flex flex-col gap-1 @[17rem]:flex-row @[17rem]:items-baseline @[17rem]:justify-between @[17rem]:gap-3">
             <h3 className={`font-serif leading-tight ${size === 'lg' ? 'text-2xl' : 'text-xl'}`}>{product.name}</h3>
-            <p className="text-[15px] font-medium tabular shrink-0 flex items-baseline gap-1.5">
-              {original && original > price && <span className="text-[13px] font-normal text-muted-foreground line-through"><span className="sr-only">Original price </span>{formatPrice(original)}</span>}
+            <p className="text-[1rem] font-medium tabular shrink-0 flex items-baseline gap-1.5">
+              {original && original > price && <span className="text-[0.9375rem] font-normal text-muted-foreground line-through"><span className="sr-only">Original price </span>{formatPrice(original)}</span>}
               <span>{original && original > price && <span className="sr-only">Sale price </span>}{formatPrice(price)}</span>
             </p>
           </div>

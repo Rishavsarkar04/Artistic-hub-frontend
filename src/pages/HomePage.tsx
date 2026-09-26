@@ -36,7 +36,7 @@ function SectionHead({ title, sub, action }: { title: React.ReactNode; sub?: str
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10">
       <div className="max-w-xl">
         <h2 className="display-lg text-4xl sm:text-5xl">{title}</h2>
-        {sub && <p className="text-muted-foreground mt-3 text-[15px]">{sub}</p>}
+        {sub && <p className="text-muted-foreground mt-3 text-[1rem]">{sub}</p>}
       </div>
       {action}
     </div>
@@ -53,15 +53,15 @@ export function HomePage() {
     <div>
       {/* ---------------- Hero ---------------- */}
       <section className="px-3 sm:px-4 pt-3">
-        <div className="relative rounded-[28px] overflow-hidden bg-ink min-h-[640px] h-[calc(100svh-124px)] max-h-[860px]">
+        <div className="relative rounded-[28px] overflow-hidden bg-ember min-h-[640px] h-[calc(100svh-124px)] max-h-[860px]">
           <img src={HERO_IMG} alt="Lit pillar candles among eucalyptus leaves in a dark room" className="absolute inset-0 w-full h-full object-cover opacity-90" />
-          <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_100%,rgba(22,19,15,.85)_0%,rgba(22,19,15,.35)_45%,transparent_70%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_100%,rgba(122,40,12,.85)_0%,rgba(122,40,12,.35)_45%,transparent_70%)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-ink/20" />
 
           <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 flex flex-col justify-end pb-10 sm:pb-14">
             <div className="max-w-3xl text-[#F7F4EF]">
-              <p className="rise rise-1 text-sm text-[#F2C27B] mb-5 flex items-center gap-2"><Flame size={15} />Autumn pour, now shipping</p>
-              <BlurText text="Light that lingers." emphasis={['lingers.']} delay={0.15} stagger={0.12} className="display-xl text-[56px] sm:text-[84px] lg:text-[112px]" />
+              <p className="rise rise-1 text-sm text-glow mb-5 flex items-center gap-2"><Flame size={15} />Autumn pour, now shipping</p>
+              <BlurText text="Light that lingers." emphasis={['lingers.']} delay={0.15} stagger={0.12} className="display-xl text-[3.5rem] sm:text-[5.25rem] lg:text-[7rem]" />
               <p className="rise rise-3 mt-6 text-lg text-[#E9E2D6]/85 max-w-lg leading-relaxed">
                 Small-batch candles in coconut-soy and beeswax, with fragrance built slowly and a clean, even burn to the last centimetre.
               </p>
@@ -87,7 +87,7 @@ export function HomePage() {
           ].map(([Icon, t, d]: any, i) => (
             <li key={t} className={`py-7 px-1 lg:px-6 flex gap-3.5 ${i % 2 === 1 ? 'pl-4' : ''} ${i > 0 ? 'lg:border-l border-border' : ''} ${i === 0 ? 'lg:pl-0' : ''}`}>
               <Icon size={20} className="text-accent shrink-0 mt-0.5" />
-              <div><p className="text-sm font-medium">{t}</p><p className="text-[13px] text-muted-foreground mt-0.5">{d}</p></div>
+              <div><p className="text-sm font-medium">{t}</p><p className="text-[0.9375rem] text-muted-foreground mt-0.5">{d}</p></div>
             </li>
           ))}
         </ul>
@@ -105,10 +105,11 @@ export function HomePage() {
           ].map(({ c, key, cls }, i) => (
             <button key={c.id} onClick={() => navigate(paths.shop({ collection: key }))} className={`group relative rounded-3xl overflow-hidden bg-muted text-left ${cls}`}>
               <img src={c.image} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] ease-out-soft group-hover:scale-[1.05]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
+              {/* Deep ember from the bottom so the white text reads even over light photos (Gift Sets). */}
+              <div className="absolute inset-0 bg-gradient-to-t from-ember/90 via-ember/35 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 flex items-end justify-between gap-4 text-[#F7F4EF]">
                 <div className="max-w-sm">
-                  <p className="text-xs text-white/70 mb-2">{countFor(c.id)} candles</p>
+                  <p className="text-xs text-white/90 mb-2">{countFor(c.id)} {countFor(c.id) === 1 ? 'candle' : 'candles'}</p>
                   <h3 className={`font-serif leading-none ${i === 0 ? 'text-5xl' : 'text-4xl'}`}>{c.name.replace(' Collection', '')}</h3>
                   <p className="text-sm text-white/80 mt-3 line-clamp-2">{c.description}</p>
                 </div>
@@ -155,7 +156,7 @@ export function HomePage() {
           </div>
           <div>
             <h2 className="display-lg text-4xl sm:text-6xl">Made <em>slowly,</em> fifty at a time.</h2>
-            <div className="mt-8 space-y-5 text-muted-foreground leading-relaxed text-[15px] max-w-lg">
+            <div className="mt-8 space-y-5 text-muted-foreground leading-relaxed text-[1rem] max-w-lg">
               <p>Ember &amp; Bloom began in 2016 on a kitchen stove in Portland, with a notebook of fragrance experiments and the belief that a candle deserves the care of a good meal.</p>
               <p>We develop every formula in-house, source phthalate-free oils from a single fragrance house, and cure each batch for two weeks so the scent settles before it reaches you.</p>
             </div>
@@ -177,7 +178,7 @@ export function HomePage() {
             return (
               <figure key={t.id} className="bg-card rounded-3xl p-7 flex flex-col">
                 <Stars n={t.rating} />
-                <blockquote className="font-serif text-[22px] leading-snug mt-5 flex-1">“{t.text}”</blockquote>
+                <blockquote className="font-serif text-[1.375rem] leading-snug mt-5 flex-1">“{t.text}”</blockquote>
                 <figcaption className="mt-7 pt-5 border-t border-border flex items-center gap-3">
                   {p && <img src={p.image} alt="" className="w-10 h-12 rounded-lg object-cover" />}
                   <div className="text-sm">

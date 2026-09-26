@@ -102,7 +102,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
             {discount > 0 && (
               <>
                 <p className="text-lg text-muted-foreground line-through tabular"><span className="sr-only">Original price </span>{formatPrice(originalPrice!)}</p>
-                <p className="self-center h-6 px-2.5 rounded-full bg-[#F2C27B]/35 text-[#6B4410] text-xs font-semibold flex items-center">Save {discount}%</p>
+                <p className="self-center h-6 px-2.5 rounded-full bg-glow/35 text-[#6B4410] text-xs font-semibold flex items-center">Save {discount}%</p>
               </>
             )}
             <p className={`ml-auto self-center inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-medium ${soldOut ? 'bg-destructive/10 text-destructive' : 'bg-[#3F7A4E]/10 text-[#3F7A4E]'}`}>
@@ -111,7 +111,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
             </p>
           </div>
 
-          <p className="text-[15px] text-muted-foreground leading-relaxed mt-6">{product.description}</p>
+          <p className="text-[1rem] text-muted-foreground leading-relaxed mt-6">{product.description}</p>
 
           <div className="flex gap-3 mt-6">
             <div className="flex items-center h-13 rounded-full border border-border bg-card" role="group" aria-label="Quantity">

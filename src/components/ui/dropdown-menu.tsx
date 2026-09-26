@@ -12,7 +12,7 @@ function DropdownMenuContent({ className, sideOffset = 8, ...props }: React.Comp
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
-        className={cn('z-50 min-w-56 overflow-hidden rounded-2xl border border-border/70 bg-card p-1.5 shadow-[0_20px_50px_-20px_rgba(22,19,15,.35)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0', className)}
+        className={cn('z-50 min-w-56 overflow-hidden rounded-2xl border border-border/70 bg-card p-1.5 shadow-[0_20px_50px_-20px_rgba(122,40,12,.35)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0', className)}
         {...props}
       />
     </DropdownMenuPrimitive.Portal>

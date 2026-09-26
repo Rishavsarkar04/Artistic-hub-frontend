@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { formatPrice, calcTax, FREE_SHIPPING_MIN } from '@/lib/money';
 import { deliveryMethods } from '@/data/shipping';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore, useCartTotal } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
@@ -53,15 +53,6 @@ export function CartPage() {
       <div className="grid lg:grid-cols-3 gap-10">
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
-          {cartTotal < FREE_SHIPPING_MIN && (
-            <div className="flex items-center gap-3 p-4 bg-accent/10 border border-accent/20 rounded-lg text-sm">
-              <AlertTriangle size={16} className="text-accent shrink-0" />
-              <span>
-                Add <span className="font-semibold">{formatPrice(FREE_SHIPPING_MIN - cartTotal)}</span> more to qualify for free shipping.
-              </span>
-            </div>
-          )}
-
           {cart.map((item) => (
             <div key={`${item.productId}-${item.size.label}`} className="flex gap-4 p-4 bg-card border border-border rounded-xl">
               <button onClick={() => navigate(paths.product(item.productId))}>

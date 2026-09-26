@@ -64,7 +64,7 @@ export function TagPicker({ tags, onCreate, selected, onChange, label, hint, id,
     }
   };
 
-  const chip = compact ? 'h-8 px-3 text-xs' : 'h-9 px-3.5 text-[13px]';
+  const chip = compact ? 'h-8 px-3 text-xs' : 'h-9 px-3.5 text-[0.9375rem]';
   return (
     <fieldset>
       <legend className="text-sm font-medium mb-2">{label} {hint && <span className="text-muted-foreground font-normal">({hint})</span>}</legend>

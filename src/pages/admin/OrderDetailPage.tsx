@@ -243,7 +243,7 @@ function DeliveryCard({ order, onSaved }: { order: AdminOrderDetail; onSaved: (m
           <div className="flex justify-between items-center gap-3">
             <dt className="text-muted-foreground">Tracking</dt>
             <dd className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[13px] truncate">{current.trackingNumber}</span>
+              <span className="font-mono text-[0.9375rem] truncate">{current.trackingNumber}</span>
               <button type="button" onClick={copy} className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary" aria-label="Copy tracking number">
                 {copied ? <Check size={13} /> : <Copy size={13} />}
               </button>

@@ -55,7 +55,7 @@ function StatusBadge({ status }: { status: AdminOrderStatus }) {
 
 /** Customer name that narrows the list to their orders. */
 /** Order numbers read as links: dark, bold, underlined on hover. */
-const ORDER_LINK = 'font-mono text-[13px] font-semibold text-foreground underline decoration-foreground/25 underline-offset-4 hover:decoration-foreground';
+const ORDER_LINK = 'font-mono text-[0.9375rem] font-semibold text-foreground underline decoration-foreground/25 underline-offset-4 hover:decoration-foreground';
 
 function CustomerLink({ o, className }: { o: AdminOrder; className?: string }) {
   return (
@@ -132,7 +132,7 @@ export function OrdersPage() {
                       <td className="px-3 py-3"><StatusBadge status={o.status} /></td>
                       <td className="w-px pl-3 pr-5 py-3">
                         <Link to={paths.adminOrder(o.id)} onClick={(e) => e.stopPropagation()} aria-label={`View order ${o.id}`}
-                          className="inline-flex items-center gap-0.5 h-8 pl-3 pr-2 rounded-full border border-border bg-card text-[13px] font-medium whitespace-nowrap group-hover:border-foreground/50 group-hover:bg-ink group-hover:text-[#F7F4EF] transition-colors">
+                          className="inline-flex items-center gap-0.5 h-8 pl-3 pr-2 rounded-full border border-border bg-card text-[0.9375rem] font-medium whitespace-nowrap group-hover:border-foreground/50 group-hover:bg-ink group-hover:text-[#F7F4EF] transition-colors">
                           View <ChevronRight size={15} />
                         </Link>
                       </td>

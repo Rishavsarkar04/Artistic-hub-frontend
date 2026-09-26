@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Young+Serif&family=DM+Serif+Display:ital@1&family=Geist:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Young+Serif&family=DM+Serif+Display:ital@1&family=Geist:wght@400..700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -22,6 +22,8 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-glow: var(--glow);
+  --color-ember: var(--ember);
+  --color-ember-soft: var(--ember-soft);
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -29,33 +31,48 @@
   --radius-2xl: calc(var(--radius) + 12px);
   --font-sans: var(--font-body);
   --font-serif: var(--font-display);
+  /* Two steps larger than Tailwind's defaults for readability: xs 14px, sm 16px, base 17px.
+     In rem, so text follows the reader's browser font size. */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.375rem;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.625rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.75rem;
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ------------------------------------------------------------------
-   Ember & Bloom — modern tokens
-   Stone background, near-black ink for actions, brass used sparingly.
+   Ember & Bloom — flame tokens
+   Warm candle-light background, flame red → orange for actions, golden
+   yellow for highlights, and deep flame red (not brown or black) for large
+   dark surfaces. `ink` is the action colour; `ember` the dark surface.
    ------------------------------------------------------------------ */
 :root {
-  --background: #F4F1EC;
-  --foreground: #1B1814;
-  --card: #FFFFFF;
-  --card-foreground: #1B1814;
-  --primary: #1B1814;
-  --primary-foreground: #F7F4EF;
-  --secondary: #EAE4DA;
-  --secondary-foreground: #1B1814;
-  --muted: #ECE7DF;
-  --muted-foreground: #6B6258;
-  --accent: #B9834A;
-  --accent-foreground: #1B1814;
-  --border: #E1DACE;
-  --ring: #B9834A;
-  --destructive: #B23A2B;
+  --background: #FFF6DF;
+  --foreground: #2A0D0A;
+  --card: #FFFDF5;
+  --card-foreground: #2A0D0A;
+  --primary: #D23A1A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFE9B3;
+  --secondary-foreground: #2A0D0A;
+  --muted: #FFF0CC;
+  --muted-foreground: #6B2A0C;
+  --accent: #F5A623;
+  --accent-foreground: #2A0D0A;
+  --border: #F5D891;
+  --ring: #F5A623;
+  /* Wine, kept apart from the flame-red actions so delete never looks like a normal button. */
+  --destructive: #8C1240;
   --destructive-foreground: #FFFFFF;
-  --ink: #16130F;
-  --ink-soft: #2A251F;
-  --glow: #F2C27B;
+  --ink: #D23A1A;
+  --ink-soft: #B22E14;
+  --ember: #7A1E0E;
+  --ember-soft: #A8330F;
+  --glow: #FFC93D;
+  /* Flame red to orange; the orange end still gives white text 4.5:1, so don't push it towards yellow. */
+  --flame: linear-gradient(135deg, #D23A1A 0%, #C9501A 100%);
   --radius: 1rem;
   --font-display: 'Young Serif', Georgia, serif;
   --font-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
@@ -69,8 +86,10 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  /* Geist is variable: a touch heavier than regular so thin strokes hold up on the warm background. */
+  font-weight: 450;
   -webkit-font-smoothing: antialiased;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
@@ -80,7 +99,11 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.015em;
+  text-wrap: balance;
 }
+
+/* Avoids single-word last lines in paragraphs. */
+p, li { text-wrap: pretty; }
 
 }
 
@@ -92,7 +115,7 @@ h1 em, h2 em, .display-xl em, .display-lg em, .font-serif em { font-family: 'DM 
 .tabular { font-variant-numeric: tabular-nums; }
 
 /* Rich text from the CMS editor (legal pages etc.) */
-.rich-text { font-size: 16px; line-height: 1.75; color: color-mix(in srgb, var(--foreground) 85%, transparent); }
+.rich-text { font-size: 1.125rem; line-height: 1.75; color: color-mix(in srgb, var(--foreground) 85%, transparent); }
 .rich-text > :first-child { margin-top: 0; }
 .rich-text h2 { font-family: var(--font-display); font-size: 1.75rem; line-height: 1.2; color: var(--foreground); margin: 2.5rem 0 0.75rem; }
 .rich-text h3 { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.3; color: var(--foreground); margin: 2rem 0 0.5rem; }
@@ -109,7 +132,7 @@ h1 em, h2 em, .display-xl em, .display-lg em, .font-serif em { font-family: 'DM 
 .rich-text blockquote { margin: 1.5rem 0; padding-left: 1rem; border-left: 2px solid var(--border); font-style: italic; }
 .rich-text hr { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--border); }
 .rich-text img { max-width: 100%; height: auto; border-radius: 1rem; margin: 1.5rem 0; }
-.rich-text table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 15px; display: block; overflow-x: auto; }
+.rich-text table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 1.0625rem; display: block; overflow-x: auto; }
 .rich-text th, .rich-text td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
 .rich-text th { font-weight: 600; color: var(--foreground); }
 
@@ -133,7 +156,13 @@ img { display: block; }
 
 /* Glass surface for overlays on photography */
 .glass { background: rgba(255,255,255,.14); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); border: 1px solid rgba(255,255,255,.22); }
-.glass-light { background: rgba(247,244,239,.78); backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%); }
+.glass-light { background: rgba(255,246,223,.82); backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%); }
+
+/* Flame fill for primary actions: ember red into orange, with a soft yellow glow beneath. */
+.bg-flame { background: var(--flame); box-shadow: 0 1px 0 rgba(255,220,150,.35) inset, 0 10px 26px -10px rgba(255,175,40,.9); }
+.bg-flame:hover { filter: brightness(.94) saturate(1.05); }
+/* Large dark surfaces (footer, admin sidebar): deep flame red, brighter towards a golden glow at the bottom. */
+.bg-ember-glow { background: radial-gradient(110% 70% at 50% 125%, rgba(255,201,61,.5), transparent 65%), linear-gradient(180deg, var(--ember) 0%, var(--ember-soft) 100%); }
 
 /* The one orchestrated moment: hero entrance */
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }

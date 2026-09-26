@@ -23,7 +23,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       <div className="px-5 pt-6 pb-8">
         <Logo light />
-        <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[#F7F4EF]/50">Admin</p>
+        <p className="mt-2 text-[0.8125rem] uppercase tracking-[0.18em] text-[#F7F4EF]/75">Admin</p>
       </div>
 
       <nav className="flex-1 px-3 pb-5 space-y-1" aria-label="Admin">
@@ -31,7 +31,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           const active = !!matchPath(match, pathname);
           return (
             <Link key={label} to={to} onClick={onNavigate} aria-current={active ? 'page' : undefined}
-              className={cn('flex items-center gap-3 rounded-xl px-3 h-10 text-sm transition-colors', active ? 'bg-white/10 text-white font-medium' : 'text-[#F7F4EF]/65 hover:bg-white/5 hover:text-white')}>
+              className={cn('flex items-center gap-3 rounded-xl px-3 h-10 text-sm transition-colors', active ? 'bg-white/10 text-white font-medium' : 'text-[#F7F4EF]/85 hover:bg-white/10 hover:text-white')}>
               <Icon size={17} /> {label}
             </Link>
           );
@@ -75,11 +75,11 @@ export function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="min-h-screen bg-secondary/40 text-foreground lg:flex">
-      <aside className="hidden lg:block w-64 shrink-0 bg-ink sticky top-0 h-screen">
+      <aside className="hidden lg:block w-64 shrink-0 bg-ember-glow sticky top-0 h-screen">
         <SidebarContent />
       </aside>
 
-      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-ink text-[#F7F4EF]">
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-ember text-[#F7F4EF]">
         <button onClick={() => setMenuOpen(true)} className="-ml-2 size-10 flex items-center justify-center rounded-full hover:bg-white/10" aria-label="Open admin menu">
           <Menu size={20} />
         </button>
@@ -87,7 +87,7 @@ export function AdminLayout() {
         <AdminMenu dark />
       </div>
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="bg-ink border-0 p-0 w-72">
+        <SheetContent side="left" className="bg-ember-glow border-0 p-0 w-72">
           <SheetHeader className="sr-only"><SheetTitle>Admin menu</SheetTitle><SheetDescription>Admin navigation</SheetDescription></SheetHeader>
           <SidebarContent onNavigate={() => setMenuOpen(false)} />
         </SheetContent>

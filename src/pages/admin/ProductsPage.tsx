@@ -100,7 +100,7 @@ function VariantsToggle({ product, expanded, onToggle, controls }: { product: Ad
   return (
     <button onClick={onToggle} aria-expanded={expanded} aria-controls={controls}
       aria-label={`${expanded ? 'Hide' : 'Show'} ${variantLabel(product.variants.length)} of ${product.name}`}
-      className={cn('inline-flex items-center gap-1.5 h-8 pl-3.5 pr-2.5 rounded-full border text-[13px] font-medium whitespace-nowrap transition-colors',
+      className={cn('inline-flex items-center gap-1.5 h-8 pl-3.5 pr-2.5 rounded-full border text-[0.9375rem] font-medium whitespace-nowrap transition-colors',
         expanded ? 'bg-ink text-[#F7F4EF] border-ink' : 'bg-card border-border hover:border-foreground/50')}>
       {expanded ? 'Hide variants' : variantLabel(product.variants.length)}
       <ChevronDown size={15} className={cn('transition-transform', expanded && 'rotate-180')} />
@@ -156,7 +156,7 @@ function VariantActions({ product, v, onlyOne, onRemove }: { product: AdminProdu
   );
 }
 
-const SMALL_TAGS = 'h-6 px-2 rounded-full bg-secondary text-[11px] text-foreground/75 inline-flex items-center';
+const SMALL_TAGS = 'h-6 px-2 rounded-full bg-secondary text-[0.8125rem] text-foreground/75 inline-flex items-center';
 /** Past this many variants the panel gets a filter box; the list itself always scrolls inside a fixed height. */
 const FILTER_FROM = 6;
 
@@ -206,11 +206,11 @@ function VariantsPanel({ product, id, layout, onRemove }: { product: AdminProduc
                       <VariantThumb v={v} />
                       <div className="min-w-0">
                         <Link to={paths.adminProductEdit(product.id, v.id)} className="font-medium hover:underline underline-offset-4">{v.name}</Link>
-                        <p className="font-mono text-[11px] text-muted-foreground truncate mt-0.5">{v.slug}</p>
+                        <p className="font-mono text-[0.8125rem] text-muted-foreground truncate mt-0.5">{v.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3 px-3 font-mono text-[13px] text-muted-foreground whitespace-nowrap">{v.sku}</td>
+                  <td className="py-3 px-3 font-mono text-[0.9375rem] text-muted-foreground whitespace-nowrap">{v.sku}</td>
                   <td className="py-3 px-3"><span className="flex flex-wrap gap-1">{v.tags.map((t) => <span key={t.id} className={SMALL_TAGS}>{t.name}</span>)}</span></td>
                   <td className="py-3 px-3 text-right"><VariantPrice v={v} /></td>
                   <td className="py-3 px-3 text-right whitespace-nowrap"><VariantStock count={v.stock} /></td>
@@ -223,7 +223,7 @@ function VariantsPanel({ product, id, layout, onRemove }: { product: AdminProduc
         ) : (
           <ul className="divide-y divide-border/70" aria-label={`Variants of ${product.name}`}>
             {list.map((v) => (
-              <li key={v.id} className={cn('flex items-start gap-3 p-3.5 text-[13px]', !v.is_active && 'text-muted-foreground')}>
+              <li key={v.id} className={cn('flex items-start gap-3 p-3.5 text-[0.9375rem]', !v.is_active && 'text-muted-foreground')}>
                 <VariantThumb v={v} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">

@@ -10,7 +10,7 @@ export function OrderDetailSection({ orderId, onBack }: { orderId: string; onBac
 
   if (!order) return <div className="text-center py-12 text-muted-foreground">Order not found.</div>;
 
-  const progressSteps = ['Order Placed', 'Processing', 'Shipped', 'Delivered'];
+  const progressSteps = ['Placed', 'Processing', 'Shipped', 'Delivered'];
   const progressIdx =
     order.status === 'processing' ? 1 :
     order.status === 'shipped' ? 2 :
@@ -49,7 +49,7 @@ export function OrderDetailSection({ orderId, onBack }: { orderId: string; onBac
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 text-xs ${i <= progressIdx ? 'bg-primary border-primary text-primary-foreground' : 'border-border text-muted-foreground'}`}>
                     {i < progressIdx ? <Check size={12} /> : i + 1}
                   </div>
-                  <span className={`text-[10px] font-medium text-center max-w-[60px] ${i <= progressIdx ? 'text-primary' : 'text-muted-foreground'}`}>{s}</span>
+                  <span className={`text-[0.8125rem] font-medium text-center whitespace-nowrap ${i <= progressIdx ? 'text-primary' : 'text-muted-foreground'}`}>{s}</span>
                 </div>
                 {i < progressSteps.length - 1 && (
                   <div className={`flex-1 h-0.5 mb-4 ${i < progressIdx ? 'bg-primary' : 'bg-border'}`} />

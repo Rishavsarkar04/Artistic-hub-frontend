@@ -23,7 +23,7 @@ export default function App() {
             borderRadius: '1rem',
             padding: '10px 14px',
             fontSize: '14px',
-            boxShadow: '0 20px 50px -20px rgba(22,19,15,.35)',
+            boxShadow: '0 20px 50px -20px rgba(122,40,12,.35)',
           },
           success: { iconTheme: { primary: '#3cdb54', secondary: '#FFFFFF' } },
         }}

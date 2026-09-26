@@ -18,12 +18,12 @@ export function OrderSummary({ compact = false }: { compact?: boolean }) {
             <div key={`${item.productId}-${item.size.label}`} className="flex items-center gap-3">
               <div className="relative">
                 <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-md object-cover bg-muted" />
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-muted-foreground text-card text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-muted-foreground text-card text-[0.8125rem] font-bold rounded-full flex items-center justify-center">
                   {item.quantity}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{item.product.name}</p>
+                <p className="text-sm font-medium leading-snug">{item.product.name}</p>
                 <p className="text-xs text-muted-foreground">{item.size.label} · {item.size.weight}</p>
               </div>
               <p className="text-sm font-medium">{formatPrice(item.size.price * item.quantity)}</p>

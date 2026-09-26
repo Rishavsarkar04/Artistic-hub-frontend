@@ -35,11 +35,11 @@ export function StoryPage() {
     <div>
       {/* Hero */}
       <section className="px-3 sm:px-4 pt-3">
-        <div className="relative overflow-hidden rounded-[28px] bg-ink min-h-[560px] flex items-end">
+        <div className="relative overflow-hidden rounded-[28px] bg-ember min-h-[560px] flex items-end">
           <img src={img('photo-1601479604588-68d9e6d386b5', 2000, 1200)} alt="Lit pillar candles on a wooden table beside autumn leaves" className="absolute inset-0 h-full w-full object-cover opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
           <div className="relative max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-10 pb-12 sm:pb-16 text-[#F7F4EF]">
-            <p className="rise rise-1 text-sm text-[#F2C27B] mb-4">Our story</p>
+            <p className="rise rise-1 text-sm text-glow mb-4">Our story</p>
             <h1 className="rise rise-2 display-xl text-6xl sm:text-7xl lg:text-8xl max-w-4xl">A kitchen stove, a notebook, and ten years of <em>slow candles.</em></h1>
           </div>
         </div>
@@ -50,7 +50,7 @@ export function StoryPage() {
         <p className="lg:col-span-7 font-serif text-3xl sm:text-4xl leading-[1.2]">
           Ember &amp; Bloom began because we couldn't find a candle that smelled the same on the last night as the first. So we started pouring our own.
         </p>
-        <div className="lg:col-span-5 space-y-5 text-[15px] text-muted-foreground leading-relaxed lg:pt-2">
+        <div className="lg:col-span-5 space-y-5 text-[1rem] text-muted-foreground leading-relaxed lg:pt-2">
           <p>Mara Lindqvist, a former pastry chef, and Theo Okafor, a furniture maker, spent the winter of 2016 testing waxes on their stove. Most batches were bad. Twelve were good enough to give away.</p>
           <p>Ten years on we are a studio of eleven people in Portland. We still write every fragrance by hand, still pour in small batches, and still burn a candle from every batch before we ship it.</p>
         </div>
@@ -74,7 +74,7 @@ export function StoryPage() {
       </section>
 
       {/* Timeline */}
-      <section className="mt-24 lg:mt-32 bg-ink text-[#E9E2D6]">
+      <section className="mt-24 lg:mt-32 bg-ember-glow text-[#E9E2D6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4">
             <h2 className="display-lg text-4xl sm:text-5xl text-[#F7F4EF]">Ten years, <em>one studio</em></h2>
@@ -83,7 +83,7 @@ export function StoryPage() {
           <ol className="lg:col-span-8 relative border-l border-white/15 ml-2 space-y-12">
             {TIMELINE.map(([year, text]) => (
               <li key={year} className="pl-8 relative">
-                <span className="absolute -left-[5px] top-3 size-[9px] rounded-full bg-[#F2C27B]" aria-hidden />
+                <span className="absolute -left-[5px] top-3 size-[9px] rounded-full bg-glow" aria-hidden />
                 <p className="font-serif text-4xl text-[#F7F4EF]">{year}</p>
                 <p className="mt-2 max-w-lg text-[#CFC6B8]">{text}</p>
               </li>
