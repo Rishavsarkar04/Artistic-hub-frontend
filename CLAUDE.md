@@ -17,6 +17,7 @@ The project's package manager is **pnpm 10.34.3** (pinned in `.mise.toml`), and 
 - `npx tsc --noEmit -p .` — type check
 - `npm run format` — format with oxfmt
 
+
 Run the type check and `npm run build` after every change.
 
 ## Architecture
