@@ -38,4 +38,42 @@ export const endpoints = {
     detail: (orderId: string) => `/orders/${id(orderId)}`,
   },
   contact: '/contact',
+  admin: {
+    auth: {
+      login: '/admin/auth/login',
+      logout: '/admin/auth/logout',
+    },
+    customers: {
+      /** GET with `q`, `status`, `sort`, `page`, `pageSize`; returns `Paginated<AdminCustomer>`. */
+      list: '/admin/customers',
+      detail: (customerId: string) => `/admin/customers/${id(customerId)}`,
+    },
+    orders: {
+      /** GET with `q`, `status`, `customerId`, `sort`, `page`, `pageSize`; returns `Paginated<AdminOrder>`. */
+      list: '/admin/orders',
+      detail: (orderId: string) => `/admin/orders/${id(orderId)}`,
+    },
+    tags: {
+      /** GET all tags as `AdminTag[]`. */
+      list: '/admin/tags',
+      /** POST `{ name }`; returns the created `AdminTag` (422 if the name is taken). */
+      create: '/admin/tags',
+    },
+    uploads: {
+      /** POST multipart form data with a `file` field; returns `{ url }` to save on a variant. */
+      image: '/admin/uploads/images',
+    },
+    products: {
+      /** GET with `q`, `status`, `sort`, `page`, `pageSize`; returns `Paginated<AdminProduct>` (each with its variants and images). */
+      list: '/admin/products',
+      /** POST a `NewAdminProduct`; returns the created `AdminProduct`. */
+      create: '/admin/products',
+      /** GET one product with its variants and their images. */
+      detail: (productId: number) => `/admin/products/${id(productId)}`,
+      /** PUT the whole `NewAdminProduct`; variants with an id are updated, without are created, missing are deleted. */
+      update: (productId: number) => `/admin/products/${id(productId)}`,
+      /** DELETE the product with its variants, their photos and tag links. */
+      delete: (productId: number) => `/admin/products/${id(productId)}`,
+    },
+  },
 } as const;

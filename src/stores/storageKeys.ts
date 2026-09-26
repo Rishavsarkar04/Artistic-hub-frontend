@@ -9,4 +9,6 @@ export const STORAGE_KEYS = {
   session: `${NAMESPACE}:session`,
   cart: `${NAMESPACE}:cart`,
   orders: `${NAMESPACE}:orders`,
+  /** Admin panel sign-in, kept apart from the customer session. */
+  adminSession: `${NAMESPACE}:admin-session`,
 } as const;

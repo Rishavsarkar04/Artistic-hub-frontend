@@ -1,6 +1,10 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_TIMEOUT } from './config';
 import { useAuthStore } from '@/stores/authStore';
+import { useAdminAuthStore } from '@/stores/adminAuthStore';
+
+// Admin endpoints use the admin session; everything else uses the customer's.
+const isAdminRequest = (url?: string) => !!url?.startsWith('/admin');
 
 /** Every failed request rejects with this, so callers handle one error shape. */
 export class ApiError extends Error {
@@ -24,9 +28,9 @@ export const http = axios.create({
   headers: { Accept: 'application/json' },
 });
 
-// Attach the signed-in user's token to every request.
+// Attach the right session's token to every request.
 http.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
+  const token = isAdminRequest(config.url) ? useAdminAuthStore.getState().token : useAuthStore.getState().token;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -38,7 +42,7 @@ http.interceptors.response.use(
     if (axios.isCancel(error)) return Promise.reject(error);
     const status = error.response?.status ?? 0;
     // An expired or invalid session: sign out locally so the UI matches.
-    if (status === 401) useAuthStore.getState().logout();
+    if (status === 401) (isAdminRequest(error.config?.url) ? useAdminAuthStore : useAuthStore).getState().logout();
     const message =
       error.response?.data?.message ??
       (error.code === 'ECONNABORTED' ? 'The request timed out. Please try again.' : status ? `Request failed (${status})` : 'Network error. Check your connection.');

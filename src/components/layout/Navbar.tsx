@@ -16,7 +16,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <path d="M12 2.5c-3.2 4.3-5.2 7.6-5.2 10.6a5.2 5.2 0 0 0 10.4 0c0-3-2-6.3-5.2-10.6Z" fill={light ? '#F2C27B' : '#1B1814'} />
         <path d="M12 10.2c-1.3 1.9-2.1 3.3-2.1 4.6a2.1 2.1 0 0 0 4.2 0c0-1.3-.8-2.7-2.1-4.6Z" fill={light ? '#1B1814' : '#F2C27B'} />
       </svg>
-      <span className="font-serif text-[22px] leading-none tracking-[-0.02em]">Ember <em>&amp;</em> Bloom</span>
+      <span className={cn('font-serif text-[22px] leading-none tracking-[-0.02em]', light && 'text-[#F7F4EF]')}>Ember <em>&amp;</em> Bloom</span>
     </span>
   );
 }

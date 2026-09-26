@@ -15,6 +15,13 @@ import { ContactPage } from '@/pages/ContactPage';
 import { ContentPage } from '@/pages/ContentPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { useAuthStore } from '@/stores/authStore';
+import { useAdminAuthStore } from '@/stores/adminAuthStore';
+import { AdminLoginPage } from '@/pages/admin/AdminLoginPage';
+import { AdminLayout } from '@/pages/admin/AdminLayout';
+import { CustomersPage } from '@/pages/admin/CustomersPage';
+import { OrdersPage } from '@/pages/admin/OrdersPage';
+import { ProductsPage } from '@/pages/admin/ProductsPage';
+import { ProductFormPage } from '@/pages/admin/ProductFormPage';
 import { ROUTES, paths } from './paths';
 import { products } from '@/data/products';
 
@@ -48,6 +55,14 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Admin pages need a signed-in admin (separate from the customer session); others go to the admin login. */
+function RequireAdmin({ children }: { children: React.ReactNode }) {
+  const admin = useAdminAuthStore((s) => s.admin);
+  const location = useLocation();
+  if (!admin) return <Navigate to={paths.adminLogin} replace state={{ from: location }} />;
+  return <>{children}</>;
+}
+
 // Remount these pages when their URL changes, so local state (quantity, filters…) starts fresh.
 function ShopRoute() {
   return <ProductListingPage key={useLocation().search} />;
@@ -71,6 +86,17 @@ export function AppRoutes() {
         <Route path={ROUTES.login} element={<AuthPage mode="login" />} />
         <Route path={ROUTES.register} element={<AuthPage mode="register" />} />
         <Route path={ROUTES.forgotPassword} element={<AuthPage mode="forgot" />} />
+
+        {/* Admin panel: its own login and layout, no shop navbar/footer. */}
+        <Route path={ROUTES.adminLogin} element={<AdminLoginPage />} />
+        <Route path={ROUTES.admin} element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+          <Route index element={<Navigate to={paths.adminCustomers()} replace />} />
+          <Route path={ROUTES.adminCustomers} element={<CustomersPage />} />
+          <Route path={ROUTES.adminOrders} element={<OrdersPage />} />
+          <Route path={ROUTES.adminProducts} element={<ProductsPage />} />
+          <Route path={ROUTES.adminProductNew} element={<ProductFormPage />} />
+          <Route path={ROUTES.adminProductEdit} element={<ProductFormPage />} />
+        </Route>
 
         <Route element={<ShopLayout />}>
           <Route path={ROUTES.home} element={<HomePage />} />

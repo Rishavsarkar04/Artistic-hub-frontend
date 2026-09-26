@@ -21,6 +21,14 @@ export const ROUTES = {
   forgotPassword: '/forgot-password',
   /** A CMS page (privacy policy, terms, …). */
   page: '/pages/:slug',
+  // Admin panel
+  adminLogin: '/admin/login',
+  admin: '/admin',
+  adminCustomers: '/admin/customers',
+  adminOrders: '/admin/orders',
+  adminProducts: '/admin/products',
+  adminProductNew: '/admin/products/new',
+  adminProductEdit: '/admin/products/:productId/edit',
   notFound: '*',
 } as const;
 
@@ -50,4 +58,33 @@ export const paths = {
   register: ROUTES.register,
   forgotPassword: ROUTES.forgotPassword,
   page: (slug: string) => generatePath(ROUTES.page, { slug }),
+  adminLogin: ROUTES.adminLogin,
+  admin: ROUTES.admin,
+  /** Customer list; all filters are optional and default values are left out of the URL. */
+  adminCustomers: ({ q, status, sort, page }: { q?: string; status?: string; sort?: string; page?: number } = {}) =>
+    withQuery(ROUTES.adminCustomers, {
+      q: q || undefined,
+      status: status && status !== 'all' ? status : undefined,
+      sort: sort && sort !== 'newest' ? sort : undefined,
+      page: page && page > 1 ? String(page) : undefined,
+    }),
+  /** Product list (each product with its variants). */
+  adminProducts: ({ q, status, sort, page }: { q?: string; status?: string; sort?: string; page?: number } = {}) =>
+    withQuery(ROUTES.adminProducts, {
+      q: q || undefined,
+      status: status && status !== 'all' ? status : undefined,
+      sort: sort && sort !== 'newest' ? sort : undefined,
+      page: page && page > 1 ? String(page) : undefined,
+    }),
+  adminProductNew: ROUTES.adminProductNew,
+  adminProductEdit: (productId: number) => generatePath(ROUTES.adminProductEdit, { productId: String(productId) }),
+  /** Order list; pass `customerId` to show only that customer's orders. */
+  adminOrders: ({ q, status, sort, page, customerId }: { q?: string; status?: string; sort?: string; page?: number; customerId?: string } = {}) =>
+    withQuery(ROUTES.adminOrders, {
+      q: q || undefined,
+      status: status && status !== 'all' ? status : undefined,
+      customerId,
+      sort: sort && sort !== 'newest' ? sort : undefined,
+      page: page && page > 1 ? String(page) : undefined,
+    }),
 } as const;
