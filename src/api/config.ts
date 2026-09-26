@@ -51,7 +51,10 @@ export const endpoints = {
     orders: {
       /** GET with `q`, `status`, `customerId`, `sort`, `page`, `pageSize`; returns `Paginated<AdminOrder>`. */
       list: '/admin/orders',
+      /** GET the full order (items, address, payment, timeline) as `AdminOrderDetail`. */
       detail: (orderId: string) => `/admin/orders/${id(orderId)}`,
+      /** PUT `{ courier, tracking_number }` to add or change the order's delivery details. */
+      shipment: (orderId: string) => `/admin/orders/${id(orderId)}/shipment`,
     },
     tags: {
       /** GET all tags as `AdminTag[]`. */
@@ -74,6 +77,10 @@ export const endpoints = {
       update: (productId: number) => `/admin/products/${id(productId)}`,
       /** DELETE the product with its variants, their photos and tag links. */
       delete: (productId: number) => `/admin/products/${id(productId)}`,
+      variants: {
+        /** DELETE one variant (and its photos and tag links); refused if it's the product's last variant. */
+        delete: (productId: number, variantId: number) => `/admin/products/${id(productId)}/variants/${id(variantId)}`,
+      },
     },
   },
 } as const;

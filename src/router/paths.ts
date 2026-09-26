@@ -26,6 +26,7 @@ export const ROUTES = {
   admin: '/admin',
   adminCustomers: '/admin/customers',
   adminOrders: '/admin/orders',
+  adminOrder: '/admin/orders/:orderId',
   adminProducts: '/admin/products',
   adminProductNew: '/admin/products/new',
   adminProductEdit: '/admin/products/:productId/edit',
@@ -77,7 +78,10 @@ export const paths = {
       page: page && page > 1 ? String(page) : undefined,
     }),
   adminProductNew: ROUTES.adminProductNew,
-  adminProductEdit: (productId: number) => generatePath(ROUTES.adminProductEdit, { productId: String(productId) }),
+  /** Edit page; pass `variantId` to open that variant's card on arrival. */
+  adminProductEdit: (productId: number, variantId?: number) =>
+    withQuery(generatePath(ROUTES.adminProductEdit, { productId: String(productId) }), { variant: variantId !== undefined ? String(variantId) : undefined }),
+  adminOrder: (orderId: string) => generatePath(ROUTES.adminOrder, { orderId }),
   /** Order list; pass `customerId` to show only that customer's orders. */
   adminOrders: ({ q, status, sort, page, customerId }: { q?: string; status?: string; sort?: string; page?: number; customerId?: string } = {}) =>
     withQuery(ROUTES.adminOrders, {

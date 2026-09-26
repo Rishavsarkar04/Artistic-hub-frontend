@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { AlertCircle, ArrowLeft, ChevronDown, ImageOff, Plus, Trash2 } from 'lucide-react';
 import { paths } from '@/router/paths';
 import { formatPaise, rupeesToPaise } from '@/lib/money';
 import { cn } from '@/lib/utils';
-import { createMockProduct, deleteMockProduct, getMockProduct, slugify, updateMockProduct, uploadMockImage } from '@/data/admin/products';
-import { Modal } from '@/components/shared/Modal';
+import { createMockProduct, getMockProduct, slugify, updateMockProduct, uploadMockImage } from '@/data/admin/products';
+import { DeleteProductDialog } from '@/components/admin/DeleteProductDialog';
 import { ImageUploader, toImageDrafts, type ImageDraft } from '@/components/admin/ImageUploader';
 import { TagPicker, useTagList } from '@/components/admin/TagPicker';
 import { Badge } from '@/components/ui/badge';
@@ -108,14 +109,16 @@ function ActiveSwitch({ id, checked, onChange, label, hint }: { id: string; chec
 /** Add product (no id in the URL) or Edit product (`/admin/products/:productId/edit`). */
 export function ProductFormPage() {
   const { productId } = useParams();
+  // ?variant=<id> (from the product list) opens that variant's card on arrival.
+  const focusVariantId = Number(useSearchParams()[0].get('variant')) || undefined;
   // MOCK: with the API, load it with useApiQuery<AdminProduct>(endpoints.admin.products.detail(id)).
   const product = productId ? getMockProduct(Number(productId)) : undefined;
   if (productId && !product) return <NotFoundPage title="Product not found" message="It may have been deleted." />;
   // Keyed so switching between products starts a fresh form.
-  return <ProductForm key={productId ?? 'new'} product={product} />;
+  return <ProductForm key={productId ?? 'new'} product={product} focusVariantId={focusVariantId} />;
 }
 
-function ProductForm({ product }: { product?: AdminProduct }) {
+function ProductForm({ product, focusVariantId }: { product?: AdminProduct; focusVariantId?: number }) {
   const navigate = useNavigate();
   const editing = !!product;
   const [name, setName] = useState(product?.name ?? '');
@@ -123,27 +126,20 @@ function ProductForm({ product }: { product?: AdminProduct }) {
   const [isActive, setIsActive] = useState(product?.is_active ?? true);
   // One tag list for every picker on the page, so a tag created anywhere can be used everywhere.
   const tagList = useTagList();
-  const [variants, setVariants] = useState<VariantDraft[]>(() => (product ? product.variants.map(fromVariant) : [emptyVariant()]));
+  const [variants, setVariants] = useState<VariantDraft[]>(() =>
+    product ? product.variants.map((v) => ({ ...fromVariant(v), open: v.id === focusVariantId })) : [emptyVariant()],
+  );
+  // Bring the variant opened from the list into view.
+  useEffect(() => {
+    if (focusVariantId === undefined) return;
+    const card = document.getElementById(`variant-card-${focusVariantId}`);
+    card?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    card?.querySelector<HTMLElement>('button[aria-expanded]')?.focus({ preventScroll: true });
+  }, [focusVariantId]);
   const [errors, setErrors] = useState<{ name?: string; variants?: Record<number, VariantErrors> }>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
-
-  const handleDelete = async () => {
-    if (!product) return;
-    setDeleting(true);
-    setDeleteError('');
-    try {
-      // MOCK: with the API, useApiMutation<void, void>(endpoints.admin.products.delete(product.id), 'DELETE').
-      await deleteMockProduct(product.id);
-      navigate(paths.adminProducts(), { replace: true, state: { saved: product.name, action: 'deleted' } });
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'The product could not be deleted. Please try again.');
-      setDeleting(false);
-    }
-  };
 
   const setProductName = (value: string) => {
     setName(value);
@@ -219,7 +215,8 @@ function ProductForm({ product }: { product?: AdminProduct }) {
       //   create: useApiMutation<AdminProduct, NewAdminProduct>(endpoints.admin.products.create, 'POST')
       //   update: useApiMutation<AdminProduct, NewAdminProduct>(endpoints.admin.products.update(product.id), 'PUT')
       const saved: AdminProduct = editing ? await updateMockProduct(product.id, input) : await createMockProduct(input);
-      navigate(paths.adminProducts(), { state: { saved: saved.name, action: editing ? 'updated' : 'added' } });
+      toast.success(`${saved.name} was ${editing ? 'updated' : 'added'}.`);
+      navigate(paths.adminProducts());
     } catch (err) {
       // e.g. a 422 because a SKU or slug is already used by another product.
       setSaveError(err instanceof Error ? err.message : 'The product could not be saved. Please try again.');
@@ -256,16 +253,8 @@ function ProductForm({ product }: { product?: AdminProduct }) {
       </div>
 
       {editing && (
-        <Modal open={confirmDelete} onClose={() => !deleting && setConfirmDelete(false)} title={`Delete ${product.name}?`}
-          description={`This removes the product, its ${product.variants.length} ${product.variants.length === 1 ? 'variant' : 'variants'} and their photos from the shop. It can't be undone.`}>
-          {deleteError && <p role="alert" className="text-sm text-destructive mb-3">{deleteError}</p>}
-          <div className="flex gap-3 justify-end mt-2">
-            <Button variant="outline" onClick={() => setConfirmDelete(false)} disabled={deleting}>Keep product</Button>
-            <Button onClick={handleDelete} loading={deleting} className="bg-destructive text-white hover:bg-destructive/90">
-              <Trash2 size={15} /> Delete product
-            </Button>
-          </div>
-        </Modal>
+        <DeleteProductDialog product={product} open={confirmDelete} onClose={() => setConfirmDelete(false)}
+          onDeleted={() => { toast.success(`${product.name} was deleted.`); navigate(paths.adminProducts(), { replace: true }); }} />
       )}
 
       <form onSubmit={handleSubmit} noValidate className="grid lg:grid-cols-[1fr_300px] gap-6 mt-6">
@@ -297,7 +286,7 @@ function ProductForm({ product }: { product?: AdminProduct }) {
                 const id = (f: string) => `variant-${v.key}-${f}`;
                 const thumb = v.images[0];
                 return (
-                  <li key={v.key} className={cn('rounded-xl border', hasErrors ? 'border-destructive/50' : 'border-border', !v.isActive && 'bg-secondary/40')}>
+                  <li key={v.key} id={v.id !== undefined ? `variant-card-${v.id}` : undefined} className={cn('rounded-xl border scroll-mt-24', hasErrors ? 'border-destructive/50' : 'border-border', !v.isActive && 'bg-secondary/40')}>
                     {/* Header: summary that toggles the editor, and Remove in the top-right corner */}
                     <div className="flex items-center gap-2 pr-3">
                       <button type="button" onClick={() => updateVariant(v.key, { open: !v.open })} aria-expanded={v.open} aria-controls={id('panel')}

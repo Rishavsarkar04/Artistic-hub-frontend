@@ -20,6 +20,7 @@ import { AdminLoginPage } from '@/pages/admin/AdminLoginPage';
 import { AdminLayout } from '@/pages/admin/AdminLayout';
 import { CustomersPage } from '@/pages/admin/CustomersPage';
 import { OrdersPage } from '@/pages/admin/OrdersPage';
+import { OrderDetailPage } from '@/pages/admin/OrderDetailPage';
 import { ProductsPage } from '@/pages/admin/ProductsPage';
 import { ProductFormPage } from '@/pages/admin/ProductFormPage';
 import { ROUTES, paths } from './paths';
@@ -93,6 +94,7 @@ export function AppRoutes() {
           <Route index element={<Navigate to={paths.adminCustomers()} replace />} />
           <Route path={ROUTES.adminCustomers} element={<CustomersPage />} />
           <Route path={ROUTES.adminOrders} element={<OrdersPage />} />
+          <Route path={ROUTES.adminOrder} element={<OrderDetailPage />} />
           <Route path={ROUTES.adminProducts} element={<ProductsPage />} />
           <Route path={ROUTES.adminProductNew} element={<ProductFormPage />} />
           <Route path={ROUTES.adminProductEdit} element={<ProductFormPage />} />

@@ -178,6 +178,16 @@ export async function deleteMockProduct(id: number): Promise<void> {
   mockAdminProducts.splice(index, 1);
 }
 
+/** MOCK: stands in for DELETE endpoints.admin.products.variants.delete(id, variantId); refuses the last variant. */
+export async function deleteMockVariant(productId: number, variantId: number): Promise<void> {
+  await new Promise((r) => setTimeout(r, 600));
+  const product = mockAdminProducts.find((p) => p.id === productId);
+  if (!product || !product.variants.some((v) => v.id === variantId)) throw new ApiError(404, 'This variant no longer exists.');
+  if (product.variants.length === 1) throw new ApiError(422, 'A product needs at least one variant. Delete the product instead.');
+  product.variants = product.variants.filter((v) => v.id !== variantId);
+  product.updated_at = new Date().toISOString();
+}
+
 /**
  * MOCK: filters, sorts and pages the sample products the way the API will, returning the same
  * `Paginated` shape. Replace with `useApiQuery<Paginated<AdminProduct>>(endpoints.admin.products.list, query)`.

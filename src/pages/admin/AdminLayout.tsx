@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, ExternalLink, LogOut, Menu, Package, Tag, Users } from 'lucide-react';
+import { ChevronDown, LogOut, Menu, Package, Tag, Users } from 'lucide-react';
 import { ROUTES, paths } from '@/router/paths';
 import { useAdminAuthStore } from '@/stores/adminAuthStore';
 import { Logo } from '@/components/layout/Navbar';
@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 /** Admin sections in the sidebar. Add new admin pages here. */
 const NAV = [
   { label: 'Customers', to: paths.adminCustomers(), match: ROUTES.adminCustomers, icon: Users },
-  { label: 'Orders', to: paths.adminOrders(), match: ROUTES.adminOrders, icon: Package },
+  { label: 'Orders', to: paths.adminOrders(), match: `${ROUTES.adminOrders}/*`, icon: Package },
   // `/*` keeps Products highlighted on its sub-pages, e.g. Add product.
   { label: 'Products', to: paths.adminProducts(), match: `${ROUTES.adminProducts}/*`, icon: Tag },
 ];
@@ -26,7 +26,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[#F7F4EF]/50">Admin</p>
       </div>
 
-      <nav className="flex-1 px-3 space-y-1" aria-label="Admin">
+      <nav className="flex-1 px-3 pb-5 space-y-1" aria-label="Admin">
         {NAV.map(({ label, to, match, icon: Icon }) => {
           const active = !!matchPath(match, pathname);
           return (
@@ -37,12 +37,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
-
-      <div className="px-3 pb-5 space-y-1">
-        <Link to={paths.home} target="_blank" className="flex items-center gap-3 rounded-xl px-3 h-10 text-sm text-[#F7F4EF]/65 hover:bg-white/5 hover:text-white">
-          <ExternalLink size={17} /> View shop
-        </Link>
-      </div>
     </div>
   );
 }

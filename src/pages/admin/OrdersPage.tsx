@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Package, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight, Package, X } from 'lucide-react';
 import { formatPrice } from '@/lib/money';
 import { formatDate } from '@/lib/date';
 import { paths } from '@/router/paths';
@@ -54,15 +54,19 @@ function StatusBadge({ status }: { status: AdminOrderStatus }) {
 }
 
 /** Customer name that narrows the list to their orders. */
+/** Order numbers read as links: dark, bold, underlined on hover. */
+const ORDER_LINK = 'font-mono text-[13px] font-semibold text-foreground underline decoration-foreground/25 underline-offset-4 hover:decoration-foreground';
+
 function CustomerLink({ o, className }: { o: AdminOrder; className?: string }) {
   return (
-    <Link to={paths.adminOrders({ customerId: o.customerId })} className={`font-medium underline-offset-4 hover:underline ${className ?? ''}`} title={`Show only ${o.customerName}'s orders`}>
+    <Link to={paths.adminOrders({ customerId: o.customerId })} onClick={(e) => e.stopPropagation()} className={`font-medium underline-offset-4 hover:underline ${className ?? ''}`} title={`Show only ${o.customerName}'s orders`}>
       {o.customerName}
     </Link>
   );
 }
 
 export function OrdersPage() {
+  const navigate = useNavigate();
   const { query, update } = useListQuery(DEFAULTS, parse);
   const { data, isLoading } = useOrders(query);
   const filtered = query.q !== '' || query.status !== 'all' || !!query.customerId;
@@ -106,13 +110,17 @@ export function OrdersPage() {
                     <th scope="col" className="font-medium px-3 py-3 text-right">Items</th>
                     <th scope="col" className="font-medium px-3 py-3 text-right">Total</th>
                     <th scope="col" className="font-medium px-3 py-3">Payment</th>
-                    <th scope="col" className="font-medium px-5 py-3">Status</th>
+                    <th scope="col" className="font-medium px-3 py-3">Status</th>
+                    <th scope="col" className="w-px pl-3 pr-5 py-3"><span className="sr-only">Details</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {data.items.map((o) => (
-                    <tr key={o.id} className="hover:bg-secondary/40">
-                      <td className="px-5 py-3 font-mono text-[13px] whitespace-nowrap">{o.id}</td>
+                    // The whole row opens the order; the order number and View are the keyboard / new-tab targets.
+                    <tr key={o.id} onClick={() => navigate(paths.adminOrder(o.id))} className="group cursor-pointer hover:bg-secondary/50">
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <Link to={paths.adminOrder(o.id)} onClick={(e) => e.stopPropagation()} className={ORDER_LINK}>{o.id}</Link>
+                      </td>
                       <td className="px-3 py-3">
                         <CustomerLink o={o} />
                         <p className="text-xs text-muted-foreground truncate">{o.customerEmail} · {o.city}</p>
@@ -121,7 +129,13 @@ export function OrdersPage() {
                       <td className="px-3 py-3 text-right tabular">{o.itemsCount}</td>
                       <td className="px-3 py-3 text-right tabular font-medium">{formatPrice(o.total)}</td>
                       <td className="px-3 py-3 capitalize text-muted-foreground">{o.paymentStatus}</td>
-                      <td className="px-5 py-3"><StatusBadge status={o.status} /></td>
+                      <td className="px-3 py-3"><StatusBadge status={o.status} /></td>
+                      <td className="w-px pl-3 pr-5 py-3">
+                        <Link to={paths.adminOrder(o.id)} onClick={(e) => e.stopPropagation()} aria-label={`View order ${o.id}`}
+                          className="inline-flex items-center gap-0.5 h-8 pl-3 pr-2 rounded-full border border-border bg-card text-[13px] font-medium whitespace-nowrap group-hover:border-foreground/50 group-hover:bg-ink group-hover:text-[#F7F4EF] transition-colors">
+                          View <ChevronRight size={15} />
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -131,15 +145,18 @@ export function OrdersPage() {
             {/* Cards on phones */}
             <ul className="md:hidden divide-y divide-border">
               {data.items.map((o) => (
-                <li key={o.id} className="p-4">
+                <li key={o.id} onClick={() => navigate(paths.adminOrder(o.id))} className="p-4 cursor-pointer hover:bg-secondary/50">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-mono text-[13px]">{o.id}</p>
+                    <Link to={paths.adminOrder(o.id)} onClick={(e) => e.stopPropagation()} className={ORDER_LINK}>{o.id}</Link>
                     <StatusBadge status={o.status} />
                   </div>
                   <p className="text-sm mt-1.5"><CustomerLink o={o} /></p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatDate(o.date)} · {o.itemsCount} {o.itemsCount === 1 ? 'item' : 'items'} · <span className="text-foreground font-medium">{formatPrice(o.total)}</span> · <span className="capitalize">{o.paymentStatus}</span>
                   </p>
+                  <Link to={paths.adminOrder(o.id)} onClick={(e) => e.stopPropagation()} className="mt-2 inline-flex items-center gap-0.5 text-xs font-semibold underline-offset-4 hover:underline">
+                    View details <ChevronRight size={14} />
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -60,6 +60,45 @@ export interface AdminOrder {
   paymentStatus: 'paid' | 'pending' | 'refunded';
 }
 
+/**
+ * One line of an order, as snapshotted when it was placed: names, SKU and the price actually paid are
+ * copied, so later product edits or deletes never change it. `variantId` links back while the variant exists.
+ */
+export interface AdminOrderItem {
+  id: string;
+  variantId: number | null;
+  productName: string;
+  variantName: string;
+  sku: string;
+  imageUrl: string | null;
+  /** Price paid per unit, in whole rupees. */
+  unitPrice: number;
+  /** List price at the time, when it was higher (a discount). */
+  originalPrice: number | null;
+  quantity: number;
+}
+
+/** Who is delivering an order and its tracking (AWB) number. The only part of an order the admin edits. */
+export interface AdminShipment {
+  courier: string;
+  trackingNumber: string;
+}
+
+/** The full order for the order details page. */
+export interface AdminOrderDetail extends AdminOrder {
+  customerPhone: string;
+  shippingAddress: { name: string; line1: string; line2: string; city: string; state: string; postalCode: string; country: string };
+  items: AdminOrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  paymentMethod: string;
+  /** Courier and tracking number, once the admin adds them; null until then. */
+  shipment: AdminShipment | null;
+  /** When each status was reached (ISO dates); missing until it happens. */
+  timeline: Partial<Record<'placed' | AdminOrderStatus, string>>;
+}
+
 export type OrderSort = 'newest' | 'oldest' | 'total-high' | 'total-low';
 
 /** Query the order list sends to the API (and mirrors in the page URL). */
