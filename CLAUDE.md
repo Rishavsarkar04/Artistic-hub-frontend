@@ -8,6 +8,10 @@ React 19 + TypeScript (strict) single-page shop for hand-poured candles. Vite bu
 
 Copy `.env.example` to `.env` and set `VITE_API_BASE_URL` (and optionally `VITE_API_TIMEOUT`). Variables are typed in `src/vite-env.d.ts`. Only `VITE_*` variables reach the browser, so never put secrets in them.
 
+Code reads them only through `env` from `src/config/env.ts`, never `import.meta.env` directly. Add new variables to `.env.example`, `src/vite-env.d.ts` and `env.ts`.
+
+Hosting is Vercel. `vercel.json` rewrites every path to `index.html` so React Router URLs (`/admin/login`, `/products/p1`) work on refresh or direct visit; keep it, and add the same rule on any other host.
+
 ## Commands
 
 The project's package manager is **pnpm 10.34.3** (pinned in `.mise.toml`), and deploys run `pnpm install --frozen-lockfile`, so `pnpm-lock.yaml` must match `package.json`. pnpm isn't installed globally here: add or remove packages with `npx -y pnpm@10.34.3 add <pkg>` (or `remove`), never plain `npm install`, which updates only `package-lock.json` and breaks the deploy. After changing dependencies, check with `npx -y pnpm@10.34.3 install --frozen-lockfile`.
