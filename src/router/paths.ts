@@ -19,10 +19,13 @@ export const ROUTES = {
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
   /** A CMS page (privacy policy, terms, …). */
   page: '/pages/:slug',
   // Admin panel
   adminLogin: '/admin/login',
+  adminForgotPassword: '/admin/forgot-password',
+  adminResetPassword: '/admin/reset-password',
   admin: '/admin',
   adminCustomers: '/admin/customers',
   adminOrders: '/admin/orders',
@@ -58,8 +61,13 @@ export const paths = {
   login: ROUTES.login,
   register: ROUTES.register,
   forgotPassword: ROUTES.forgotPassword,
+  /** The page the customer reset email links to (the backend builds that link with its token). */
+  resetPassword: (token?: string) => withQuery(ROUTES.resetPassword, { token }),
   page: (slug: string) => generatePath(ROUTES.page, { slug }),
   adminLogin: ROUTES.adminLogin,
+  adminForgotPassword: ROUTES.adminForgotPassword,
+  /** The page the reset email links to (the backend builds that link with its token). */
+  adminResetPassword: (token?: string) => withQuery(ROUTES.adminResetPassword, { token }),
   admin: ROUTES.admin,
   /** Customer list; all filters are optional and default values are left out of the URL. */
   adminCustomers: ({ q, status, sort, page }: { q?: string; status?: string; sort?: string; page?: number } = {}) =>

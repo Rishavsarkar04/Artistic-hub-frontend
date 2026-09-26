@@ -31,7 +31,7 @@ export function AccountPage() {
   const handleViewOrderDetail = (id: string) => navigate(paths.accountOrder(id));
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-end justify-between mb-8">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">My Account</p>

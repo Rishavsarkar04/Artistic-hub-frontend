@@ -30,7 +30,12 @@ export const useAuthStore = create<AuthState>()(
         // Adds a new address, or replaces the one with the same id.
         saveAddress: (address) =>
           updateAddresses((list) => (list.some((a) => a.id === address.id) ? list.map((a) => (a.id === address.id ? address : a)) : [...list, address])),
-        deleteAddress: (id) => updateAddresses((list) => list.filter((a) => a.id !== id)),
+        // Deleting the default hands it to the first remaining address, so there's always one.
+        deleteAddress: (id) =>
+          updateAddresses((list) => {
+            const rest = list.filter((a) => a.id !== id);
+            return rest.length && !rest.some((a) => a.isDefault) ? rest.map((a, i) => ({ ...a, isDefault: i === 0 })) : rest;
+          }),
         setDefaultAddress: (id) => updateAddresses((list) => list.map((a) => ({ ...a, isDefault: a.id === id }))),
       };
     },

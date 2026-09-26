@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { fullName } from '@/lib/utils';
-import { MapPin, Plus, Trash2, Edit3, Phone } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { cn, fullName } from '@/lib/utils';
+import { MapPin, Plus, Trash2, Edit3, Phone, Star } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import type { Address } from '@/types';
 import { Button } from '@/components/ui/button';
 import { TextField, SelectField } from '@/components/shared/FormField';
-import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/shared/Modal';
 
 // Stable fallback so the store selector doesn't return a new array on every render.
@@ -15,10 +15,13 @@ function AddressForm({
   initial,
   onSave,
   onCancel,
+  lockDefault = false,
 }: {
   initial?: Partial<Address>;
   onSave: (a: Address) => void;
   onCancel: () => void;
+  /** The address is already the default: it stays so until another address takes over, so there's always one. */
+  lockDefault?: boolean;
 }) {
   const [form, setForm] = useState<Partial<Address>>({
     label: 'Home',
@@ -70,6 +73,21 @@ function AddressForm({
         <option>Canada</option>
         <option>United Kingdom</option>
       </SelectField>
+      <label className="flex items-start gap-2.5 cursor-pointer has-[:disabled]:cursor-default">
+        <input
+          type="checkbox"
+          checked={form.isDefault ?? false}
+          disabled={lockDefault}
+          onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))}
+          className="accent-primary size-4 mt-0.5"
+        />
+        <span className="text-sm">
+          Make this my default address
+          <span className="block text-xs text-muted-foreground mt-0.5">
+            {lockDefault ? 'This is your default. To change it, make another address the default.' : 'Checkout picks it first.'}
+          </span>
+        </span>
+      </label>
       <div className="flex gap-3 pt-2">
         <Button type="submit">Save Address</Button>
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
@@ -86,13 +104,17 @@ export function AddressesSection() {
   const [deleteConfirm, setDeleteConfirm] = useState<Address | null>(null);
 
   const handleSave = (addr: Address) => {
-    if (editing) {
-      saveAddress(addr);
-      setEditing(null);
-    } else {
-      saveAddress(addr);
-      setAdding(false);
-    }
+    saveAddress(addr);
+    // Also clears the flag on the previous default.
+    if (addr.isDefault) setDefaultAddress(addr.id);
+    toast.success(editing ? 'Address updated.' : 'Address added.');
+    setEditing(null);
+    setAdding(false);
+  };
+
+  const makeDefault = (addr: Address) => {
+    setDefaultAddress(addr.id);
+    toast.success(`${addr.label} is now your default address.`);
   };
 
   return (
@@ -112,7 +134,8 @@ export function AddressesSection() {
       {adding && (
         <div className="bg-card border border-border rounded-xl p-6">
           <h3 className="font-medium mb-4">New Address</h3>
-          <AddressForm onSave={handleSave} onCancel={() => setAdding(false)} />
+          {/* A first address becomes the default unless unticked. */}
+          <AddressForm initial={{ isDefault: addresses.length === 0 }} onSave={handleSave} onCancel={() => setAdding(false)} />
         </div>
       )}
 
@@ -121,16 +144,20 @@ export function AddressesSection() {
           {editing?.id === addr.id ? (
             <div className="bg-card border border-border rounded-xl p-6">
               <h3 className="font-medium mb-4">Edit Address</h3>
-              <AddressForm initial={editing} onSave={handleSave} onCancel={() => setEditing(null)} />
+              <AddressForm initial={editing} lockDefault={editing.isDefault} onSave={handleSave} onCancel={() => setEditing(null)} />
             </div>
           ) : (
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className={cn('bg-card border rounded-xl p-5', addr.isDefault ? 'border-ink ring-1 ring-ink' : 'border-border')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium">{fullName(addr)}</span>
                     <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">{addr.label}</span>
-                    {addr.isDefault && <Badge variant="default">Default</Badge>}
+                    {addr.isDefault && (
+                      <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full bg-ink text-[#F7F4EF] text-xs font-semibold">
+                        <Star size={11} className="fill-current" /> Default
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">{addr.line1}{addr.line2 ? `, ${addr.line2}` : ''}</p>
                   <p className="text-sm text-muted-foreground">{addr.city}, {addr.state} {addr.postalCode}</p>
@@ -141,30 +168,21 @@ export function AddressesSection() {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  {!addr.isDefault && (
-                    <button
-                      onClick={() => setDefaultAddress(addr.id)}
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded hover:bg-muted"
-                    >
-                      Set default
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setEditing(addr)}
-                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label="Edit"
-                  >
-                    <Edit3 size={14} />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(addr)}
-                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label="Delete"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+              </div>
+              {/* Labelled actions: icon-only buttons were easy to miss. */}
+              <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-border">
+                {!addr.isDefault && (
+                  <Button variant="outline" size="sm" onClick={() => makeDefault(addr)}>
+                    <Star size={13} /> Make default
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => setEditing(addr)} aria-label={`Edit ${addr.label} address`}>
+                  <Edit3 size={13} /> Edit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(addr)} aria-label={`Delete ${addr.label} address`}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 sm:ml-auto">
+                  <Trash2 size={13} /> Delete
+                </Button>
               </div>
             </div>
           )}

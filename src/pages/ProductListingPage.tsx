@@ -136,7 +136,7 @@ export function ProductListingPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/70 to-transparent" />
             </>
           )}
-          <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-14 sm:py-20">
+          <div className="relative max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-10 py-14 sm:py-20">
             <nav aria-label="Breadcrumb" className={`text-sm mb-6 flex gap-2 ${head.img ? 'text-white/60' : 'text-muted-foreground'}`}>
               <button onClick={() => navigate(paths.home)} className="hover:underline">Home</button><span>/</span>
               {collection !== 'All' && <><button onClick={() => navigate(paths.shop())} className="hover:underline">Shop</button><span>/</span></>}
@@ -148,7 +148,7 @@ export function ProductListingPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Collection tabs + toolbar */}
         <div className="sticky top-16 lg:top-[72px] z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 glass-light border-b border-border/70 mt-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 py-3">
@@ -181,8 +181,8 @@ export function ProductListingPage() {
           </div>
         </div>
 
-        <div className="flex gap-12 mt-8">
-          <aside className="hidden lg:block w-64 shrink-0" aria-label="Filters">
+        <div className="flex gap-10 mt-8">
+          <aside className="hidden lg:block w-60 shrink-0" aria-label="Filters">
             <div className="sticky top-40">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground" aria-live="polite">{loading ? 'Updating' : `${filtered.length} ${filtered.length === 1 ? 'candle' : 'candles'}`}</p>
@@ -194,9 +194,9 @@ export function ProductListingPage() {
 
           <div className="flex-1 min-w-0">
             {loading ? (
-              <div className="grid grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 sm:gap-x-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} aria-hidden><div className="aspect-[4/5] rounded-2xl bg-muted animate-pulse" /><div className="h-5 w-2/3 bg-muted rounded mt-4 animate-pulse" /><div className="h-4 w-1/2 bg-muted rounded mt-2 animate-pulse" /></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} aria-hidden><div className="aspect-[4/5] rounded-3xl bg-muted animate-pulse" /><div className="h-5 w-2/3 bg-muted rounded mt-4 animate-pulse" /><div className="h-4 w-1/2 bg-muted rounded mt-2 animate-pulse" /></div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
@@ -206,7 +206,7 @@ export function ProductListingPage() {
                 <Button variant="outline" onClick={clearAll}>Clear all filters</Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 sm:gap-x-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-5">
                 {filtered.map((product) => <ProductCard key={product.id} product={product} />)}
               </div>
             )}

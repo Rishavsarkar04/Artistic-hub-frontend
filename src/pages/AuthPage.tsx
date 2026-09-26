@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, type Location } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams, type Location } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { paths } from '@/router/paths';
-import { Eye, EyeOff, Flame, ArrowLeft, Check } from 'lucide-react';
+import { Eye, EyeOff, Flame, ArrowLeft } from 'lucide-react';
 import type { AuthMode } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/shared/FormField';
 import { mockUser } from '@/data/account';
+import { requestMockPasswordReset, resetMockPassword } from '@/data/auth';
+import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 
 function PasswordInput({ label, value, onChange, error, placeholder }: {
   label: string; value: string; onChange: (v: string) => void; error?: string; placeholder?: string;
@@ -37,22 +41,24 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   // Where to go after signing in: the page that sent the visitor here, if any.
   const from = (location.state as { from?: Location } | null)?.from;
   const login = useAuthStore((s) => s.login);
+  const [params] = useSearchParams();
+  // Carried in from the sign-in form (to Forgot password) and back again after a reset.
+  const carriedEmail = (location.state as { email?: string } | null)?.email ?? '';
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(carriedEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const setMode = (m: typeof mode) => {
     const to = MODE_PATHS[m];
-    // Keep `from` so switching between sign in and sign up still returns the visitor afterwards.
-    if (to) navigate(to, { replace: true, state: location.state });
+    // Keep `from` so switching between sign in and sign up still returns the visitor afterwards,
+    // and the typed email so it doesn't need typing twice.
+    if (to) navigate(to, { replace: true, state: { ...(location.state as object | null), email } });
     setErrors({});
-    setSuccess(false);
   };
 
   const validate = () => {
@@ -61,10 +67,8 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     if (mode === 'register' && !lastName.trim()) errs.lastName = 'Last name is required';
     if (!email.trim()) errs.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Enter a valid email';
-    if (mode !== 'forgot') {
-      if (!password) errs.password = 'Password is required';
-      else if (password.length < 8) errs.password = 'Password must be at least 8 characters';
-    }
+    if (!password) errs.password = 'Password is required';
+    else if (password.length < 8) errs.password = 'Password must be at least 8 characters';
     if (mode === 'register' && password !== confirmPassword) {
       errs.confirmPassword = 'Passwords do not match';
     }
@@ -78,10 +82,6 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1200));
     setLoading(false);
-    if (mode === 'forgot') {
-      setSuccess(true);
-      return;
-    }
     login(mockUser); // MOCK: call endpoints.auth.login / register and store the returned user and token
     navigate(from ? from.pathname + from.search : paths.home, { replace: true });
   };
@@ -115,24 +115,19 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             {mode === 'login' && 'Sign in to manage your orders and account.'}
             {mode === 'register' && 'Join Ember & Bloom for a smoother shopping experience.'}
             {mode === 'forgot' && "Enter your email and we'll send a reset link."}
-            {mode === 'reset' && 'Choose a new password for your account.'}
+            {mode === 'reset' && (params.get('email') ? `For ${params.get('email')}` : 'Choose a new password for your account.')}
           </p>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-          {success && mode === 'forgot' ? (
-            <div className="text-center py-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-                <Check size={24} className="text-emerald-600" />
-              </div>
-              <h2 className="font-serif text-xl font-medium mb-2">Check your inbox</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                We've sent a password reset link to <strong>{email}</strong>
-              </p>
-              <Button variant="outline" onClick={() => setMode('login')} className="w-full">
-                Back to Sign In
-              </Button>
-            </div>
+          {mode === 'forgot' ? (
+            // Shared with the admin panel so both forgot-password flows work the same.
+            // MOCK: with the API, request = (email) => api.post(endpoints.auth.forgotPassword, { email }).
+            <ForgotPasswordForm request={requestMockPasswordReset} accountLabel="an account" placeholder="your@email.com" initialEmail={carriedEmail} />
+          ) : mode === 'reset' ? (
+            // MOCK: with the API, reset = (token, password) => api.post(endpoints.auth.resetPassword, { token, password, password_confirmation: password }).
+            <ResetPasswordForm token={params.get('token') ?? ''} reset={resetMockPassword} forgotPath={paths.forgotPassword}
+              onDone={() => { toast.success('Password updated. Sign in with your new password.'); navigate(paths.login, { replace: true, state: { email: params.get('email') ?? '' } }); }} />
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {mode === 'register' && (
@@ -167,15 +162,13 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 placeholder="your@email.com"
               />
 
-              {mode !== 'forgot' && (
-                <PasswordInput
-                  label="Password"
-                  value={password}
-                  onChange={setPassword}
-                  error={errors.password}
-                  placeholder="••••••••"
-                />
-              )}
+              <PasswordInput
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                error={errors.password}
+                placeholder="••••••••"
+              />
 
               {mode === 'register' && (
                 <PasswordInput
@@ -189,11 +182,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
 
               {mode === 'login' && (
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setMode('forgot')}
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
+                  <button type="button" onClick={() => setMode('forgot')} className="text-sm font-medium underline-offset-4 hover:underline">
                     Forgot password?
                   </button>
                 </div>
@@ -202,8 +191,6 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               <Button type="submit" loading={loading} className="w-full" size="lg">
                 {mode === 'login' && 'Sign In'}
                 {mode === 'register' && 'Create Account'}
-                {mode === 'forgot' && 'Send Reset Link'}
-                {mode === 'reset' && 'Update Password'}
               </Button>
 
               {mode === 'register' && (
@@ -235,7 +222,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               </button>
             </>
           )}
-          {(mode === 'forgot' || mode === 'reset') && !success && (
+          {(mode === 'forgot' || mode === 'reset') && (
             <button onClick={() => setMode('login')} className="inline-flex items-center gap-1 text-primary hover:underline font-medium">
               <ArrowLeft size={13} /> Back to Sign In
             </button>

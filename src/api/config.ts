@@ -42,6 +42,10 @@ export const endpoints = {
     auth: {
       login: '/admin/auth/login',
       logout: '/admin/auth/logout',
+      /** POST `{ email }`; emails a reset link. Always succeeds, so it never reveals which emails exist. */
+      forgotPassword: '/admin/auth/forgot-password',
+      /** POST `{ token, password, password_confirmation }`; 422 if the link is invalid or expired. */
+      resetPassword: '/admin/auth/reset-password',
     },
     customers: {
       /** GET with `q`, `status`, `sort`, `page`, `pageSize`; returns `Paginated<AdminCustomer>`. */

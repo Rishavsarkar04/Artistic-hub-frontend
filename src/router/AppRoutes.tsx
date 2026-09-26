@@ -17,6 +17,8 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 import { useAuthStore } from '@/stores/authStore';
 import { useAdminAuthStore } from '@/stores/adminAuthStore';
 import { AdminLoginPage } from '@/pages/admin/AdminLoginPage';
+import { AdminForgotPasswordPage } from '@/pages/admin/AdminForgotPasswordPage';
+import { AdminResetPasswordPage } from '@/pages/admin/AdminResetPasswordPage';
 import { AdminLayout } from '@/pages/admin/AdminLayout';
 import { CustomersPage } from '@/pages/admin/CustomersPage';
 import { OrdersPage } from '@/pages/admin/OrdersPage';
@@ -84,12 +86,16 @@ export function AppRoutes() {
     <>
       <ScrollToTop />
       <Routes>
-        <Route path={ROUTES.login} element={<AuthPage mode="login" />} />
-        <Route path={ROUTES.register} element={<AuthPage mode="register" />} />
-        <Route path={ROUTES.forgotPassword} element={<AuthPage mode="forgot" />} />
+        {/* Keyed so each mode starts fresh and picks up the email carried in `location.state`. */}
+        <Route path={ROUTES.login} element={<AuthPage key="login" mode="login" />} />
+        <Route path={ROUTES.register} element={<AuthPage key="register" mode="register" />} />
+        <Route path={ROUTES.forgotPassword} element={<AuthPage key="forgot" mode="forgot" />} />
+        <Route path={ROUTES.resetPassword} element={<AuthPage key="reset" mode="reset" />} />
 
         {/* Admin panel: its own login and layout, no shop navbar/footer. */}
         <Route path={ROUTES.adminLogin} element={<AdminLoginPage />} />
+        <Route path={ROUTES.adminForgotPassword} element={<AdminForgotPasswordPage />} />
+        <Route path={ROUTES.adminResetPassword} element={<AdminResetPasswordPage />} />
         <Route path={ROUTES.admin} element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
           <Route index element={<Navigate to={paths.adminCustomers()} replace />} />
           <Route path={ROUTES.adminCustomers} element={<CustomersPage />} />

@@ -233,7 +233,7 @@ function ProductForm({ product, focusVariantId }: { product?: AdminProduct; focu
   const priceText = !prices.length ? '—' : Math.min(...prices) === Math.max(...prices) ? formatPaise(prices[0]) : `${formatPaise(Math.min(...prices))} – ${formatPaise(Math.max(...prices))}`;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
       <Link to={paths.adminProducts()} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft size={15} /> Products
       </Link>

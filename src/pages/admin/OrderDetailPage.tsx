@@ -77,7 +77,7 @@ export function OrderDetailPage() {
   if (!order) return <NotFoundPage title="Order not found" message="Check the order number, or find it in the order list." />;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
       <Link to={paths.adminOrders()} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft size={15} /> Orders
       </Link>

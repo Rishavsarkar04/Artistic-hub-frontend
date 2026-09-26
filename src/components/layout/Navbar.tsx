@@ -75,35 +75,32 @@ export function Navbar() {
 
             <div className="flex items-center justify-end gap-1 -mr-2">
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label={user ? 'Account menu' : 'Account'}>
-                    {user
-                      ? <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}</span>
-                      : <User size={19} />}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {user ? (
-                    <>
-                      <DropdownMenuLabel><p className="text-sm font-medium">{fullName(user)}</p><p className="text-xs text-muted-foreground font-normal">{user.email}</p></DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => navigate(paths.account('profile'))}><User />Profile</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigate(paths.account('orders'))}><Package />Orders</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigate(paths.account('addresses'))}><MapPin />Addresses</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={signOut}><LogOut />Sign out</DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuItem onSelect={() => navigate(paths.login)}><LogIn />Sign in</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => navigate(paths.register)}><UserPlus />Create an account</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => navigate(paths.contact)}><Package />Help with an order</DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="hidden sm:flex size-10 items-center justify-center rounded-full hover:bg-foreground/5 outline-none focus-visible:ring-4 focus-visible:ring-ring/25" aria-label="Account menu">
+                      <span className="size-7 rounded-full bg-ink text-[#F7F4EF] text-[11px] font-semibold flex items-center justify-center">{(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel><p className="text-sm font-medium">{fullName(user)}</p><p className="text-xs text-muted-foreground font-normal">{user.email}</p></DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => navigate(paths.account('profile'))}><User />Profile</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate(paths.account('orders'))}><Package />Orders</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate(paths.account('addresses'))}><MapPin />Addresses</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={signOut}><LogOut />Sign out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                // Signed out: show the way in plainly instead of behind an icon.
+                <>
+                  <Link to={paths.login} className="h-10 px-3 sm:px-3.5 rounded-full text-sm font-medium flex items-center hover:bg-foreground/5">Sign in</Link>
+                  <Link to={paths.register} className="hidden sm:flex h-10 px-4 rounded-full border border-foreground/20 text-sm font-medium items-center hover:border-foreground/50 hover:bg-card">
+                    Create account
+                  </Link>
+                </>
+              )}
 
               <Link to={paths.cart} className="ml-1 h-10 pl-3.5 pr-4 rounded-full bg-ink text-[#F7F4EF] text-sm font-medium flex items-center gap-2 hover:bg-ink-soft"
                 aria-label={`Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}>
@@ -125,11 +122,23 @@ export function Navbar() {
                 <span className="font-serif text-3xl">{l.label}</span><ArrowRight size={18} className="text-muted-foreground" />
               </Link>
             ))}
-            <div className="grid grid-cols-2 gap-3 mt-8 pb-6">
-              <Link to={user ? paths.account() : paths.login} onClick={closeMenu} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
-                <User size={16} />{user ? user.firstName : 'Sign in'}
-              </Link>
-              <Link to={paths.cart} onClick={closeMenu} className="h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium">
+            {!user && (
+              <div className="mt-8 rounded-2xl bg-secondary/60 p-4">
+                <p className="text-sm font-medium">Sign in or create an account</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Track orders and check out faster.</p>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <Link to={paths.login} onClick={closeMenu} className="h-11 rounded-full border border-border bg-card flex items-center justify-center gap-2 text-sm font-medium"><LogIn size={15} />Sign in</Link>
+                  <Link to={paths.register} onClick={closeMenu} className="h-11 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium"><UserPlus size={15} />Create account</Link>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3 mt-4 pb-6">
+              {user && (
+                <Link to={paths.account()} onClick={closeMenu} className="h-12 rounded-full border border-border flex items-center justify-center gap-2 text-sm font-medium">
+                  <User size={16} />{user.firstName}
+                </Link>
+              )}
+              <Link to={paths.cart} onClick={closeMenu} className={cn('h-12 rounded-full bg-ink text-[#F7F4EF] flex items-center justify-center gap-2 text-sm font-medium', !user && 'col-span-2')}>
                 <ShoppingBag size={16} />Cart ({cartCount})
               </Link>
             </div>

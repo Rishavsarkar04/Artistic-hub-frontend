@@ -64,7 +64,7 @@ export function CustomersPage() {
   const filtered = query.q !== '' || query.status !== 'all';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
       <div className="mb-6">
         <h1 className="font-serif text-3xl sm:text-4xl">Customers</h1>
         <p className="text-sm text-muted-foreground mt-1">Everyone who has an account with the shop.</p>

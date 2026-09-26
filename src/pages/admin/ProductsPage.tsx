@@ -128,8 +128,8 @@ function VariantPrice({ v }: { v: AdminVariant }) {
 function VariantThumb({ v }: { v: AdminVariant }) {
   const cover = variantCover(v);
   return cover
-    ? <img src={cover.url} alt="" className="size-9 shrink-0 rounded-md object-cover bg-muted" />
-    : <span className="size-9 shrink-0 rounded-md bg-secondary flex items-center justify-center text-muted-foreground"><ImageOff size={13} /></span>;
+    ? <img src={cover.url} alt="" className="size-11 shrink-0 rounded-lg object-cover bg-muted" />
+    : <span className="size-11 shrink-0 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground"><ImageOff size={14} /></span>;
 }
 
 /** A variant's ⋯ menu: Edit variant (opens it on the product's edit page) and Remove variant (asks first; not for the last variant). */
@@ -156,7 +156,7 @@ function VariantActions({ product, v, onlyOne, onRemove }: { product: AdminProdu
   );
 }
 
-const SMALL_TAGS = 'h-5 px-1.5 rounded-full bg-secondary text-[10px] text-foreground/75 inline-flex items-center';
+const SMALL_TAGS = 'h-6 px-2 rounded-full bg-secondary text-[11px] text-foreground/75 inline-flex items-center';
 /** Past this many variants the panel gets a filter box; the list itself always scrolls inside a fixed height. */
 const FILTER_FROM = 6;
 
@@ -184,38 +184,38 @@ function VariantsPanel({ product, id, layout, onRemove }: { product: AdminProduc
 
       <div className="max-h-80 overflow-y-auto rounded-xl border border-border bg-card">
         {list.length === 0 ? (
-          <p className="px-4 py-6 text-center text-xs text-muted-foreground">No variants match “{q}”.</p>
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">No variants match “{q}”.</p>
         ) : layout === 'table' ? (
-          <table className="w-full text-[13px]" aria-label={`Variants of ${product.name}`}>
+          <table className="w-full text-sm" aria-label={`Variants of ${product.name}`}>
             <thead className="sticky top-0 z-10 bg-card shadow-[0_1px_0_var(--border)]">
-              <tr className="text-left text-[11px] text-muted-foreground">
-                <th scope="col" className="font-medium py-2 pl-3 pr-2">Variant</th>
-                <th scope="col" className="font-medium py-2 px-2">SKU</th>
-                <th scope="col" className="font-medium py-2 px-2">Tags</th>
-                <th scope="col" className="font-medium py-2 px-2 text-right">Price</th>
-                <th scope="col" className="font-medium py-2 px-2 text-right">Stock</th>
-                <th scope="col" className="w-28 font-medium py-2 px-2">Status</th>
-                <th scope="col" className="w-px py-2 pl-4 pr-3"><span className="sr-only">Actions</span></th>
+              <tr className="text-left text-xs text-muted-foreground">
+                <th scope="col" className="font-medium py-2.5 pl-4 pr-3">Variant</th>
+                <th scope="col" className="font-medium py-2.5 px-3">SKU</th>
+                <th scope="col" className="font-medium py-2.5 px-3">Tags</th>
+                <th scope="col" className="font-medium py-2.5 px-3 text-right">Price</th>
+                <th scope="col" className="font-medium py-2.5 px-3 text-right">Stock</th>
+                <th scope="col" className="w-28 font-medium py-2.5 px-3">Status</th>
+                <th scope="col" className="w-px py-2.5 pl-4 pr-4"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/70">
               {list.map((v) => (
                 <tr key={v.id} className={cn('hover:bg-secondary/30', !v.is_active && 'text-muted-foreground')}>
-                  <td className="py-2 pl-3 pr-2">
-                    <div className="flex items-center gap-2.5">
+                  <td className="py-3 pl-4 pr-3">
+                    <div className="flex items-center gap-3">
                       <VariantThumb v={v} />
                       <div className="min-w-0">
                         <Link to={paths.adminProductEdit(product.id, v.id)} className="font-medium hover:underline underline-offset-4">{v.name}</Link>
-                        <p className="font-mono text-[10px] text-muted-foreground truncate">{v.slug}</p>
+                        <p className="font-mono text-[11px] text-muted-foreground truncate mt-0.5">{v.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-2 px-2 font-mono text-xs text-muted-foreground whitespace-nowrap">{v.sku}</td>
-                  <td className="py-2 px-2"><span className="flex flex-wrap gap-1">{v.tags.map((t) => <span key={t.id} className={SMALL_TAGS}>{t.name}</span>)}</span></td>
-                  <td className="py-2 px-2 text-right"><VariantPrice v={v} /></td>
-                  <td className="py-2 px-2 text-right whitespace-nowrap"><VariantStock count={v.stock} /></td>
-                  <td className="w-28 py-2 px-2"><ActiveBadge active={v.is_active} /></td>
-                  <td className="w-px py-2 pl-4 pr-3"><VariantActions product={product} v={v} onlyOne={onlyOne} onRemove={() => onRemove(v)} /></td>
+                  <td className="py-3 px-3 font-mono text-[13px] text-muted-foreground whitespace-nowrap">{v.sku}</td>
+                  <td className="py-3 px-3"><span className="flex flex-wrap gap-1">{v.tags.map((t) => <span key={t.id} className={SMALL_TAGS}>{t.name}</span>)}</span></td>
+                  <td className="py-3 px-3 text-right"><VariantPrice v={v} /></td>
+                  <td className="py-3 px-3 text-right whitespace-nowrap"><VariantStock count={v.stock} /></td>
+                  <td className="w-28 py-3 px-3"><ActiveBadge active={v.is_active} /></td>
+                  <td className="w-px py-3 pl-4 pr-4"><VariantActions product={product} v={v} onlyOne={onlyOne} onRemove={() => onRemove(v)} /></td>
                 </tr>
               ))}
             </tbody>
@@ -223,11 +223,11 @@ function VariantsPanel({ product, id, layout, onRemove }: { product: AdminProduc
         ) : (
           <ul className="divide-y divide-border/70" aria-label={`Variants of ${product.name}`}>
             {list.map((v) => (
-              <li key={v.id} className={cn('flex items-start gap-2.5 p-3 text-xs', !v.is_active && 'text-muted-foreground')}>
+              <li key={v.id} className={cn('flex items-start gap-3 p-3.5 text-[13px]', !v.is_active && 'text-muted-foreground')}>
                 <VariantThumb v={v} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-[13px] truncate">{v.name}</span>
+                    <span className="font-medium text-sm truncate">{v.name}</span>
                     <VariantPrice v={v} />
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-0.5 text-muted-foreground">
@@ -261,7 +261,7 @@ export function ProductsPage() {
   const toggle = (id: number) => setOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-10">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-3xl sm:text-4xl">Products</h1>
