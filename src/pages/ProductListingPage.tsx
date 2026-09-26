@@ -11,7 +11,7 @@ import { productPrice, allSoldOut } from '@/lib/product';
 import { Slider } from '@/components/ui/slider';
 import { photo } from '@/data/images';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
-import { tags, getTag, productHasTag, tagSearchText, colors } from '@/data/tags';
+import { tags, getTag, productHasTag, tagSearchText } from '@/data/tags';
 
 type SortOption = 'featured' | 'newest' | 'price-asc' | 'price-desc';
 const SORT_OPTIONS: { id: SortOption; label: string }[] = [
@@ -27,8 +27,8 @@ const HEADER_BACKDROP = photo('photo-1613068431228-8cb6a1e92573', 1600, 700);
 const PRICE_MIN = Math.floor(Math.min(...products.map(productPrice)) / 100) * 100;
 const PRICE_MAX = Math.ceil(Math.max(...products.map(productPrice)) / 100) * 100;
 
-interface Filters { tags: string[]; colors: string[]; price: [number, number] }
-const EMPTY: Filters = { tags: [], colors: [], price: [PRICE_MIN, PRICE_MAX] };
+interface Filters { tags: string[]; price: [number, number] }
+const EMPTY: Filters = { tags: [], price: [PRICE_MIN, PRICE_MAX] };
 const priceActive = (f: Filters) => f.price[0] > PRICE_MIN || f.price[1] < PRICE_MAX;
 
 const HEADERS: Record<string, { title: string; sub: string; img?: string }> = {
@@ -52,11 +52,10 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function Chip({ on, onClick, children, count, swatch }: { on: boolean; onClick: () => void; children: React.ReactNode; count?: number; swatch?: string }) {
+function Chip({ on, onClick, children, count }: { on: boolean; onClick: () => void; children: React.ReactNode; count?: number }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on} disabled={count === 0 && !on}
       className={`h-9 px-3.5 rounded-full text-[13px] border flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed ${on ? 'bg-ink text-[#F7F4EF] border-ink' : 'bg-card border-border hover:border-foreground/40'}`}>
-      {swatch && <span className="size-3.5 rounded-full ring-1 ring-inset ring-black/15" style={{ background: swatch }} aria-hidden />}
       {children}{count !== undefined && <span className={`tabular ${on ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>}
     </button>
   );
@@ -75,10 +74,8 @@ export function ProductListingPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLoading(true); const t = setTimeout(() => setLoading(false), 350); return () => clearTimeout(t); }, [filters.tags, filters.colors, search, sort]); // not price: dragging the slider should update live
+  useEffect(() => { setLoading(true); const t = setTimeout(() => setLoading(false), 350); return () => clearTimeout(t); }, [filters.tags, search, sort]); // not price: dragging the slider should update live
 
-  const toggleColor = (id: string) =>
-    setFilters((f) => ({ ...f, colors: f.colors.includes(id) ? f.colors.filter((x) => x !== id) : [...f.colors, id] }));
   const toggleTag = (id: string) =>
     setFilters((f) => ({ ...f, tags: f.tags.includes(id) ? f.tags.filter((x) => x !== id) : [...f.tags, id] }));
   const clearAll = () => { setFilters(EMPTY); setSearch(''); };
@@ -89,7 +86,6 @@ export function ProductListingPage() {
     return (collection === 'All' || p.collection === collection) &&
       (!q || [p.name, p.scent, tagSearchText(p)].join(' ').toLowerCase().includes(q)) &&
       (skip === 'tags' || !filters.tags.length || filters.tags.some((t) => productHasTag(p, t))) &&
-      (skip === 'colors' || !filters.colors.length || filters.colors.includes(p.color)) &&
       (skip === 'price' || (price >= filters.price[0] && price <= filters.price[1]));
   };
   const count = (skip: keyof Filters, fn: (p: (typeof products)[number]) => boolean) => products.filter((p) => test(p, skip) && fn(p)).length;
@@ -102,7 +98,7 @@ export function ProductListingPage() {
     return list;
   }, [filters, search, sort, collection]);
 
-  const activeCount = filters.tags.length + filters.colors.length + (priceActive(filters) ? 1 : 0);
+  const activeCount = filters.tags.length + (priceActive(filters) ? 1 : 0);
 
   const head = HEADERS[collection] ?? HEADERS.All;
 
@@ -117,11 +113,6 @@ export function ProductListingPage() {
             onValueChange={(v) => setFilters((f) => ({ ...f, price: [v[0], v[1]] }))} />
           <div className="flex justify-between text-xs text-muted-foreground mt-2 tabular"><span>{formatPrice(PRICE_MIN)}</span><span>{formatPrice(PRICE_MAX)}</span></div>
         </div>
-      </Group>
-      <Group title="Color">
-        {colors.map((c) => (
-          <Chip key={c.id} swatch={c.hex} on={filters.colors.includes(c.id)} onClick={() => toggleColor(c.id)} count={count('colors', (p) => p.color === c.id)}>{c.name}</Chip>
-        ))}
       </Group>
       <Group title="Tags">
         {tags.map((t) => (
