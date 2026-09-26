@@ -10,7 +10,7 @@ Copy `.env.example` to `.env` and set `VITE_API_BASE_URL` (and optionally `VITE_
 
 ## Commands
 
-Use npm (pnpm is not installed).
+The project's package manager is **pnpm 10.34.3** (pinned in `.mise.toml`), and deploys run `pnpm install --frozen-lockfile`, so `pnpm-lock.yaml` must match `package.json`. pnpm isn't installed globally here: add or remove packages with `npx -y pnpm@10.34.3 add <pkg>` (or `remove`), never plain `npm install`, which updates only `package-lock.json` and breaks the deploy. After changing dependencies, check with `npx -y pnpm@10.34.3 install --frozen-lockfile`.
 
 - `npm run dev` — dev server (already running in Figma Make; see AGENTS.md)
 - `npm run build` — production build
