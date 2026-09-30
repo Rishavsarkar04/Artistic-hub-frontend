@@ -10,6 +10,16 @@ The frontend requirements are in `docs/frontend-srs.md`. It overrides the PRD wh
 
 The product requirements are in `docs/candle-ecommerce-prd.md`. Read it before building a feature, and follow its section 0 ("Project alignment"): it records what is already decided and lists open conflicts between the PRD, the backend ER diagram and this frontend. Ask before building anything listed there as open. The backend keeps an identical copy in `Artistic-hub-backend/docs/`, so update both together. The database schema lives in `Artistic-hub-backend/docs/database/er-diagram.md`, and the backend's requirements and proposed API contract in `Artistic-hub-backend/docs/backend-srs.md` (it overrides the PRD where they conflict). Its section 17 lists where this frontend differs from that contract; when connecting an endpoint, follow the SRS rather than the current mock shapes, after checking with the user.
 
+## API contract
+
+The backend's OpenAPI spec is `../Artistic-hub-backend/docs/api/openapi.json`, generated from the backend code. It is the source of truth for every endpoint: path, method, query parameters, request body (field names, types, required, validation limits), response shape and error responses.
+
+- Before writing or changing any API call, read that endpoint in the spec, and match its request body and response exactly: the path in `src/api/config.ts`, the types in `src/types/`, and the `useApiQuery` / `useApiMutation` generics.
+- Money comes as decimal strings and dates as ISO 8601 strings, as the spec shows; don't convert money to numbers for calculations the backend owns.
+- If an endpoint isn't in the spec yet, the backend hasn't built it: keep the `// MOCK:` in place, shaped like the backend SRS (section 14) proposes, and don't invent a contract.
+- If the spec and the SRS or a mock disagree, the spec wins for what the API does today. Tell the user about the mismatch rather than working around it silently.
+- With the backend running locally, the same spec is browsable at `http://localhost:8000/docs/api`.
+
 ## Environment
 
 Copy `.env.example` to `.env` and set `VITE_API_BASE_URL` (and optionally `VITE_API_TIMEOUT`). Variables are typed in `src/vite-env.d.ts`. Only `VITE_*` variables reach the browser, so never put secrets in them.

@@ -571,6 +571,11 @@ Use the endpoint names proposed in the backend SRS (section 14) or agree
 on revised names across both implementations before coding. Put every
 path in `src/api/config.ts`.
 
+Once an endpoint exists, the backend's generated OpenAPI spec
+(`Artistic-hub-backend/docs/api/openapi.json`) is its exact contract:
+read it before calling the endpoint, and match its request fields and
+response shape in `src/types/`. Endpoints not yet in the spec stay mocked.
+
 Suggested response conventions:
 - Money: decimal strings. Format them for display without converting to
   a JavaScript number for any calculation the backend owns.
