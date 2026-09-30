@@ -4,6 +4,10 @@
 
 React 19 + TypeScript (strict) single-page shop for hand-poured candles. Vite build, Tailwind CSS v4, shadcn/ui on Radix, Motion for animation. Prices are in Indian rupees (₹). The backend is not connected yet: data is mocked in `src/data/`.
 
+## Product requirements
+
+The product requirements are in `docs/candle-ecommerce-prd.md`. Read it before building a feature, and follow its section 0 ("Project alignment"): it records what is already decided and lists open conflicts between the PRD, the backend ER diagram and this frontend. Ask before building anything listed there as open. The backend keeps an identical copy in `Artistic-hub-backend/docs/`, so update both together. The database schema lives in `Artistic-hub-backend/docs/database/er-diagram.md`.
+
 ## Environment
 
 Copy `.env.example` to `.env` and set `VITE_API_BASE_URL` (and optionally `VITE_API_TIMEOUT`). Variables are typed in `src/vite-env.d.ts`. Only `VITE_*` variables reach the browser, so never put secrets in them.
