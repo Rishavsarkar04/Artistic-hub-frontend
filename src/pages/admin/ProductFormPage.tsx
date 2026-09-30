@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 import { createMockProduct, getMockProduct, slugify, updateMockProduct, uploadMockImage } from '@/data/admin/products';
 import { DeleteProductDialog } from '@/components/admin/DeleteProductDialog';
 import { ImageUploader, toImageDrafts, type ImageDraft } from '@/components/admin/ImageUploader';
-import { TagPicker, useTagList } from '@/components/admin/TagPicker';
+import { TagPicker } from '@/components/admin/TagPicker';
+import { useTagList } from '@/components/admin/useTagList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -137,6 +138,11 @@ function ProductForm({ product, focusVariantId }: { product?: AdminProduct; focu
     card?.querySelector<HTMLElement>('button[aria-expanded]')?.focus({ preventScroll: true });
   }, [focusVariantId]);
   const [errors, setErrors] = useState<{ name?: string; variants?: Record<number, VariantErrors> }>({});
+  // A deleted tag is gone for every product, so drop it from every variant on this page too.
+  const deleteTag = async (tagId: number) => {
+    await tagList.remove(tagId);
+    setVariants((list) => list.map((v) => (v.tagIds.includes(tagId) ? { ...v, tagIds: v.tagIds.filter((x) => x !== tagId) } : v)));
+  };
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -339,8 +345,8 @@ function ProductForm({ product, focusVariantId }: { product?: AdminProduct; focu
                           {ve.images && <p role="alert" className="mt-2 text-sm text-destructive">{ve.images}</p>}
                         </div>
                         <div className="mt-4">
-                          <TagPicker compact id={id('tags')} label="Tags" hint="used for shop filters and search, e.g. Woody, Best seller"
-                            tags={tagList.tags} onCreate={tagList.create} selected={v.tagIds} onChange={(tagIds) => updateVariant(v.key, { tagIds })} />
+                          <TagPicker compact label="Tags" hint="used for shop filters and search, e.g. Woody, Best seller"
+                            tags={tagList.tags} isLoading={tagList.isLoading} loadError={tagList.error?.message} onRetry={tagList.reload} onCreate={tagList.create} onRename={tagList.rename} onDelete={deleteTag} selected={v.tagIds} onChange={(tagIds) => updateVariant(v.key, { tagIds })} />
                         </div>
                         <div className="mt-4 pt-4 border-t border-border">
                           <ActiveSwitch id={id('active')} checked={v.isActive} onChange={(isActive) => updateVariant(v.key, { isActive })} label="Active" hint="Inactive variants can't be bought." />

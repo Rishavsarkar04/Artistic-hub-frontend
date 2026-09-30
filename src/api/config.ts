@@ -65,6 +65,10 @@ export const endpoints = {
       list: '/admin/tags',
       /** POST `{ name }`; returns the created `AdminTag` (422 if the name is taken). */
       create: '/admin/tags',
+      /** PUT `{ name }` to rename; returns the updated `AdminTag` (422 if the name is taken). */
+      update: (tagId: number) => `/admin/tags/${id(tagId)}`,
+      /** DELETE the tag; it is unlinked from every variant that used it. */
+      delete: (tagId: number) => `/admin/tags/${id(tagId)}`,
     },
     uploads: {
       /** POST multipart form data with a `file` field; returns `{ url }` to save on a variant. */

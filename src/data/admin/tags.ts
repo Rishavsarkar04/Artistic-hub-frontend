@@ -22,3 +22,15 @@ export async function createMockTag(name: string): Promise<AdminTag> {
   mockAdminTags.push(tag);
   return tag;
 }
+
+/** MOCK: stands in for PUT endpoints.admin.tags.update(id); rejects a taken name with a 422 like the API. */
+export async function renameMockTag(id: number, name: string): Promise<AdminTag> {
+  await new Promise((r) => setTimeout(r, 300));
+  const tag = mockAdminTags.find((t) => t.id === id);
+  if (!tag) throw new ApiError(404, 'That tag no longer exists.');
+  const slug = toSlug(name);
+  if (mockAdminTags.some((t) => t.id !== id && t.slug === slug)) throw new ApiError(422, `There's already a tag called ${name.trim()}.`);
+  // Changed in place: mock variants hold this same object, so they pick up the new name too.
+  Object.assign(tag, { name: name.trim(), slug });
+  return { ...tag };
+}

@@ -1,74 +1,66 @@
 import React, { useState } from 'react';
-import { Check, Plus } from 'lucide-react';
+import { Check, RotateCw, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { createMockTag, mockAdminTags } from '@/data/admin/tags';
+import { ManageTagsDialog } from './ManageTagsDialog';
 import type { AdminTag } from '@/types';
 
-/**
- * The tag list for a form, shared by every TagPicker on it so a tag created in one shows up in all.
- * MOCK: starts from `mockAdminTags` and creates with `createMockTag`; with the API, load the list with
- * useApiQuery<AdminTag[]>(endpoints.admin.tags.list) and create with a POST to endpoints.admin.tags.create.
- */
-export function useTagList() {
-  const [tags, setTags] = useState<AdminTag[]>(() => [...mockAdminTags]);
-  const create = async (name: string) => {
-    const tag = await createMockTag(name);
-    setTags((list) => [...list, tag]);
-    return tag;
-  };
-  return { tags, create };
-}
-
 interface TagPickerProps {
+  /** From `useTagList`, shared by every picker on the page. */
   tags: AdminTag[];
+  isLoading?: boolean;
+  /** Why the list failed to load; shown with a Try again button that calls `onRetry`. */
+  loadError?: string;
+  onRetry?: () => void;
   /** Creates a tag (see `useTagList`) and resolves to it. */
   onCreate: (name: string) => Promise<AdminTag>;
+  /** Renames a tag everywhere it's used (from the dialog). */
+  onRename: (tagId: number, name: string) => Promise<AdminTag>;
+  /** Deletes a tag everywhere; the page should also drop it from every picker's selection. */
+  onDelete: (tagId: number) => Promise<void>;
   selected: number[];
   onChange: (ids: number[]) => void;
   label: string;
   hint?: string;
-  /** Unique per picker, so several can sit on one page. */
-  id: string;
   compact?: boolean;
 }
 
-/** Pick tags from the list, or create a new one, which is then selected. */
-export function TagPicker({ tags, onCreate, selected, onChange, label, hint, id, compact = false }: TagPickerProps) {
-  const [name, setName] = useState('');
-  const [adding, setAdding] = useState(false);
-  const [error, setError] = useState('');
+/** Pick tags by clicking their chips. Adding, renaming and deleting live in the "Add or edit tags" dialog; a tag added there is selected here. */
+export function TagPicker({ tags, isLoading = false, loadError, onRetry, onCreate, onRename, onDelete, selected, onChange, label, hint, compact = false }: TagPickerProps) {
+  const [managing, setManaging] = useState(false);
 
   const toggle = (tagId: number) => onChange(selected.includes(tagId) ? selected.filter((x) => x !== tagId) : [...selected, tagId]);
-
-  const add = async () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    // An existing tag with that name is simply selected instead of created twice.
-    const existing = tags.find((t) => t.name.toLowerCase() === trimmed.toLowerCase());
-    if (existing) {
-      if (!selected.includes(existing.id)) onChange([...selected, existing.id]);
-      setName('');
-      setError('');
-      return;
-    }
-    setAdding(true);
-    setError('');
-    try {
-      const tag = await onCreate(trimmed);
-      onChange([...selected, tag.id]);
-      setName('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'The tag could not be added.');
-    } finally {
-      setAdding(false);
-    }
+  const create = async (name: string) => {
+    const tag = await onCreate(name);
+    onChange([...selected, tag.id]);
+    return tag;
   };
 
   const chip = compact ? 'h-8 px-3 text-xs' : 'h-9 px-3.5 text-[0.9375rem]';
   return (
     <fieldset>
-      <legend className="text-sm font-medium mb-2">{label} {hint && <span className="text-muted-foreground font-normal">({hint})</span>}</legend>
-      <div className="flex flex-wrap gap-2">
+      <legend className="w-full flex items-baseline justify-between gap-3 mb-2 text-sm font-medium">
+        <span>{label} {hint && <span className="text-muted-foreground font-normal">({hint})</span>}</span>
+        <button type="button" onClick={() => setManaging(true)} disabled={isLoading || !!loadError}
+          className="shrink-0 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none">
+          <Settings2 size={13} /> Add or edit tags
+        </button>
+      </legend>
+      {isLoading && (
+        <div className="flex flex-wrap gap-2" aria-busy="true" aria-label="Loading tags">
+          {['w-16', 'w-12', 'w-20', 'w-14', 'w-18'].map((w) => <span key={w} className={cn('rounded-full bg-foreground/5 animate-pulse', chip, w)} />)}
+        </div>
+      )}
+      {!isLoading && loadError && (
+        <p role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive">
+          {loadError}
+          {onRetry && (
+            <button type="button" onClick={onRetry} className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4">
+              <RotateCw size={13} /> Try again
+            </button>
+          )}
+        </p>
+      )}
+      {!isLoading && !loadError && <div className="flex flex-wrap gap-2">
         {tags.map((t) => {
           const on = selected.includes(t.id);
           return (
@@ -78,17 +70,9 @@ export function TagPicker({ tags, onCreate, selected, onChange, label, hint, id,
             </button>
           );
         })}
-      </div>
-      <div className="mt-3 flex gap-2 max-w-sm">
-        <input id={`${id}-new`} value={name} onChange={(e) => { setName(e.target.value); setError(''); }} placeholder="New tag, e.g. Citrus" aria-label={`New tag for ${label.toLowerCase()}`}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
-          className={cn('flex-1 min-w-0 rounded-full border border-border bg-card focus:outline-none focus:border-foreground/50', chip)} />
-        <button type="button" onClick={add} disabled={!name.trim() || adding}
-          className={cn('rounded-full border border-border font-medium inline-flex items-center gap-1 hover:border-foreground/40 disabled:opacity-40 disabled:pointer-events-none', chip)}>
-          <Plus size={14} /> {adding ? 'Adding…' : 'Add tag'}
-        </button>
-      </div>
-      {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
+        {tags.length === 0 && <p className="text-sm text-muted-foreground">No tags yet. Use Add or edit tags to create one.</p>}
+      </div>}
+      <ManageTagsDialog open={managing} onClose={() => setManaging(false)} tags={tags} onCreate={create} onRename={onRename} onDelete={onDelete} />
     </fieldset>
   );
 }

@@ -121,6 +121,15 @@ function checkUnique(variants: NewAdminVariant[], exceptProductId?: number) {
   }
 }
 
+/** MOCK: stands in for DELETE endpoints.admin.tags.delete(id). Lives here because it also unlinks the tag from every variant. */
+export async function deleteMockTag(id: number): Promise<void> {
+  await new Promise((r) => setTimeout(r, 300));
+  const index = mockAdminTags.findIndex((t) => t.id === id);
+  if (index === -1) throw new ApiError(404, 'That tag no longer exists.');
+  mockAdminTags.splice(index, 1);
+  for (const v of mockAdminProducts.flatMap((p) => p.variants)) v.tags = v.tags.filter((t) => t.id !== id);
+}
+
 const tagsFor = (ids: number[]) => ids.map((id) => mockAdminTags.find((t) => t.id === id)).filter((t) => !!t);
 
 /** Builds stored variants from the form's, keeping ids of existing variants and images. */
