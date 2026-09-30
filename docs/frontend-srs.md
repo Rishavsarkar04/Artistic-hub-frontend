@@ -39,10 +39,16 @@ Suggested route groups:
 - Customer account, cart, checkout and orders.
 - Admin catalog, customers and orders.
 
-After authentication:
-- Admin goes to the admin area.
-- Customer without a profile goes to profile creation.
-- Customer with a profile goes to the intended customer page.
+The admin area and the storefront have separate sign-in pages, API
+endpoints and sessions (backend `/admin/auth/*` and `/auth/*`):
+- Admins sign in at `/admin/login` and land in the admin area. The admin
+  session is kept separately (`useAdminAuthStore`).
+- Customers sign in at `/login`. A customer without a profile goes to
+  profile creation; one with a profile goes to the intended customer page.
+- A customer session never opens the admin area, and an admin session is
+  not a customer session.
+- Each area has its own forgot/reset-password pages, so reset links open
+  the right one.
 
 Never infer authenticated access from token presence alone.
 Load the current user/session from the backend.
@@ -76,14 +82,17 @@ Do not ask for profile details during this registration step.
 
 ### FE-AUTH-02: Sign in
 
-Admin and Customer sign in using email/password.
+Admin and Customer sign in using email/password, on separate pages:
+the storefront sign-in for customers and `/admin/login` for admins. Each
+page calls its own endpoint, which rejects the other role with the normal
+invalid-credentials message.
 
 Display:
 - Invalid-credentials message.
 - Blocked/suspended/inactive-account response where provided.
 - Forgot-password link.
 
-Redirect by role and profile-completion state.
+Redirect customers by profile-completion state; admins go to the admin area.
 
 ### FE-AUTH-03: Forgot/reset password
 
@@ -673,7 +682,6 @@ repeated here.
 | Shipping and tax | From the backend only | Free-shipping threshold and tax calculated in the browser (`CartPage`, `CheckoutPage`, `OrderSummary`) |
 | Checkout and payment | Backend review, Razorpay redirect, result page with polling | Order created in the browser (mock `ordersStore`); no Razorpay step |
 | Order status | Order status and payment status shown separately | Processing, shipped, delivered, cancelled timeline |
-| Admin sign-in | Shared sign-in; redirect by role | Separate `/admin/login` and admin session |
 | Admin roles | admin only | `owner` / `staff` |
 | Admin password | Change-password screen or section | Not present |
 | Admin money | Decimal strings | Integer paise (`formatPaise`, `rupeesToPaise`) |
