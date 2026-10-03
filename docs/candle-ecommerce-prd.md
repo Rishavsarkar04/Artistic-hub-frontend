@@ -26,7 +26,7 @@ This section maps the PRD onto the actual project. Where it records a decision, 
 - **Customer data:** `users` holds login and account `status`; `customer_profiles` holds phone, date of birth, gender, avatar and notes; `customer_addresses` holds labelled addresses (home, work, other) with one default.
 - **Catalog:** products have one or more variants; variants are the sellable unit with unique `sku` and `slug`, `original_price` and selling price, `stock`, optional description (falls back to the product's) and `is_active`. Photos and tags belong to variants.
 - **Stock and discounts are in scope:** each variant tracks `stock`, and a lower selling price shows the original struck through. Stock reservation during payment is still undecided (see conflicts).
-- **Variant photos:** ordered by `sort_order`; the lowest is the cover. There is no separate primary-image flag.
+- **Variant photos and avatars:** one polymorphic `media` table (decided 2026-10-03): upload first, attach when the variant or profile is saved; uploads never attached are deleted after 24 hours. Photos are ordered by `sort_order`; the lowest is the cover (no primary-image flag). No alt text column.
 - **Tags:** `tags` (unique `name` and `slug`) linked through `product_variant_tags`. Admins add, rename and delete tags from the product form ("Add or edit tags" dialog), not a separate screen. Renames and deletes apply at once to every product.
 - **Currency and money:** INR. Money columns stay `decimal` and the API returns them as strings (SRS); Razorpay subunits are used only at the provider boundary. The admin frontend's integer paise must be converted.
 - **Registration and profile (SRS):** sign-up takes only email and password; the customer creates a profile (name, phone, …) after signing in, and needs it before checkout.
@@ -43,7 +43,6 @@ This section maps the PRD onto the actual project. Where it records a decision, 
 | Topic | PRD says | ER diagram / code says | Decision needed |
 |---|---|---|---|
 | Selling price name | "selling price" | ER `selling_price`; admin frontend `effective_price` | Choose one field name for the API |
-| Photo table | `variant_images`, image location | ER `product_variant_photos.path`; frontend `product_variant_images` with `url` and `alt_text` | Choose table and columns; decide whether `alt_text` is kept |
 | Admin roles | Exactly two roles (SRS confirms) | Frontend `AdminUser.role` is `owner` or `staff` | Remove owner/staff from the frontend |
 | Customer account state | Active on registration; disabled accounts stay disabled | ER `users.status`: active, blocked, suspended, pending; frontend: active, blocked | Confirm the states and who can change them |
 | Order status | Only "placed"; no manual status changes | ER and SRS: pending → confirmed on verified payment; processing, completed, cancelled have no defined triggers yet; frontend shows processing, shipped, delivered, cancelled | Define the remaining transitions; align the frontend statuses |
@@ -246,6 +245,8 @@ Shipping charges, taxes, currency, and supported shipping regions must be decide
 
 Do not add manual shipped/delivered/cancelled status controls. Tracking data alone is not proof that a carrier has delivered a parcel.
 
+Decided 2026-10-03: saving tracking marks the order `completed`, meaning fulfilled by the shop (handed to the courier), not delivered. There is no delivery tracking, so a `shipped` status would have no way to reach completion. If delivery tracking is added later, it gets its own `delivered` status after `completed`.
+
 ## 7. Orders and tracking
 
 ### ORDER-01: Customer history
@@ -266,7 +267,7 @@ Do not add manual shipped/delivered/cancelled status controls. Tracking data alo
 
 - Admin enters a tracking provider and tracking number on an existing placed order.
 - Require both values together and validate reasonable lengths; preserve leading zeros in tracking numbers by storing them as text.
-- Proposed input: provider is plain text, because a maintained provider list was not requested.
+- Provider is picked from a fixed list of couriers (decided 2026-10-03): Delhivery, Blue Dart, DTDC, India Post, Ekart, Xpressbees, Shadowfax, Ecom Express. There is no free-text "Other"; a new courier is added to the list in the backend.
 - Admin can correct saved values.
 - Store the update time and admin identity for audit purposes.
 - After saving, the current values appear in the customer's order history/details on the next fetch or refresh; real-time push is not required.

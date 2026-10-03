@@ -13,9 +13,8 @@ import { photo } from '@/data/images';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
 import { tags, getTag, productHasTag, tagSearchText } from '@/data/tags';
 
-type SortOption = 'featured' | 'newest' | 'price-asc' | 'price-desc';
+type SortOption = 'newest' | 'price-asc' | 'price-desc';
 const SORT_OPTIONS: { id: SortOption; label: string }[] = [
-  { id: 'featured', label: 'Featured' },
   { id: 'newest', label: 'Newest' },
   { id: 'price-asc', label: 'Price: low to high' },
   { id: 'price-desc', label: 'Price: high to low' },
@@ -65,7 +64,7 @@ export function ProductListingPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const collection = searchParams.get('collection') ?? 'All';
-  const [sort, setSort] = useState<SortOption>('featured');
+  const [sort, setSort] = useState<SortOption>('newest');
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(() => {

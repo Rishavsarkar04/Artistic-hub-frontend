@@ -108,6 +108,34 @@ Reset-password page:
 
 Both roles can use these flows.
 
+Endpoints (built 2026-10-03):
+- **Customer:** POST /auth/forgot-password and /auth/reset-password.
+- **Admin:** POST /admin/auth/forgot-password and
+  /admin/auth/reset-password.
+- **Forgot-password** takes `{ email }` and always answers 200 with a
+  neutral `message`.
+- **The email link** opens `/reset-password?token=…&email=…` (customer)
+  or `/admin/reset-password?token=…&email=…` (admin).
+- **The reset page** reads both query parameters and sends `{ email,
+  token, password, password_confirmation }`. **`email` is required**:
+  `src/api/config.ts` documents the admin reset body without it, so update
+  that comment and the form.
+- **Expired link:** a 422 on `token` means the link is invalid, used or
+  expired. Show the error with a link to request a new email.
+- **After a reset,** every session of that account is signed out; send
+  the user to sign in.
+- **Rate limit:** 6 requests a minute per IP (shared with login). Handle
+  429.
+
+Change password while signed in (customer, built 2026-10-03):
+- **Request:** PUT /auth/password with `{ current_password, password,
+  password_confirmation }`. `src/api/config.ts` has `/account/password`;
+  change it to `/auth/password`.
+- **Errors:** a 422 on `current_password` ("Your current password is
+  incorrect.") or on `password`; 429 after 6 tries a minute.
+- **On success,** this device stays signed in and other devices are
+  signed out.
+
 ## 4. Customer profile
 
 ### FE-PROFILE-01: Initial onboarding
@@ -333,8 +361,16 @@ Show Add Address and continue checkout after saving.
 
 ### FE-CHECKOUT-02: Review
 
-Request the review with the selected address ID only; the backend reads
-the items from the customer's server cart.
+Agreed flow (2026-10-03, backend SRS section 9): the review page calls
+GET /customer/checkout/review?address_id= (read-only). It returns the
+address, items and fare_breakup at current prices, or a 422 naming what
+to fix (`address_id`, `cart`, or `items.N`), so problems show before the
+customer taps Pay. "Pay & Place Order" calls
+POST /customer/checkout with { address_id } only; no total is sent. The
+backend calculates the total from the cart and creates the Razorpay
+payment for exactly that amount, which the customer confirms on
+Razorpay's page. A 422 (item no longer available or not enough stock)
+sends the customer back to fix the cart.
 
 Display:
 - Selected shipping address.
@@ -357,13 +393,18 @@ another payment attempt.
 
 ### FE-CHECKOUT-03: Razorpay redirect
 
-Call the backend payment-initiation endpoint.
+Built in the backend 2026-10-03; details in the backend's
+`docs/checkout-and-payments.md`.
 
-The proposed response includes:
-- Internal order number/reference.
-- Hosted payment URL.
+POST /customer/checkout { address_id } returns { order_number,
+payment_number, total_amount, currency, payment_url, expires_at }:
+- 201: new order; 200: the same pending order returned again (Pay pressed
+  twice for the same cart and address; same link).
+- 409: the same checkout is still being prepared; wait and retry.
+- 422: same errors as the review; send the customer back to fix them.
+- 503: Razorpay could not start the payment; offer Pay again.
 
-Navigate to the returned Razorpay URL.
+Navigate to the returned `payment_url`.
 Never expose API secrets or create payment links directly in the browser.
 
 Preserve enough non-sensitive checkout identity to retrieve the result
@@ -379,7 +420,8 @@ Required states:
 1. Confirming payment
    - Backend has not completed captured-event processing.
    - Show a neutral progress message.
-   - Poll the authenticated checkout-status endpoint with a limit.
+   - Poll GET /customer/orders/{order_number} (the `order` query
+     parameter Razorpay returns with) with a limit.
    - Offer Check Again after the polling window ends.
 
 2. Order placed
@@ -395,6 +437,17 @@ Required states:
    - Explain that confirmation could not currently be retrieved.
    - Offer retry/order-history navigation.
    - Do not instruct the customer to pay again while payment is unknown.
+
+Endpoint (built 2026-10-03): GET /customer/orders/{order_number}. It
+returns the order in any status with `status`, `placed_at` (null until
+confirmed; show `created_at` with a "not placed" label meanwhile),
+`payment` (newest attempt: `status`, `can_pay`, `payment_url` only while
+payable, `expires_at`), `fare_breakup`, customer, shipping address and
+item snapshots. States: `pending` + `pending` = confirming (poll);
+`confirmed` + `paid` = order placed; `cancelled` + `failed` = could not
+start, offer Pay again; `pending` with `can_pay` false = link expired,
+offer Pay again. The backend webhook confirms the order, usually within
+seconds of payment, so keep polling while both are `pending`.
 
 Never show success solely because the redirect query says paid.
 
@@ -422,7 +475,25 @@ Provide pagination, loading, empty and error states.
 
 Pending payment preparation must not be presented as a successful order.
 
+Endpoint (built 2026-10-03): GET /customer/orders?status=&page=&per_page=
+(default 10, max 50). `status` is optional: confirmed, processing,
+completed or cancelled; the response's `filter_options.status` lists
+them, and `filters` echoes what was applied. It lists placed orders only, newest first; pending
+and failed checkouts are not included. Each row has `order_number`,
+`status`, `payment_status`, `placed_at` (the order date), `total_amount`,
+`item_count` (units), `line_count` and `first_item` (`product_name`,
+`variant_name`, `photo_url`) for the card ("… and N more" with
+`line_count - 1`). Each row has `currency` (INR) and `currency_symbol` (₹); the
+order details have them in `fare_breakup`. Show the symbol, or format
+with `Intl.NumberFormat('en-IN', { style: 'currency', currency })`.
+Every API response with prices (shop, cart, review, checkout, orders,
+admin products) carries the same two fields next to the amounts, so
+never hard-code ₹.
+
 ### FE-ORDER-02: Details
+
+Endpoint (built 2026-10-03): GET /customer/orders/{order_number}, the same
+call as the payment result page (section 10).
 
 Display:
 - All purchased order items.
@@ -562,8 +633,59 @@ Do not show:
 - Cancel.
 - Delete order.
 
-Do not label a parcel delivered or an order completed just because
-tracking information was entered.
+Do not label a parcel delivered just because tracking information was
+entered. Saving tracking does mark the order `completed` (decided
+2026-10-03), meaning fulfilled by the shop and handed to the courier.
+Show it to customers as "Shipped" or "Completed: on its way with
+{provider}", never as "Delivered".
+
+List endpoint (built 2026-10-03): GET /admin/orders with `search`,
+`status`, `customer_id`, `sort`, `page` and `per_page`. Each row has
+`order_number`, `status`, `payment_status`, `placed_at`, `customer`
+(`reference_id`, `name`, `email`, `phone`), `city`, `item_count`,
+`total_amount` and `needs_review`. The response also has `filters` and
+`filter_options`. The mock `OrdersPage` differs and must be changed to
+match:
+- **Statuses:** the backend uses `confirmed | processing | completed |
+  cancelled`, not `processing | shipped | delivered | cancelled`.
+- **Sorts:** `total_high` / `total_low`, not `total-high` / `total-low`.
+- **Parameters:** `search` and `customer_id`, not `q` and `customerId`.
+  `customer_id` is the customer's `reference_id` from the customer list.
+- **Order link:** link rows by `order_number`.
+- **Needs review:** show a "needs review" marker when `needs_review` is
+  true.
+
+Details endpoint (built 2026-10-03): GET /admin/orders/{order_number}.
+It returns the same snapshot fields as the customer order (fare_breakup,
+customer, shipping_address, tracking, items) plus:
+- `payment_status`;
+- `review_reason`: show it prominently when it is not null;
+- `customer.reference_id`: link to the customer's orders;
+- `payment`: the current (newest) attempt, the one to show;
+- `payment_history`: the earlier attempts only (not `payment`), newest
+  first; empty when there were none. Each has `status`, `method`,
+  `transaction_id`, `payment_link_id`, `paid_at`, `failed_at` and
+  `failure_reason`.
+
+It opens any status, including pending and failed checkouts.
+
+Tracking form (built 2026-10-03): PATCH /admin/orders/{order_number}/tracking
+with `{ tracking_provider, tracking_number }`.
+- **Courier dropdown:** build it from `tracking_provider_options`
+  ([{ value, label }]), which GET /admin/orders/{order_number} returns
+  next to `data`. Send the `value`, for example `delhivery`. There is no
+  free-text option.
+- **Display:** use `tracking.provider_name`, for example "Blue Dart". It
+  is also on the customer order details.
+- **Send only those two fields,** both as strings. Any other field is
+  rejected with a 422.
+- **The response** is the updated order. `tracking.updated_at` and
+  `tracking.updated_by.name` can be shown as "Last updated by … on …".
+- **Pending, failed or cancelled orders** return 422 on `order`, so show
+  the form only for placed, non-cancelled orders.
+- **The mock differs:** it uses `courier` and
+  `PUT /admin/orders/{id}/shipment`. Change it to `tracking_provider` and
+  this endpoint.
 
 ## 14. Shared response contract
 
@@ -681,7 +803,7 @@ repeated here.
 | Customer name | One name field | First and last name |
 | Addresses | Add, edit, set default; no delete | Also has Delete with confirmation (`AddressesSection`) |
 | Catalog cards | One card per eligible variant | One card per product (`ProductListingPage`) |
-| Catalog filters | Min/max price and tags, in the URL; sorts newest, price asc, price desc | Price slider and tags; `?collection=` (collections are not in the schema); a Featured sort; sort not kept in the URL |
+| Catalog filters | Min/max price and tags, in the URL; sorts `newest` (default), `price_low`, `price_high` | Price slider and tags; `?collection=` (collections are not in the schema); sort ids `price-asc` / `price-desc`; sort not kept in the URL. The Featured sort was removed 2026-10-03 (default is now Newest). |
 | Add to Cart | Navigates to the cart | Button changes to "Added · View cart" |
 | Cart | Server cart for signed-in customers | Browser localStorage cart for everyone |
 | Shipping and tax | From the backend only | Free-shipping threshold and tax calculated in the browser (`CartPage`, `CheckoutPage`, `OrderSummary`) |
